@@ -1,0 +1,13 @@
+{
+  "name": "readerserver",
+  "version": "1.0.0",
+  "main": "main.js",
+  "license": "MIT",
+  "dependencies": {
+    "dompurify": "^1.0.11",
+    "express": "^4.17.1",
+    "jsdom": "^15.1.1",
+    "readability": "https://github.com/mozilla/readability",
+    "request": "^2.88.0"
+  }
+}
