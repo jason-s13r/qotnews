@@ -17,11 +17,8 @@ const requestCallback = (url, res) => (error, response, body) => {
 	if (!error && response.statusCode == 200) {
 		console.log('Response OK.');
 
-		const doc = new JSDOM('', {url: url});
-		const DOMPurify = createDOMPurify(doc.window);
-		const clean = DOMPurify.sanitize(body);
-		const cleanDoc = new JSDOM(clean, {url: url});
-		const reader = new Readability(cleanDoc.window.document);
+		const doc = new JSDOM(body, {url: url});
+		const reader = new Readability(doc.window.document);
 		const article = reader.parse();
 
 		if (article && article.content) {
