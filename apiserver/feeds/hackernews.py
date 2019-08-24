@@ -30,7 +30,6 @@ def comment(i):
     c['score'] = i.get('points', 0)
     c['date'] = i.get('created_at_i', 0)
     c['text'] = i.get('text', '')
-    c['link'] = SITE_LINK(i['id'])
     c['comments'] = [comment(j) for j in i['children']]
     return c
 
@@ -64,4 +63,5 @@ def story(ref):
     return s
 
 if __name__ == '__main__':
+    print(feed())
     print(story(20763961))

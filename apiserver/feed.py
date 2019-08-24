@@ -5,13 +5,14 @@ logging.basicConfig(
 
 import requests
 
-from feeds import hackernews
+from feeds import hackernews, reddit
 
 READ_API = 'http://127.0.0.1:33843'
 
 def list():
     feed = []
     feed += [(x, 'hackernews') for x in hackernews.feed()]
+    feed += [(x, 'reddit') for x in reddit.feed()]
     return feed
 
 def get_article(url):
@@ -29,6 +30,8 @@ def update_story(story):
 
     if story['source'] == 'hackernews':
         res = hackernews.story(story['ref'])
+    elif story['source'] == 'reddit':
+        res = reddit.story(story['ref'])
     else:
         return
 
