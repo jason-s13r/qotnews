@@ -1,0 +1,48 @@
+.dark {
+	background: #202020;
+	color: #eeeeee;
+	position: absolute; top: 0; left: 0; right: 0;
+	min-height: 100%;
+	padding: 0 8px;
+}
+
+.dark a {
+	color: #eeeeee;
+}
+
+.dark .item {
+	color: #828282;
+}
+
+.dark .item a {
+	color: #828282;
+}
+
+.dark .item a.link {
+	color: #eeeeee;
+}
+.dark .item a.link:visited {
+	color: #828282;
+}
+
+.dark .item .info a.hot {
+	color: #CCCCCC;
+}
+
+.dark .article a {
+	color: #eeeeee;
+	border-bottom: 1px solid #aaaaaa;
+}
+
+.dark .article .info {
+	color: #828282;
+}
+
+.dark .article .info a {
+	color: #828282;
+	border-bottom: none;
+}
+
+.dark .comment.lined {
+	border-left: 1px solid #444444;
+}
