@@ -4,7 +4,6 @@ const port = 33843;
 
 const request = require('request');
 const JSDOM = require('jsdom').JSDOM;
-const createDOMPurify = require('dompurify');
 const Readability = require('readability');
 
 app.use(express.urlencoded({ extended: true }));
