@@ -54,7 +54,6 @@ def story(ref):
     s['date'] = r.get('created_at_i', 0)
     s['title'] = r.get('title', '')
     s['link'] = SITE_LINK(ref)
-    s['source'] = 'hackernews'
     s['url'] = r.get('url', '')
     s['comments'] = [comment(i) for i in r['children']]
     s['num_comments'] = comment_count(s) - 1

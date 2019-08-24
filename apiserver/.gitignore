@@ -104,3 +104,6 @@ ENV/
 
 # DB
 db.sqlite3
+
+praw.ini
+data.db
