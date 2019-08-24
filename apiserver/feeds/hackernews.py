@@ -1,3 +1,8 @@
+import logging
+logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.INFO)
+
 import requests
 
 API_TOPSTORIES = lambda x: 'https://hacker-news.firebaseio.com/v0/topstories.json'
@@ -7,11 +12,17 @@ SITE_LINK = lambda x : 'https://news.ycombinator.com/item?id={}'.format(x)
 SITE_AUTHOR_LINK = lambda x : 'https://news.ycombinator.com/user?id={}'.format(x)
 
 def api(route, ref=None):
-    r = requests.get(route(ref), timeout=5)
-    return r.json()
+    try:
+        r = requests.get(route(ref), timeout=5)
+        if r.status_code != 200:
+            raise
+        return r.json()
+    except BaseException as e:
+        logging.error('Problem hitting hackernews API: {}'.format(str(e)))
+        return False
 
 def feed():
-    return api(API_TOPSTORIES)[:30]
+    return api(API_TOPSTORIES)[:30] or []
 
 def comment(i):
     c = {}
@@ -29,6 +40,7 @@ def comment_count(i):
 
 def story(ref):
     r = api(API_ITEM, ref)
+    if not r: return False
 
     if 'deleted' in r:
         return False
