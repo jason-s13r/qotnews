@@ -35,6 +35,8 @@ class App extends React.Component {
 						<p>
 							<Link to='/'>QNN - Home</Link>
 							<span className='theme'>Theme: <a href='#' onClick={() => this.light()}>Light</a> - <a href='#' onClick={() => this.dark()}>Dark</a></span>
+							<br />
+							<span className='slogan'>Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode.</span>
 						</p>
 					</div>
 					<Route path='/' exact component={Feed} />

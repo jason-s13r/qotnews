@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { sourceLink, infoLine } from './utils.js';
+import { clearStorage } from './utils.js';
 
 const apiUrl = 'http://news-api.dns.t0.vc/';
 
@@ -21,6 +22,7 @@ class Feed extends React.Component {
             .then(
                 (result) => {
                     this.setState({ stories: result.stories });
+					clearStorage();
                     localStorage.setItem('stories', JSON.stringify(result.stories));
 					result.stories.slice(0, 25).forEach(x => {
 						fetch(apiUrl + x.id)

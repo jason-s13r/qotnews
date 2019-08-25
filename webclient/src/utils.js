@@ -20,3 +20,9 @@ export const infoLine = (story) =>
 		</Link>
 	</div>
 ;
+
+export const clearStorage = () => {
+	const themeSetting = localStorage.getItem('theme');
+	localStorage.clear();
+	localStorage.setItem('theme', themeSetting);
+};
