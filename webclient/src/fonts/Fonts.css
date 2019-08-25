@@ -1,0 +1,24 @@
+@font-face {
+	font-family: CharisSILW;
+	src: url(CharisSIL-R.woff);
+}
+
+@font-face {
+	font-family: CharisSILW;
+	font-style: italic;
+	src: url(CharisSIL-I.woff);
+}
+
+@font-face {
+	font-family: CharisSILW;
+	font-weight: bold;
+	src: url(CharisSIL-B.woff);
+}
+
+@font-face {
+	font-family: CharisSILW;
+	font-weight: bold;
+	font-style: italic;
+	src: url(CharisSIL-BI.woff);
+}
+

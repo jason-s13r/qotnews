@@ -1,13 +1,9 @@
 .dark {
-	background: #202020;
-	color: #eeeeee;
-	position: absolute; top: 0; left: 0; right: 0;
-	min-height: 100%;
-	padding: 0 8px;
+	color: #ddd;
 }
 
 .dark a {
-	color: #eeeeee;
+	color: #ddd;
 }
 
 .dark .item {
@@ -19,7 +15,7 @@
 }
 
 .dark .item a.link {
-	color: #eeeeee;
+	color: #ddd;
 }
 .dark .item a.link:visited {
 	color: #828282;
@@ -29,9 +25,16 @@
 	color: #cccccc;
 }
 
-.dark .article a {
-	color: #eeeeee;
+.dark .story-text a {
+	color: #ddd;
+}
+
+.dark .story-text a::after {
 	border-bottom: 1px solid #aaaaaa;
+}
+
+.dark .story-text img {
+	filter: brightness(50%);
 }
 
 .dark .article .info {
@@ -40,7 +43,10 @@
 
 .dark .article .info a {
 	color: #828282;
-	border-bottom: none;
+}
+
+.dark .comments a {
+	border-bottom: 1px solid #aaaaaa;
 }
 
 .dark .comment.lined {

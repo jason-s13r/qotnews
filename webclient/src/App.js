@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import './Style-light.css';
 import './Style-dark.css';
+import './fonts/Fonts.css';
 import Feed from './Feed.js';
 import Article from './Article.js';
 import Comments from './Comments.js';
@@ -27,6 +28,7 @@ class App extends React.Component {
 
 	render() {
 		const theme = this.state.theme;
+		document.body.style.backgroundColor = theme === 'dark' ? '#000' : '#eeeeee';
 
 		return (
 			<div className={theme}>

@@ -1,6 +1,6 @@
 body {
+	text-rendering: optimizeLegibility;
 	font: 1rem/1.3 sans-serif;
-	background: #eeeeee;
 	color: #000000;
 }
 
@@ -53,6 +53,9 @@ a {
 .item a.link:visited {
 	color: #828282;
 }
+.item a.link:hover {
+	text-decoration: none;
+}
 
 span.source {
 	margin-left: 0.4rem;
@@ -63,9 +66,8 @@ span.source {
 }
 
 .article-container {
-	font: 1.2rem/1.5 sans-serif;
 	margin: 1rem auto;
-	max-width: 44rem;
+	max-width: 38rem;
 }
 
 .article h1 {
@@ -96,26 +98,46 @@ span.source {
 	margin: 0;
 }
 
-.article a {
-	color: #000000;
-	text-decoration: none;
-	border-bottom: 1px solid #222222;
-}
-
 .article .info {
 	color: #828282;
 }
 
 .article .info a {
 	color: #828282;
-	border-bottom: none;
 }
 .article .info a:hover {
 	text-decoration: underline;
 }
 
+.story-text {
+	font: 1.2rem/1.5 'CharisSILW', sans-serif;
+	letter-spacing: 0.004rem;
+}
+
+.story-text a {
+	color: #000000;
+	text-decoration: none;
+	display: inline-block;
+	position: relative;
+}
+
+.story-text a::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	display: inline-block;
+	height: 1em;
+	width: 100%;
+	border-bottom: 1px solid #222222;
+	margin-top: 0.55rem;
+}
+
 .comments {
 	margin-left: -1rem;
+}
+
+.comments a {
+	border-bottom: 1px solid #222222;
 }
 
 .comment {

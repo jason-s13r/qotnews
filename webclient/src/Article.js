@@ -53,7 +53,7 @@ class Article extends React.Component {
 								{infoLine(story)}
 
 								{story.text ?
-									<div dangerouslySetInnerHTML={{ __html: story.text }} />
+									<div className='story-text' dangerouslySetInnerHTML={{ __html: story.text }} />
 								:
 									<p>Problem getting article :(</p>
 								}
