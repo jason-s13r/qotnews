@@ -32,7 +32,7 @@ cors = CORS(flask_app)
 @flask_app.route('/')
 def index():
     front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
-    front_page = [copy.deepcopy(x) for x in front_page if 'title' in x]
+    front_page = [copy.copy(x) for x in front_page if 'title' in x]
     for story in front_page:
         if 'comments' in story: story.pop('comments')
         if 'text' in story: story.pop('text')

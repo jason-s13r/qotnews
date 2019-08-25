@@ -5,7 +5,7 @@ logging.basicConfig(
 
 import requests
 
-from feeds import hackernews, reddit
+from feeds import hackernews, reddit, tildes
 
 READ_API = 'http://127.0.0.1:33843'
 
@@ -13,6 +13,7 @@ def list():
     feed = []
     feed += [(x, 'hackernews') for x in hackernews.feed()]
     feed += [(x, 'reddit') for x in reddit.feed()]
+    feed += [(x, 'tildes') for x in tildes.feed()]
     return feed
 
 def get_article(url):
@@ -32,6 +33,8 @@ def update_story(story):
         res = hackernews.story(story['ref'])
     elif story['source'] == 'reddit':
         res = reddit.story(story['ref'])
+    elif story['source'] == 'tildes':
+        res = tildes.story(story['ref'])
     else:
         return
 
