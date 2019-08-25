@@ -4,9 +4,11 @@ logging.basicConfig(
         level=logging.INFO)
 
 import requests
+import time
 
 from feeds import hackernews, reddit, tildes
 
+OUTLINE_API = 'https://outlineapi.com/article'
 READ_API = 'http://127.0.0.1:33843'
 
 def list():
@@ -18,9 +20,28 @@ def list():
 
 def get_article(url):
     try:
+        params = {'source_url': url}
+        headers = {'Referer': 'https://outline.com/'}
+        r = requests.get(OUTLINE_API, params=params, headers=headers, timeout=20)
+        if r.status_code == 429:
+            logging.error('Rate limited by outline, sleeping 30s and skipping...')
+            time.sleep(30)
+            return ''
+        if r.status_code != 200:
+            raise Exception('Bad response code ' + str(r.status_code))
+        html = r.json()['data']['html']
+        if 'URL is not supported by Outline' in html:
+            raise Exception('URL not supported by Outline')
+        return html
+    except BaseException as e:
+        logging.error('Problem outlining article: {}'.format(str(e)))
+
+    logging.info('Trying our server instead...')
+
+    try:
         r = requests.post(READ_API, data=dict(url=url), timeout=10)
         if r.status_code != 200:
-            raise
+            raise Exception('Bad response code ' + str(r.status_code))
         return r.text
     except BaseException as e:
         logging.error('Problem getting article: {}'.format(str(e)))
