@@ -41,7 +41,8 @@ def comment(i):
     c['score'] = 1
     c['date'] = unix(i.find('time')['datetime'])
     c['text'] = i.find('div', class_='comment-text').encode_contents().decode()
-    c['comments'] = [comment(j) for j in i.find('ol', class_='comment-tree').findAll('li', recursive=False)] if i.ol else []
+    ct = i.find('ol', class_='comment-tree')
+    c['comments'] = [comment(j) for j in ct.findAll('li', recursive=False)] if ct else []
     return c
 
 def story(ref):
@@ -61,7 +62,8 @@ def story(ref):
     s['link'] = SITE_LINK(ref)
     ud = a.find('div', class_='topic-full-link')
     s['url'] = ud.a['href'] if ud else s['link']
-    s['comments'] = [comment(i) for i in a.find('ol', id='comments').findAll('li', recursive=False)]
+    sc = a.find('ol', id='comments')
+    s['comments'] = [comment(i) for i in sc.findAll('li', recursive=False)]
     ch = a.find('header', class_='topic-comments-header')
     s['num_comments'] = int(ch.h2.string.split(' ')[0]) if ch else 0
 
@@ -79,8 +81,10 @@ if __name__ == '__main__':
     print(no_comments)
     self_post = story('gsb')
     print(self_post)
+    li_comment = story('gqx')
+    print(li_comment)
 
     # make sure there's no self-reference
     import copy
-    for x in [normal, no_comments, self_post]:
+    for x in [normal, no_comments, self_post, li_comment]:
         _ = copy.deepcopy(x)

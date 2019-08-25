@@ -29,6 +29,8 @@ def get_article(url):
 def update_story(story):
     res = {}
 
+    logging.info('Updating story ' + str(story['ref']))
+
     if story['source'] == 'hackernews':
         res = hackernews.story(story['ref'])
     elif story['source'] == 'reddit':
@@ -42,6 +44,7 @@ def update_story(story):
         story.update(res)
     if story.get('url', '') and not story.get('text', ''):
         if not story['url'].endswith('.pdf'):
+            logging.info('Getting article ' + story['url'])
             story['text'] = get_article(story['url'])
         else:
             story['text'] = '<p>Unsupported article type.</p>'
