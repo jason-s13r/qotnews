@@ -65,6 +65,10 @@ span.source {
 	color: #444444;
 }
 
+.article {
+	padding-bottom: 3rem;
+}
+
 .article-container {
 	margin: 1rem auto;
 	max-width: 38rem;
@@ -150,4 +154,21 @@ span.source {
 
 .comment .text {
 	margin-top: -0.5rem;
+}
+
+.toggleDot {
+	position: fixed;
+	bottom: 1rem;
+	right: 1rem;
+	height: 3rem;
+	width: 3rem;
+	background-color: #828282;
+	border-radius: 50%;
+}
+
+.toggleDot .button {
+	font: 3rem/1 serif;
+	position: relative;
+	top: 0.1rem;
+	left: 0.1rem;
 }

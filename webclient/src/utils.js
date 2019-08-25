@@ -2,6 +2,8 @@ import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 
+import Switch from './switch.svg';
+
 export const sourceLink = (story) => {
 	const url = story.url || story.link;
 	const urlObj = new URL(url);
@@ -26,3 +28,22 @@ export const clearStorage = () => {
 	localStorage.clear();
 	localStorage.setItem('theme', themeSetting);
 };
+
+export class ToggleDot extends React.Component {
+	scrollTop() {
+		window.scrollTo(0, 0);
+	}
+	render() {
+		const id = this.props.id;
+		const article = this.props.article;
+		return (
+			<div className='toggleDot'>
+				<div className='button'>
+					<Link to={'/' + id + (article ? '/a' : '')} onClick={this.scrollTop} replace>
+						<img src={Switch} />
+					</Link>
+				</div>
+			</div>
+		);
+	}
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
-import { sourceLink, infoLine } from './utils.js';
+import { sourceLink, infoLine, ToggleDot } from './utils.js';
 
 const apiUrl = 'http://news-api.dns.t0.vc/';
 
@@ -48,6 +48,7 @@ class Article extends React.Component {
 	}
 
 	render() {
+		const id = this.props.match.params.id;
 		const story = this.state.story;
 		const error = this.state.error;
 
@@ -74,6 +75,7 @@ class Article extends React.Component {
 						:
 							<p>loading...</p>
 						}
+						<ToggleDot id={id} article={true} />
 					</div>
 				}
 			</div>
