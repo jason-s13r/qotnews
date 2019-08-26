@@ -62,7 +62,7 @@ class Article extends React.Component {
 						:
 							<p>loading...</p>
 						}
-						<ToggleDot id={id} />
+						<ToggleDot id={id} article={false} />
 					</div>
 				}
 			</div>

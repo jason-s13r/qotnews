@@ -33,16 +33,20 @@ class Article extends React.Component {
             );
 	}
 
-	displayComment(c, level) {
+	displayComment(story, c, level) {
 		return (
 			<div className={level ? 'comment lined' : 'comment'}>
 				<div className='info'>
-					<p>{c.author || '[Deleted]'} | {moment.unix(c.date).fromNow()}</p>
+					<p>{c.author === story.author ? '[OP]' : ''} {c.author || '[Deleted]'} | {moment.unix(c.date).fromNow()}</p>
 				</div>
 
 				<div className='text' dangerouslySetInnerHTML={{ __html: c.text }} />
 
-				{c.comments.map(i => this.displayComment(i, level + 1))}
+				{level < 6 ?
+					c.comments.map(i => this.displayComment(story, i, level + 1))
+				:
+					<div className='info'><p>[replies snipped]</p></div>
+				}
 			</div>
 		);
 	}
@@ -69,7 +73,7 @@ class Article extends React.Component {
 								{infoLine(story)}
 
 								<div className='comments'>
-									{story.comments.map(c => this.displayComment(c, 0))}
+									{story.comments.map(c => this.displayComment(story, c, 0))}
 								</div>
 							</div>
 						:
