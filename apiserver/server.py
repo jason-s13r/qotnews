@@ -6,11 +6,10 @@ logging.basicConfig(
 import copy
 import threading
 import time
-import random
 import shelve
-import string
 
 import feed
+from utils import gen_rand_id
 
 from flask import abort, Flask, request
 from flask_cors import CORS
@@ -25,6 +24,7 @@ with shelve.open(DATA_FILE) as db:
     news_list = db.get('news_list', [])
     news_ref_to_id = db.get('news_ref_to_id', {})
     news_cache = db.get('news_cache', {})
+
 
 flask_app = Flask(__name__)
 cors = CORS(flask_app)
@@ -53,9 +53,6 @@ print('Starting Flask...')
 web_thread = threading.Thread(target=flask_app.run, kwargs={'port': 33842})
 web_thread.setDaemon(True)
 web_thread.start()
-
-def gen_rand_id():
-    return ''.join(random.choice(string.ascii_uppercase) for _ in range(4))
 
 def new_id():
     nid = gen_rand_id()
@@ -92,7 +89,7 @@ try:
             news_story = news_cache[update_id]
             feed.update_story(news_story)
 
-        time.sleep(1)
+        time.sleep(3)
 
         news_index += 1
         if news_index == CACHE_LENGTH: news_index = 0

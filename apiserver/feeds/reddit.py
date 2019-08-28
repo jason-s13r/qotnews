@@ -1,10 +1,16 @@
 import logging
 logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO)
+        level=logging.DEBUG)
+
+if __name__ == '__main__':
+    import sys
+    sys.path.insert(0,'.')
 
 import praw
 from praw.models import MoreComments
+
+from utils import render_md
 
 SUBREDDITS = 'Economics+Foodforthought+Futurology+TrueReddit+business+science+technology'
 
@@ -14,7 +20,7 @@ SITE_AUTHOR_LINK = lambda x : 'https://old.reddit.com/u/{}'.format(x)
 reddit = praw.Reddit('bot')
 
 def feed():
-    return [x.id for x in reddit.subreddit(SUBREDDITS).hot(limit=30)]
+    return [x.id for x in reddit.subreddit(SUBREDDITS).hot()]
 
 def good_comment(c):
     if isinstance(c, MoreComments):
@@ -30,7 +36,7 @@ def comment(i):
     c['author'] = i.author.name if i.author else '[Deleted]'
     c['score'] = i.score
     c['date'] = i.created_utc
-    c['text'] = i.body.replace('\n', '<br />')
+    c['text'] = render_md(i.body)
     c['comments'] = [comment(j) for j in i.replies if good_comment(j)]
     return c
 
@@ -50,10 +56,11 @@ def story(ref):
     s['num_comments'] = r.num_comments
 
     if r.selftext:
-        s['text'] = r.selftext
+        s['text'] = render_md(r.selftext)
 
     return s
 
+# scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
     print(feed())
     print(reddit.submission(feed()[0]).permalink)

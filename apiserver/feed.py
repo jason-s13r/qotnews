@@ -1,7 +1,7 @@
 import logging
 logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO)
+        level=logging.DEBUG)
 
 import requests
 import time
@@ -13,9 +13,9 @@ READ_API = 'http://127.0.0.1:33843'
 
 def list():
     feed = []
-    feed += [(x, 'hackernews') for x in hackernews.feed()]
-    feed += [(x, 'reddit') for x in reddit.feed()]
-    feed += [(x, 'tildes') for x in tildes.feed()]
+    feed += [(x, 'hackernews') for x in hackernews.feed()[:10]]
+    feed += [(x, 'reddit') for x in reddit.feed()[:5]]
+    feed += [(x, 'tildes') for x in tildes.feed()[:5]]
     return feed
 
 def get_article(url):
@@ -69,3 +69,13 @@ def update_story(story):
             story['text'] = get_article(story['url'])
         else:
             story['text'] = '<p>Unsupported article type.</p>'
+
+if __name__ == '__main__':
+    test_news_cache = {}
+    nid = 'jean'
+    ref = 20802050
+    source = 'hackernews'
+    test_news_cache[nid] = dict(id=nid, ref=ref, source=source)
+    news_story = test_news_cache[nid]
+    update_story(news_story)
+    print('done')

@@ -1,35 +1,40 @@
 import logging
 logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO)
+        level=logging.DEBUG)
 
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+# cache the topic groups to prevent redirects
+group_lookup = {}
+
 USER_AGENT = 'qotnews scraper (github:tannercollin)'
 
-API_TOPSTORIES = lambda x: 'https://tildes.net'
-API_ITEM = lambda x : 'https://tildes.net/~qotnews/{}/'.format(x)
+API_TOPSTORIES = lambda : 'https://tildes.net'
+API_ITEM = lambda x : 'https://tildes.net/shortener/{}'.format(x)
 
-SITE_LINK = lambda x : 'https://tildes.net/~qotnews/{}/'.format(x)
+SITE_LINK = lambda group, ref : 'https://tildes.net/{}/{}'.format(group, ref)
 SITE_AUTHOR_LINK = lambda x : 'https://tildes.net/user/{}'.format(x)
 
-def api(route, ref=None):
+def api(route):
     try:
         headers = {'User-Agent': USER_AGENT}
-        r = requests.get(route(ref), headers=headers, timeout=5)
+        r = requests.get(route, headers=headers, timeout=5)
         if r.status_code != 200:
-            raise
+            raise Exception('Bad response code ' + str(r.status_code))
         return r.text
     except BaseException as e:
         logging.error('Problem hitting tildes website: {}'.format(str(e)))
         return False
 
 def feed():
-    soup = BeautifulSoup(api(API_TOPSTORIES), features='html.parser')
+    html = api(API_TOPSTORIES())
+    if not html: return []
+    soup = BeautifulSoup(html, features='html.parser')
     articles = soup.find('ol', class_='topic-listing').findAll('article')
-    return [x['id'].split('-')[1] for x in articles][:30] or []
+    return [x['id'].split('-')[1] for x in articles] or []
 
 def unix(date_str):
     return int(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ').timestamp())
@@ -46,8 +51,13 @@ def comment(i):
     return c
 
 def story(ref):
-    html = api(API_ITEM, ref)
+    if ref in group_lookup:
+        html = api(SITE_LINK(group_lookup[ref], ref))
+    else:
+        html = api(API_ITEM(ref))
     if not html: return False
+
+    if 'Topic deleted by author' in html: return False
 
     soup = BeautifulSoup(html, features='html.parser')
     a = soup.find('article', class_='topic-full')
@@ -59,7 +69,9 @@ def story(ref):
     s['score'] = int(h.find('span', class_='topic-voting-votes').string)
     s['date'] = unix(h.find('time')['datetime'])
     s['title'] = str(h.h1.string)
-    s['link'] = SITE_LINK(ref)
+    s['group'] = str(soup.find('a', class_='site-header-context').string)
+    group_lookup[ref] = s['group']
+    s['link'] = SITE_LINK(s['group'], ref)
     ud = a.find('div', class_='topic-full-link')
     s['url'] = ud.a['href'] if ud else s['link']
     sc = a.find('ol', id='comments')
@@ -73,6 +85,7 @@ def story(ref):
 
     return s
 
+# scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
     print(feed())
     normal = story('gxt')

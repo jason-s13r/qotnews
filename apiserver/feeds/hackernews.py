@@ -1,7 +1,7 @@
 import logging
 logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO)
+        level=logging.DEBUG)
 
 import requests
 
@@ -15,14 +15,14 @@ def api(route, ref=None):
     try:
         r = requests.get(route(ref), timeout=5)
         if r.status_code != 200:
-            raise
+            raise Exception('Bad response code ' + str(r.status_code))
         return r.json()
     except BaseException as e:
         logging.error('Problem hitting hackernews API: {}'.format(str(e)))
         return False
 
 def feed():
-    return api(API_TOPSTORIES)[:30] or []
+    return api(API_TOPSTORIES) or []
 
 def comment(i):
     c = {}
@@ -62,6 +62,8 @@ def story(ref):
 
     return s
 
+# scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    print(feed())
-    print(story(20763961))
+    #print(feed())
+    #print(story(20763961))
+    print(story(20802050))
