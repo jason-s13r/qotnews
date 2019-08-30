@@ -25,11 +25,7 @@
 	color: #cccccc;
 }
 
-.dark .story-text a {
-	color: #ddd;
-}
-
-.dark .story-text a::after {
+.dark .article a {
 	border-bottom: 1px solid #aaaaaa;
 }
 
@@ -42,11 +38,8 @@
 }
 
 .dark .article .info a {
+	border-bottom: none;
 	color: #828282;
-}
-
-.dark .comments a {
-	border-bottom: 1px solid #aaaaaa;
 }
 
 .dark .comment.lined {

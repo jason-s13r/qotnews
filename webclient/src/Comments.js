@@ -42,7 +42,7 @@ class Article extends React.Component {
 
 				<div className='text' dangerouslySetInnerHTML={{ __html: c.text }} />
 
-				{level < 6 ?
+				{level < 5 ?
 					c.comments.map(i => this.displayComment(story, i, level + 1))
 				:
 					<div className='info'><p>[replies snipped]</p></div>

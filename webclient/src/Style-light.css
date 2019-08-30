@@ -74,6 +74,10 @@ span.source {
 	max-width: 38rem;
 }
 
+.article a {
+	border-bottom: 1px solid #222222;
+}
+
 .article h1 {
 	font-size: 1.6rem;
 }
@@ -107,6 +111,7 @@ span.source {
 }
 
 .article .info a {
+	border-bottom: none;
 	color: #828282;
 }
 .article .info a:hover {
@@ -114,38 +119,16 @@ span.source {
 }
 
 .story-text {
-	font: 1.2rem/1.5 'CharisSILW', sans-serif;
-	letter-spacing: 0.004rem;
-}
-
-.story-text a {
-	color: #000000;
-	text-decoration: none;
-	display: inline-block;
-	position: relative;
-}
-
-.story-text a::after {
-	content: '';
-	position: absolute;
-	left: 0;
-	display: inline-block;
-	height: 1em;
-	width: 100%;
-	border-bottom: 1px solid #222222;
-	margin-top: 0.55rem;
+	font: 1.2rem/1.5 'Apparatus SIL', sans-serif;
+	margin-top: 1em;
 }
 
 .comments {
-	margin-left: -1rem;
-}
-
-.comments a {
-	border-bottom: 1px solid #222222;
+	margin-left: -1.25rem;
 }
 
 .comment {
-	padding-left: 1rem;
+	padding-left: 1.25rem;
 }
 
 .comment.lined {
@@ -159,7 +142,7 @@ span.source {
 .toggleDot {
 	position: fixed;
 	bottom: 1rem;
-	right: 1rem;
+	left: 1rem;
 	height: 3rem;
 	width: 3rem;
 	background-color: #828282;

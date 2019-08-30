@@ -6,6 +6,7 @@ import './fonts/Fonts.css';
 import Feed from './Feed.js';
 import Article from './Article.js';
 import Comments from './Comments.js';
+import ScrollToTop from './ScrollToTop.js';
 
 class App extends React.Component {
 	constructor(props) {
@@ -44,6 +45,8 @@ class App extends React.Component {
 					<Route path='/' exact component={Feed} />
 					<Route path='/:id' exact component={Comments} />
 					<Route path='/:id/a' exact component={Article} />
+
+					<ScrollToTop />
 				</Router>
 			</div>
 		);

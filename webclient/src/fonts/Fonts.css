@@ -1,24 +1,23 @@
 @font-face {
-	font-family: CharisSILW;
-	src: url(CharisSIL-R.woff);
+    font-family: 'Apparatus SIL';
+    src: url('AppSILR.ttf') format('truetype');
 }
 
 @font-face {
-	font-family: CharisSILW;
+    font-family: 'Apparatus SIL';
 	font-style: italic;
-	src: url(CharisSIL-I.woff);
+    src: url('AppSILI.ttf') format('truetype');
 }
 
 @font-face {
-	font-family: CharisSILW;
+    font-family: 'Apparatus SIL';
 	font-weight: bold;
-	src: url(CharisSIL-B.woff);
+    src: url('AppSILB.ttf') format('truetype');
 }
 
 @font-face {
-	font-family: CharisSILW;
+    font-family: 'Apparatus SIL';
 	font-weight: bold;
 	font-style: italic;
-	src: url(CharisSIL-BI.woff);
+    src: url('AppSILBI.ttf') format('truetype');
 }
-

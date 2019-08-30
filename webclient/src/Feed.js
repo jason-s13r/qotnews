@@ -5,7 +5,6 @@ import { clearStorage } from './utils.js';
 
 const apiUrl = 'http://news-api.dns.t0.vc/';
 
-
 class Feed extends React.Component {
 	constructor(props) {
 		super(props);

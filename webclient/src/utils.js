@@ -30,16 +30,13 @@ export const clearStorage = () => {
 };
 
 export class ToggleDot extends React.Component {
-	scrollTop() {
-		window.scrollTo(0, 0);
-	}
 	render() {
 		const id = this.props.id;
 		const article = this.props.article;
 		return (
 			<div className='toggleDot'>
 				<div className='button'>
-					<Link to={'/' + id + (article ? '/a' : '')} onClick={this.scrollTop} replace>
+					<Link to={'/' + id + (article ? '/a' : '')}>
 						<img src={Switch} />
 					</Link>
 				</div>
