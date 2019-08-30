@@ -25,12 +25,16 @@ def feed():
     return api(API_TOPSTORIES) or []
 
 def comment(i):
+    if 'author' not in i:
+        return False
+
     c = {}
     c['author'] = i.get('author', '')
     c['score'] = i.get('points', 0)
     c['date'] = i.get('created_at_i', 0)
     c['text'] = i.get('text', '')
     c['comments'] = [comment(j) for j in i['children']]
+    c['comments'] = list(filter(bool, c['comments']))
     return c
 
 def comment_count(i):
@@ -55,6 +59,7 @@ def story(ref):
     s['link'] = SITE_LINK(ref)
     s['url'] = r.get('url', '')
     s['comments'] = [comment(i) for i in r['children']]
+    s['comments'] = list(filter(bool, s['comments']))
     s['num_comments'] = comment_count(s) - 1
 
     if 'text' in r and r['text']:

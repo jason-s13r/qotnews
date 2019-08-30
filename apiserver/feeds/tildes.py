@@ -41,6 +41,10 @@ def unix(date_str):
 
 def comment(i):
     i = i.article
+
+    if i.find('div', class_='is-comment-removed'):
+        return False
+
     c = {}
     c['author'] = str(i.find('a', class_='link-user').string)
     c['score'] = 1
@@ -48,6 +52,7 @@ def comment(i):
     c['text'] = i.find('div', class_='comment-text').encode_contents().decode()
     ct = i.find('ol', class_='comment-tree')
     c['comments'] = [comment(j) for j in ct.findAll('li', recursive=False)] if ct else []
+    c['comments'] = list(filter(bool, c['comments']))
     return c
 
 def story(ref):
@@ -76,6 +81,7 @@ def story(ref):
     s['url'] = ud.a['href'] if ud else s['link']
     sc = a.find('ol', id='comments')
     s['comments'] = [comment(i) for i in sc.findAll('li', recursive=False)]
+    s['comments'] = list(filter(bool, s['comments']))
     ch = a.find('header', class_='topic-comments-header')
     s['num_comments'] = int(ch.h2.string.split(' ')[0]) if ch else 0
 
@@ -87,17 +93,19 @@ def story(ref):
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    print(feed())
-    normal = story('gxt')
-    print(normal)
-    no_comments = story('gxr')
-    print(no_comments)
-    self_post = story('gsb')
-    print(self_post)
-    li_comment = story('gqx')
-    print(li_comment)
+    #print(feed())
+    #normal = story('gxt')
+    #print(normal)
+    #no_comments = story('gxr')
+    #print(no_comments)
+    #self_post = story('gsb')
+    #print(self_post)
+    #li_comment = story('gqx')
+    #print(li_comment)
+    broken = story('h23')
+    print(broken)
 
     # make sure there's no self-reference
-    import copy
-    for x in [normal, no_comments, self_post, li_comment]:
-        _ = copy.deepcopy(x)
+    #import copy
+    #for x in [normal, no_comments, self_post, li_comment]:
+    #    _ = copy.deepcopy(x)

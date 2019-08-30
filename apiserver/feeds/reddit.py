@@ -22,22 +22,21 @@ reddit = praw.Reddit('bot')
 def feed():
     return [x.id for x in reddit.subreddit(SUBREDDITS).hot()]
 
-def good_comment(c):
-    if isinstance(c, MoreComments):
-        return False
-    if c.body == '[removed]':
-        return False
-    if c.author and c.author.name == 'AutoModerator':
-        return False
-    return True
-
 def comment(i):
+    if isinstance(i, MoreComments):
+        return False
+    if '[removed]' in i.body or '[deleted]' in i.body:
+        return False
+    if i.author and i.author.name == 'AutoModerator':
+        return False
+
     c = {}
     c['author'] = i.author.name if i.author else '[Deleted]'
     c['score'] = i.score
     c['date'] = i.created_utc
     c['text'] = render_md(i.body)
-    c['comments'] = [comment(j) for j in i.replies if good_comment(j)]
+    c['comments'] = [comment(j) for j in i.replies]
+    c['comments'] = list(filter(bool, c['comments']))
     return c
 
 def story(ref):
@@ -52,7 +51,8 @@ def story(ref):
     s['title'] = r.title
     s['link'] = SITE_LINK(r.permalink)
     s['url'] = r.url
-    s['comments'] = [comment(i) for i in r.comments if good_comment(i)]
+    s['comments'] = [comment(i) for i in r.comments]
+    s['comments'] = list(filter(bool, s['comments']))
     s['num_comments'] = r.num_comments
 
     if r.selftext:
