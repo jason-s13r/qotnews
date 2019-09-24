@@ -11,11 +11,14 @@ from feeds import hackernews, reddit, tildes
 OUTLINE_API = 'https://outlineapi.com/article'
 READ_API = 'http://127.0.0.1:33843'
 
+INVALID_FILES = ['.pdf', '.png', '.jpg', '.gif']
+INVALID_DOMAINS = ['youtube.com']
+
 def list():
     feed = []
     feed += [(x, 'hackernews') for x in hackernews.feed()[:10]]
-    feed += [(x, 'reddit') for x in reddit.feed()[:5]]
-    feed += [(x, 'tildes') for x in tildes.feed()[:5]]
+    feed += [(x, 'reddit') for x in reddit.feed()[:10]]
+    feed += [(x, 'tildes') for x in tildes.feed()[:10]]
     return feed
 
 def get_article(url):
@@ -58,17 +61,29 @@ def update_story(story):
         res = reddit.story(story['ref'])
     elif story['source'] == 'tildes':
         res = tildes.story(story['ref'])
-    else:
-        return
 
     if res:
-        story.update(res)
+        story.update(res) # join dicts
+    else:
+        logging.info('Article not ready yet')
+        return False
+
     if story.get('url', '') and not story.get('text', ''):
-        if not story['url'].endswith('.pdf'):
-            logging.info('Getting article ' + story['url'])
-            story['text'] = get_article(story['url'])
-        else:
-            story['text'] = '<p>Unsupported article type.</p>'
+        for ext in INVALID_FILES:
+            if story['url'].endswith(ext):
+                logging.info('URL invalid file type ({})'.format(ext))
+                return False
+
+        for domain in INVALID_DOMAINS:
+            if domain in story['url']:
+                logging.info('URL invalid domain ({})'.format(domain))
+                return False
+
+        logging.info('Getting article ' + story['url'])
+        story['text'] = get_article(story['url'])
+        if not story['text']: return False
+
+    return True
 
 if __name__ == '__main__':
     test_news_cache = {}

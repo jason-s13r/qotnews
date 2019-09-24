@@ -25,14 +25,13 @@ with shelve.open(DATA_FILE) as db:
     news_ref_to_id = db.get('news_ref_to_id', {})
     news_cache = db.get('news_cache', {})
 
-
 flask_app = Flask(__name__)
 cors = CORS(flask_app)
 
 @flask_app.route('/')
 def index():
     front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
-    front_page = [copy.copy(x) for x in front_page if 'title' in x]
+    front_page = [copy.copy(x) for x in front_page if 'text' in x and x['text']][:100]
     for story in front_page:
         if 'comments' in story: story.pop('comments')
         if 'text' in story: story.pop('text')
@@ -61,6 +60,16 @@ def new_id():
             nid = gen_rand_id()
     return nid
 
+def remove_ref(old_ref, archive=False):
+    while old_ref in news_list:
+        news_list.remove(old_ref)
+    old_story = news_cache.pop(news_ref_to_id[old_ref])
+    old_id = news_ref_to_id.pop(old_ref)
+    logging.info('Removed ref {} id {}.'.format(old_ref, old_id))
+    if archive:
+        with shelve.open(DATA_FILE) as db:
+            db[old_id] = old_story
+
 try:
     while True:
         if news_index == 0:
@@ -76,18 +85,16 @@ try:
                 logging.info('Added {} new refs.'.format(len(new_items)))
 
             while len(news_list) > CACHE_LENGTH:
-                old_ref = news_list.pop()
-                old_story = news_cache.pop(news_ref_to_id[old_ref])
-                old_id = news_ref_to_id.pop(old_ref)
-                logging.info('Removed ref {} id {}.'.format(old_ref, old_id))
-                with shelve.open(DATA_FILE) as db:
-                    db[old_id] = old_story
+                old_ref = news_list[-1]
+                remove_ref(old_ref, archive=True)
 
         if news_index < len(news_list):
             update_ref = news_list[news_index]
             update_id = news_ref_to_id[update_ref]
             news_story = news_cache[update_id]
-            feed.update_story(news_story)
+            valid = feed.update_story(news_story)
+            if not valid:
+                remove_ref(update_ref)
 
         time.sleep(3)
 
