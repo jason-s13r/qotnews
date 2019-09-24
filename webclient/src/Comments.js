@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { sourceLink, infoLine, ToggleDot } from './utils.js';
 
-const apiUrl = 'http://news-api.dns.t0.vc/';
+const apiUrl = 'https://news-api.t0.vc/';
 
 class Article extends React.Component {
 	constructor(props) {
@@ -58,30 +58,25 @@ class Article extends React.Component {
 
 		return (
 			<div className='container'>
-				{error ?
-					<p>Something went wrong.</p>
-				:
-					<div>
-						{story ?
-							<div className='article'>
-								<h1>{story.title}</h1>
+				{error && <p>Connection error?</p>}
+				{story ?
+					<div className='article'>
+						<h1>{story.title}</h1>
 
-								<div className='info'>
-									<Link to={'/' + story.id + '/a'}>View article</Link>
-								</div>
+						<div className='info'>
+							<Link to={'/' + story.id + '/a'}>View article</Link>
+						</div>
 
-								{infoLine(story)}
+						{infoLine(story)}
 
-								<div className='comments'>
-									{story.comments.map(c => this.displayComment(story, c, 0))}
-								</div>
-							</div>
-						:
-							<p>loading...</p>
-						}
-						<ToggleDot id={id} article={true} />
+						<div className='comments'>
+							{story.comments.map(c => this.displayComment(story, c, 0))}
+						</div>
 					</div>
+				:
+					<p>loading...</p>
 				}
+				<ToggleDot id={id} article={true} />
 			</div>
 		);
 	}

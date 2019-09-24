@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { sourceLink, infoLine } from './utils.js';
+import { siteLogo, sourceLink, infoLine } from './utils.js';
 import { clearStorage } from './utils.js';
 
-const apiUrl = 'http://news-api.dns.t0.vc/';
+const apiUrl = 'https://news-api.t0.vc/';
 
 class Feed extends React.Component {
 	constructor(props) {
@@ -14,7 +14,7 @@ class Feed extends React.Component {
 			error: false,
 		};
 	}
-	
+
     componentDidMount() {
         fetch(apiUrl)
             .then(res => res.json())
@@ -23,7 +23,7 @@ class Feed extends React.Component {
                     this.setState({ stories: result.stories });
 					clearStorage();
                     localStorage.setItem('stories', JSON.stringify(result.stories));
-					result.stories.slice(0, 25).forEach(x => {
+					result.stories.filter(x => x.score >= 20).slice(0, 25).forEach(x => {
 						fetch(apiUrl + x.id)
 							.then(res => res.json())
 							.then(result => {
@@ -45,34 +45,29 @@ class Feed extends React.Component {
 
 		return (
 			<div className='container'>
-				{error ?
-					<p>Something went wrong.</p>
-				:
+				{error && <p>Connection error?</p>}
+				{stories ?
 					<div>
-						{stories ?
-							<div>
-								{stories.map((x, i) =>
-									<div className='item'>
-										<div className='num'>
-											{i+1}.
-										</div>
+						{stories.map((x, i) =>
+							<div className='item'>
+								<div className='num'>
+									{i+1}.
+								</div>
 
-										<div className='title'>
-											<Link className='link' to={'/' + x.id + '/a'}>{x.title}</Link>
+								<div className='title'>
+									<Link className='link' to={'/' + x.id + '/a'}>{siteLogo[x.source]} {x.title}</Link>
 
-											<span className='source'>
-												&#8203;({sourceLink(x)})
-											</span>
-										</div>
+									<span className='source'>
+										&#8203;({sourceLink(x)})
+									</span>
+								</div>
 
-										{infoLine(x)}
-									</div>
-								)}
+								{infoLine(x)}
 							</div>
-						:
-							<p>loading...</p>
-						}
+						)}
 					</div>
+				:
+					<p>loading...</p>
 				}
 			</div>
 		);

@@ -11,6 +11,12 @@ export const sourceLink = (story) => {
 	return (<a className='source' href={url}>{host}</a>);
 };
 
+export const siteLogo = {
+	hackernews: <img className='source-logo' src='logos/hackernews.png' />,
+	tildes: <img className='source-logo' src='logos/tildes.png' />,
+	reddit: <img className='source-logo' src='logos/reddit.png' />,
+};
+
 export const infoLine = (story) =>
 	<div className='info'>
 		{story.score} points

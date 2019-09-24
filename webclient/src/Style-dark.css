@@ -10,6 +10,10 @@
 	color: #828282;
 }
 
+.dark .item .source-logo {
+	filter: grayscale(1);
+}
+
 .dark .item a {
 	color: #828282;
 }

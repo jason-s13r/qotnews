@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { sourceLink, infoLine, ToggleDot } from './utils.js';
 
-const apiUrl = 'http://news-api.dns.t0.vc/';
+const apiUrl = 'https://news-api.t0.vc/';
 
 class Article extends React.Component {
 	constructor(props) {
@@ -39,32 +39,27 @@ class Article extends React.Component {
 
 		return (
 			<div className='article-container'>
-				{error ?
-					<p>Something went wrong.</p>
-				:
-					<div>
-						{story ?
-							<div className='article'>
-								<h1>{story.title}</h1>
+				{error && <p>Connection error?</p>}
+				{story ?
+					<div className='article'>
+						<h1>{story.title}</h1>
 
-								<div className='info'>
-									Source: {sourceLink(story)}
-								</div>
+						<div className='info'>
+							Source: {sourceLink(story)}
+						</div>
 
-								{infoLine(story)}
+						{infoLine(story)}
 
-								{story.text ?
-									<div className='story-text' dangerouslySetInnerHTML={{ __html: story.text }} />
-								:
-									<p>Problem getting article :(</p>
-								}
-							</div>
+						{story.text ?
+							<div className='story-text' dangerouslySetInnerHTML={{ __html: story.text }} />
 						:
-							<p>loading...</p>
+							<p>Problem getting article :(</p>
 						}
-						<ToggleDot id={id} article={false} />
 					</div>
+				:
+					<p>loading...</p>
 				}
+				<ToggleDot id={id} article={false} />
 			</div>
 		);
 	}

@@ -34,6 +34,11 @@ a {
 	margin-bottom: 0.6rem;
 }
 
+.item .source-logo {
+	width: 0.9rem;
+	height: 0.9rem;
+}
+
 .item a {
 	color: #828282;
 }
