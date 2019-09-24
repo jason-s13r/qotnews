@@ -62,14 +62,18 @@ def story(ref):
         html = api(API_ITEM(ref))
     if not html: return False
 
-    if 'Topic deleted by author' in html: return False
-
     soup = BeautifulSoup(html, features='html.parser')
     a = soup.find('article', class_='topic-full')
     h = a.find('header')
+    lu = h.find('a', class_='link-user')
+
+    error = a.find('div', class_='text-error')
+    if error:
+        if 'deleted' in error.string or 'removed' in error.string:
+            return False
 
     s = {}
-    s['author'] = str(h.find('a', class_='link-user').string)
+    s['author'] = str(lu.string if lu else 'unknown user')
     s['author_link'] = SITE_AUTHOR_LINK(s['author'])
     s['score'] = int(h.find('span', class_='topic-voting-votes').string)
     s['date'] = unix(h.find('time')['datetime'])
@@ -84,6 +88,9 @@ def story(ref):
     s['comments'] = list(filter(bool, s['comments']))
     ch = a.find('header', class_='topic-comments-header')
     s['num_comments'] = int(ch.h2.string.split(' ')[0]) if ch else 0
+
+    if s['score'] < 8 and s['num_comments'] < 6:
+        return False
 
     td = a.find('div', class_='topic-full-text')
     if td:
@@ -102,7 +109,7 @@ if __name__ == '__main__':
     #print(self_post)
     #li_comment = story('gqx')
     #print(li_comment)
-    broken = story('h23')
+    broken = story('hmi')
     print(broken)
 
     # make sure there's no self-reference
