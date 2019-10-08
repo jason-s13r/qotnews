@@ -9,6 +9,7 @@ import time
 from feeds import hackernews, reddit, tildes
 
 OUTLINE_API = 'https://outlineapi.com/article'
+ARCHIVE_API = 'https://archive.fo/submit/'
 READ_API = 'http://127.0.0.1:33843'
 
 INVALID_FILES = ['.pdf', '.png', '.jpg', '.gif']
@@ -22,6 +23,22 @@ def list():
     return feed
 
 def get_article(url):
+    if 'bloomberg.com' in url:
+        try:
+            logging.info('Article from Bloomberg, archiving first...')
+            data = {'submitid': '9tjtS1EYe5wy8AJiYgVfH9P97uHU1IHG4lO67hsQpHOC3KKJrhqVIoQG2U7Rg%2Fpr', 'url': url}
+            r = requests.post(ARCHIVE_API, data=data, timeout=20, allow_redirects=False)
+            if r.status_code == 200:
+                logging.error('Submitted for archiving. Skipping to wait...')
+                return ''
+            elif 'location' in r.headers:
+                url = r.headers['location']
+            else:
+                raise Exception('Bad response code ' + str(r.status_code))
+        except BaseException as e:
+            logging.error('Problem archiving article: {}'.format(str(e)))
+            return ''
+
     try:
         params = {'source_url': url}
         headers = {'Referer': 'https://outline.com/'}
@@ -86,11 +103,14 @@ def update_story(story):
     return True
 
 if __name__ == '__main__':
-    test_news_cache = {}
-    nid = 'jean'
-    ref = 20802050
-    source = 'hackernews'
-    test_news_cache[nid] = dict(id=nid, ref=ref, source=source)
-    news_story = test_news_cache[nid]
-    update_story(news_story)
+    #test_news_cache = {}
+    #nid = 'jean'
+    #ref = 20802050
+    #source = 'hackernews'
+    #test_news_cache[nid] = dict(id=nid, ref=ref, source=source)
+    #news_story = test_news_cache[nid]
+    #update_story(news_story)
+
+    print(get_article('https://www.bloomberg.com/news/articles/2019-09-23/xi-s-communists-under-pressure-as-high-prices-hit-china-workers'))
+
     print('done')
