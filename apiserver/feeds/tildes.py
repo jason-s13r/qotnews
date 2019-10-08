@@ -46,7 +46,8 @@ def comment(i):
         return False
 
     c = {}
-    c['author'] = str(i.find('a', class_='link-user').string)
+    lu = i.find('a', class_='link-user')
+    c['author'] = str(lu.string if lu else 'unknown user')
     c['score'] = 1
     c['date'] = unix(i.find('time')['datetime'])
     c['text'] = i.find('div', class_='comment-text').encode_contents().decode()
@@ -109,7 +110,7 @@ if __name__ == '__main__':
     #print(self_post)
     #li_comment = story('gqx')
     #print(li_comment)
-    broken = story('hmi')
+    broken = story('hsg')
     print(broken)
 
     # make sure there's no self-reference
