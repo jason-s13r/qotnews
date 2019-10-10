@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { siteLogo, sourceLink, infoLine } from './utils.js';
 import { clearStorage } from './utils.js';
-
-const apiUrl = 'https://news-api.t0.vc/';
 
 class Feed extends React.Component {
 	constructor(props) {
@@ -16,7 +15,7 @@ class Feed extends React.Component {
 	}
 
     componentDidMount() {
-        fetch(apiUrl)
+        fetch('/api')
             .then(res => res.json())
             .then(
                 (result) => {
@@ -24,7 +23,7 @@ class Feed extends React.Component {
 					clearStorage();
                     localStorage.setItem('stories', JSON.stringify(result.stories));
 					result.stories.filter(x => x.score >= 20).slice(0, 25).forEach(x => {
-						fetch(apiUrl + x.id)
+						fetch('/api/' + x.id)
 							.then(res => res.json())
 							.then(result => {
 								localStorage.setItem(x.id, JSON.stringify(result.story));
@@ -45,6 +44,10 @@ class Feed extends React.Component {
 
 		return (
 			<div className='container'>
+				<Helmet>
+					<title>Feed - QotNews</title>
+					<meta name="description" content="Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode" />
+				</Helmet>
 				{error && <p>Connection error?</p>}
 				{stories ?
 					<div>
@@ -55,7 +58,7 @@ class Feed extends React.Component {
 								</div>
 
 								<div className='title'>
-									<Link className='link' to={'/' + x.id + '/a'}>{siteLogo[x.source]} {x.title}</Link>
+									<Link className='link' to={'/' + x.id}>{siteLogo[x.source]} {x.title}</Link>
 
 									<span className='source'>
 										&#8203;({sourceLink(x)})

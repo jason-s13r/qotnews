@@ -36,15 +36,15 @@ class App extends React.Component {
 				<Router>
 					<div className='container menu'>
 						<p>
-							<Link to='/'>QNN - Home</Link>
+							<Link to='/'>QotNews - Feed</Link>
 							<span className='theme'>Theme: <a href='#' onClick={() => this.light()}>Light</a> - <a href='#' onClick={() => this.dark()}>Dark</a></span>
 							<br />
 							<span className='slogan'>Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode.</span>
 						</p>
 					</div>
 					<Route path='/' exact component={Feed} />
-					<Route path='/:id' exact component={Comments} />
-					<Route path='/:id/a' exact component={Article} />
+					<Route path='/:id/c' exact component={Comments} />
+					<Route path='/:id' exact component={Article} />
 
 					<ScrollToTop />
 				</Router>

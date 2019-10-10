@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { sourceLink, infoLine, ToggleDot } from './utils.js';
-
-const apiUrl = 'https://news-api.t0.vc/';
 
 class Article extends React.Component {
 	constructor(props) {
@@ -19,7 +18,7 @@ class Article extends React.Component {
     componentDidMount() {
 		const id = this.props.match.params.id;
 
-        fetch(apiUrl + id)
+        fetch('/api/' + id)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -42,6 +41,10 @@ class Article extends React.Component {
 				{error && <p>Connection error?</p>}
 				{story ?
 					<div className='article'>
+						<Helmet>
+							<title>{story.title} - QotNews</title>
+						</Helmet>
+
 						<h1>{story.title}</h1>
 
 						<div className='info'>

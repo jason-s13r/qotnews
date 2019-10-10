@@ -23,7 +23,7 @@ export const infoLine = (story) =>
 		by <a href={story.author_link}>{story.author}</a>
 		&#8203; {moment.unix(story.date).fromNow()}
 		&#8203; on <a href={story.link}>{story.source}</a> | &#8203;
-		<Link className={story.num_comments > 99 ? 'hot' : ''} to={'/' + story.id}>
+		<Link className={story.num_comments > 99 ? 'hot' : ''} to={'/' + story.id + '/c'}>
 			{story.num_comments} comment{story.num_comments !== 1 && 's'}
 		</Link>
 	</div>
@@ -42,7 +42,7 @@ export class ToggleDot extends React.Component {
 		return (
 			<div className='toggleDot'>
 				<div className='button'>
-					<Link to={'/' + id + (article ? '/a' : '')}>
+					<Link to={'/' + id + (article ? '' : '/c')}>
 						<img src={Switch} />
 					</Link>
 				</div>
