@@ -11,6 +11,14 @@ a {
 	outline: none;
 }
 
+input {
+	font-size: 1.05rem;
+	background-color: transparent;
+	border: 1px solid #828282;
+	padding: 6px;
+	border-radius: 4px;
+}
+
 .container {
 	margin: 1rem auto;
 	max-width: 64rem;

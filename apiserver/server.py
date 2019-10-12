@@ -9,12 +9,15 @@ import time
 import shelve
 from urllib.parse import urlparse
 
+import archive
 import feed
 from utils import gen_rand_id
 
 from flask import abort, Flask, request, render_template
 from werkzeug.exceptions import NotFound
 from flask_cors import CORS
+
+archive.init()
 
 CACHE_LENGTH = 300
 DATA_FILE = 'data/data'
@@ -29,11 +32,9 @@ with shelve.open(DATA_FILE) as db:
 
 def get_story(id):
     if id in news_cache:
-        return {'story': news_cache[id]}
-    with shelve.open(DATA_FILE) as db:
-        if id in db:
-            return {'story': db[id]}
-    return None
+        return news_cache[id]
+    else:
+        return archive.get_story(id)
 
 build_folder = '../webclient/build'
 flask_app = Flask(__name__, template_folder=build_folder, static_folder=build_folder, static_url_path='')
@@ -42,15 +43,26 @@ cors = CORS(flask_app)
 @flask_app.route('/api')
 def api():
     front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
-    front_page = [copy.copy(x) for x in front_page if 'text' in x and x['text']][:100]
-    for story in front_page:
-        if 'comments' in story: story.pop('comments')
-        if 'text' in story: story.pop('text')
+    front_page = [x for x in front_page if 'title' in x and x['title']]
+    front_page = front_page[:100]
+    to_remove = ['text', 'comments']
+    front_page = [{k:v for k,v in s.items() if k not in to_remove} for s in front_page]
+
     return {'stories': front_page}
+
+@flask_app.route('/api/search', strict_slashes=False)
+def search():
+    search = request.args.get('q', '')
+    if len(search) >= 3:
+        res = archive.search(search)
+    else:
+        res = []
+    return {'results': res}
 
 @flask_app.route('/api/<id>')
 def story(id):
-    return get_story(id) or abort(404)
+    story = get_story(id)
+    return dict(story=story) if story else abort(404)
 
 @flask_app.route('/')
 def index():
@@ -68,10 +80,7 @@ def static_story(id):
         pass
 
     story = get_story(id)
-    if story:
-        story = story['story']
-    else:
-        return abort(404)
+    if not story: return abort(404)
 
     score = story['score']
     num_comments = story['num_comments']
@@ -94,23 +103,20 @@ web_thread.start()
 
 def new_id():
     nid = gen_rand_id()
-    with shelve.open(DATA_FILE) as db:
-        while nid in news_cache or nid in db:
-            nid = gen_rand_id()
+    while nid in news_cache or archive.get_story(nid):
+        nid = gen_rand_id()
     return nid
 
-def remove_ref(old_ref, archive=False):
+def remove_ref(old_ref):
     while old_ref in news_list:
         news_list.remove(old_ref)
     old_story = news_cache.pop(news_ref_to_id[old_ref])
     old_id = news_ref_to_id.pop(old_ref)
     logging.info('Removed ref {} id {}.'.format(old_ref, old_id))
-    if archive:
-        with shelve.open(DATA_FILE) as db:
-            db[old_id] = old_story
 
 try:
     while True:
+        # onboard new stories
         if news_index == 0:
             feed_list = feed.list()
             new_items = [(ref, source) for ref, source in feed_list if ref not in news_list]
@@ -123,16 +129,20 @@ try:
             if len(new_items):
                 logging.info('Added {} new refs.'.format(len(new_items)))
 
+            # drop old ones
             while len(news_list) > CACHE_LENGTH:
                 old_ref = news_list[-1]
-                remove_ref(old_ref, archive=True)
+                remove_ref(old_ref)
 
+        # update current stories
         if news_index < len(news_list):
             update_ref = news_list[news_index]
             update_id = news_ref_to_id[update_ref]
             news_story = news_cache[update_id]
             valid = feed.update_story(news_story)
-            if not valid:
+            if valid:
+                archive.update(news_story)
+            else:
                 remove_ref(update_ref)
 
         time.sleep(3)

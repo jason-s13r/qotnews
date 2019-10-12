@@ -17,25 +17,25 @@ class Article extends React.Component {
 		};
 	}
 	
-    componentDidMount() {
+	componentDidMount() {
 		const id = this.props.match.params.id;
 
-        fetch('/api/' + id)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    localStorage.setItem(id, JSON.stringify(result.story));
-                    this.setState({ story: result.story }, () => {
+		fetch('/api/' + id)
+			.then(res => res.json())
+			.then(
+				(result) => {
+					localStorage.setItem(id, JSON.stringify(result.story));
+					this.setState({ story: result.story }, () => {
 						const hash = window.location.hash.substring(1);
 						if (hash) {
 							document.getElementById(hash).scrollIntoView();
 						}
 					});
-                },
-                (error) => {
-                    this.setState({ error: true });
-                }
-            );
+				},
+				(error) => {
+					this.setState({ error: true });
+				}
+			);
 	}
 
 	displayComment(story, c, level) {

@@ -6,6 +6,11 @@
 	color: #ddd;
 }
 
+.dark input {
+	color: #ddd;
+	border: 1px solid #828282;
+}
+
 .dark .item {
 	color: #828282;
 }

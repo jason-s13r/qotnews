@@ -1,11 +1,13 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import './Style-light.css';
 import './Style-dark.css';
 import './fonts/Fonts.css';
 import Feed from './Feed.js';
 import Article from './Article.js';
 import Comments from './Comments.js';
+import Search from './Search.js';
+import Results from './Results.js';
 import ScrollToTop from './ScrollToTop.js';
 
 class App extends React.Component {
@@ -41,10 +43,15 @@ class App extends React.Component {
 							<br />
 							<span className='slogan'>Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode.</span>
 						</p>
+						<Route path='/(|search)' component={Search} />
 					</div>
+
 					<Route path='/' exact component={Feed} />
+					<Switch>
+						<Route path='/search' component={Results} />
+						<Route path='/:id' exact component={Article} />
+					</Switch>
 					<Route path='/:id/c' exact component={Comments} />
-					<Route path='/:id' exact component={Article} />
 
 					<ScrollToTop />
 				</Router>

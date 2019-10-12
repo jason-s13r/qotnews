@@ -15,20 +15,20 @@ class Article extends React.Component {
 		};
 	}
 	
-    componentDidMount() {
+	componentDidMount() {
 		const id = this.props.match.params.id;
 
-        fetch('/api/' + id)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    this.setState({ story: result.story });
-                    localStorage.setItem(id, JSON.stringify(result.story));
-                },
-                (error) => {
-                    this.setState({ error: true });
-                }
-            );
+		fetch('/api/' + id)
+			.then(res => res.json())
+			.then(
+				(result) => {
+					this.setState({ story: result.story });
+					localStorage.setItem(id, JSON.stringify(result.story));
+				},
+				(error) => {
+					this.setState({ error: true });
+				}
+			);
 	}
 
 	render() {

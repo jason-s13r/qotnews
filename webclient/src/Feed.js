@@ -14,14 +14,14 @@ class Feed extends React.Component {
 		};
 	}
 
-    componentDidMount() {
-        fetch('/api')
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    this.setState({ stories: result.stories });
+	componentDidMount() {
+		fetch('/api')
+			.then(res => res.json())
+			.then(
+				(result) => {
+					this.setState({ stories: result.stories });
 					clearStorage();
-                    localStorage.setItem('stories', JSON.stringify(result.stories));
+					localStorage.setItem('stories', JSON.stringify(result.stories));
 					result.stories.filter(x => x.score >= 20).slice(0, 25).forEach(x => {
 						fetch('/api/' + x.id)
 							.then(res => res.json())
@@ -31,11 +31,11 @@ class Feed extends React.Component {
 							}, error => {}
 						);
 					});
-                },
-                (error) => {
-                    this.setState({ error: true });
-                }
-            );
+				},
+				(error) => {
+					this.setState({ error: true });
+				}
+			);
 	}
 
 	render() {
@@ -46,13 +46,12 @@ class Feed extends React.Component {
 			<div className='container'>
 				<Helmet>
 					<title>Feed - QotNews</title>
-					<meta name="description" content="Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode" />
 				</Helmet>
 				{error && <p>Connection error?</p>}
 				{stories ?
 					<div>
 						{stories.map((x, i) =>
-							<div className='item'>
+							<div className='item' key={i}>
 								<div className='num'>
 									{i+1}.
 								</div>

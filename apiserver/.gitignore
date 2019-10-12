@@ -107,3 +107,5 @@ db.sqlite3
 
 praw.ini
 data.db
+data.db.bak
+data/archive/*
