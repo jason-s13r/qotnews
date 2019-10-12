@@ -43,10 +43,11 @@ cors = CORS(flask_app)
 @flask_app.route('/api')
 def api():
     front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
-    front_page = [x for x in front_page if 'title' in x and x['title']]
+    front_page = [copy.copy(x) for x in front_page if 'title' in x and x['title']]
     front_page = front_page[:100]
-    to_remove = ['text', 'comments']
-    front_page = [{k:v for k,v in s.items() if k not in to_remove} for s in front_page]
+    for story in front_page:
+        story.pop('text', None)
+        story.pop('comments', None)
 
     return {'stories': front_page}
 

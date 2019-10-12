@@ -3,16 +3,15 @@ import { Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
+import localForage from 'localforage';
 import { sourceLink, infoLine, ToggleDot } from './utils.js';
 
 class Article extends React.Component {
 	constructor(props) {
 		super(props);
 
-		const id = this.props.match.params.id;
-
 		this.state = {
-			story: JSON.parse(localStorage.getItem(id)) || false,
+			story: false,
 			error: false,
 		};
 	}
@@ -20,17 +19,24 @@ class Article extends React.Component {
 	componentDidMount() {
 		const id = this.props.match.params.id;
 
+		localForage.getItem(id)
+			.then(
+				(value) => {
+					this.setState({ story: value });
+				}
+			);
+
 		fetch('/api/' + id)
 			.then(res => res.json())
 			.then(
 				(result) => {
-					localStorage.setItem(id, JSON.stringify(result.story));
 					this.setState({ story: result.story }, () => {
 						const hash = window.location.hash.substring(1);
 						if (hash) {
 							document.getElementById(hash).scrollIntoView();
 						}
 					});
+					localForage.setItem(id, result.story);
 				},
 				(error) => {
 					this.setState({ error: true });

@@ -29,12 +29,6 @@ export const infoLine = (story) =>
 	</div>
 ;
 
-export const clearStorage = () => {
-	const themeSetting = localStorage.getItem('theme');
-	localStorage.clear();
-	localStorage.setItem('theme', themeSetting);
-};
-
 export class ToggleDot extends React.Component {
 	render() {
 		const id = this.props.id;

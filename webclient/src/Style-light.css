@@ -109,7 +109,7 @@ span.source {
 	height: auto;
 }
 
-.article figure {
+.article figure, .article video {
 	width: 100%;
 	height: auto;
 	margin: 0;

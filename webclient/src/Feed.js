@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import localForage from 'localforage';
 import { siteLogo, sourceLink, infoLine } from './utils.js';
-import { clearStorage } from './utils.js';
 
 class Feed extends React.Component {
 	constructor(props) {
@@ -19,18 +19,24 @@ class Feed extends React.Component {
 			.then(res => res.json())
 			.then(
 				(result) => {
+					const updated = !this.state.stories || this.state.stories[0].id !== result.stories[0].id;
+					console.log('updated:', updated);
+
 					this.setState({ stories: result.stories });
-					clearStorage();
 					localStorage.setItem('stories', JSON.stringify(result.stories));
-					result.stories.filter(x => x.score >= 20).slice(0, 25).forEach(x => {
-						fetch('/api/' + x.id)
-							.then(res => res.json())
-							.then(result => {
-								localStorage.setItem(x.id, JSON.stringify(result.story));
-								console.log('Preloaded story', x.id, x.title);
-							}, error => {}
-						);
-					});
+
+					if (updated) {
+						localForage.clear();
+						result.stories.forEach(x => {
+							fetch('/api/' + x.id)
+								.then(res => res.json())
+								.then(result => {
+									localForage.setItem(x.id, result.story)
+										.then(console.log('preloaded', x.id, x.title));
+								}, error => {}
+							);
+						});
+					}
 				},
 				(error) => {
 					this.setState({ error: true });

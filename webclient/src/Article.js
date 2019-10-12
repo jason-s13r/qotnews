@@ -1,16 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import localForage from 'localforage';
 import { sourceLink, infoLine, ToggleDot } from './utils.js';
 
 class Article extends React.Component {
 	constructor(props) {
 		super(props);
 
-		const id = this.props.match.params.id;
-
 		this.state = {
-			story: JSON.parse(localStorage.getItem(id)) || false,
+			story: false,
 			error: false,
 		};
 	}
@@ -18,12 +17,19 @@ class Article extends React.Component {
 	componentDidMount() {
 		const id = this.props.match.params.id;
 
+		localForage.getItem(id)
+			.then(
+				(value) => {
+					this.setState({ story: value });
+				}
+			);
+
 		fetch('/api/' + id)
 			.then(res => res.json())
 			.then(
 				(result) => {
 					this.setState({ story: result.story });
-					localStorage.setItem(id, JSON.stringify(result.story));
+					localForage.setItem(id, result.story);
 				},
 				(error) => {
 					this.setState({ error: true });
