@@ -152,6 +152,8 @@ try:
         news_index += 1
         if news_index == CACHE_LENGTH: news_index = 0
 
+except KeyboardInterrupt:
+    logging.info('Exiting...')
 finally:
     with shelve.open(DATA_FILE) as db:
         logging.info('Writing caches to disk...')

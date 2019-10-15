@@ -24,6 +24,8 @@ reddit = praw.Reddit('bot')
 def feed():
     try:
         return [x.id for x in reddit.subreddit(SUBREDDITS).hot()]
+    except KeyboardInterrupt:
+        raise
     except PRAWException as e:
         logging.error('Problem hitting reddit API: {}'.format(str(e)))
         return []
@@ -70,6 +72,8 @@ def story(ref):
 
         return s
 
+    except KeyboardInterrupt:
+        raise
     except PRAWException as e:
         logging.error('Problem hitting reddit API: {}'.format(str(e)))
         return False

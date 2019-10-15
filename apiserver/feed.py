@@ -12,6 +12,7 @@ OUTLINE_API = 'https://outlineapi.com/article'
 ARCHIVE_API = 'https://archive.fo/submit/'
 READ_API = 'http://127.0.0.1:33843'
 
+ARCHIVE_FIRST = ['bloomberg.com', 'wsj.com']
 INVALID_FILES = ['.pdf', '.png', '.jpg', '.gif']
 INVALID_DOMAINS = ['youtube.com']
 
@@ -19,13 +20,13 @@ def list():
     feed = []
     feed += [(x, 'hackernews') for x in hackernews.feed()[:10]]
     feed += [(x, 'reddit') for x in reddit.feed()[:10]]
-    feed += [(x, 'tildes') for x in tildes.feed()[:10]]
+    feed += [(x, 'tildes') for x in tildes.feed()[:5]]
     return feed
 
 def get_article(url):
-    if 'bloomberg.com' in url:
+    if any([domain in url for domain in ARCHIVE_FIRST]):
         try:
-            logging.info('Article from Bloomberg, archiving first...')
+            logging.info('Article from {}, archiving first...'.format(url))
             data = {'submitid': '9tjtS1EYe5wy8AJiYgVfH9P97uHU1IHG4lO67hsQpHOC3KKJrhqVIoQG2U7Rg%2Fpr', 'url': url}
             r = requests.post(ARCHIVE_API, data=data, timeout=20, allow_redirects=False)
             if r.status_code == 200:
@@ -35,6 +36,8 @@ def get_article(url):
                 url = r.headers['location']
             else:
                 raise Exception('Bad response code ' + str(r.status_code))
+        except KeyboardInterrupt:
+            raise
         except BaseException as e:
             logging.error('Problem archiving article: {}'.format(str(e)))
             return ''
@@ -53,6 +56,8 @@ def get_article(url):
         if 'URL is not supported by Outline' in html:
             raise Exception('URL not supported by Outline')
         return html
+    except KeyboardInterrupt:
+        raise
     except BaseException as e:
         logging.error('Problem outlining article: {}'.format(str(e)))
 
@@ -63,6 +68,8 @@ def get_article(url):
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.text
+    except KeyboardInterrupt:
+        raise
     except BaseException as e:
         logging.error('Problem getting article: {}'.format(str(e)))
         return ''
@@ -86,15 +93,13 @@ def update_story(story):
         return False
 
     if story.get('url', '') and not story.get('text', ''):
-        for ext in INVALID_FILES:
-            if story['url'].endswith(ext):
-                logging.info('URL invalid file type ({})'.format(ext))
-                return False
+        if any([story['url'].endswith(ext) for ext in INVALID_FILES]):
+            logging.info('URL invalid file type ({})'.format(ext))
+            return False
 
-        for domain in INVALID_DOMAINS:
-            if domain in story['url']:
-                logging.info('URL invalid domain ({})'.format(domain))
-                return False
+        if any([domain in story['url'] for domain in INVALID_DOMAINS]):
+            logging.info('URL invalid domain ({})'.format(domain))
+            return False
 
         logging.info('Getting article ' + story['url'])
         story['text'] = get_article(story['url'])

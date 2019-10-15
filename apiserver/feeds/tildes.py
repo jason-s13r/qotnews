@@ -25,6 +25,8 @@ def api(route):
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.text
+    except KeyboardInterrupt:
+        raise
     except BaseException as e:
         logging.error('Problem hitting tildes website: {}'.format(str(e)))
         return False

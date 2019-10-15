@@ -17,6 +17,8 @@ def api(route, ref=None):
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.json()
+    except KeyboardInterrupt:
+        raise
     except BaseException as e:
         logging.error('Problem hitting hackernews API: {}'.format(str(e)))
         return False
