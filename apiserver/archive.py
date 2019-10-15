@@ -36,9 +36,9 @@ def update(story):
             )
     writer.commit()
 
-def get_story(id):
+def get_story(sid):
     with ix.searcher() as searcher:
-        result = searcher.document(id=id)
+        result = searcher.document(id=sid)
         return result['story'] if result else None
 
 def search(search):

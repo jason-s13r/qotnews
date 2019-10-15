@@ -30,11 +30,11 @@ with shelve.open(DATA_FILE) as db:
     news_ref_to_id = db.get('news_ref_to_id', {})
     news_cache = db.get('news_cache', {})
 
-def get_story(id):
-    if id in news_cache:
-        return news_cache[id]
+def get_story(sid):
+    if sid in news_cache:
+        return news_cache[sid]
     else:
-        return archive.get_story(id)
+        return archive.get_story(sid)
 
 build_folder = '../webclient/build'
 flask_app = Flask(__name__, template_folder=build_folder, static_folder=build_folder, static_url_path='')
@@ -60,27 +60,28 @@ def search():
         res = []
     return {'results': res}
 
-@flask_app.route('/api/<id>')
-def story(id):
-    story = get_story(id)
+@flask_app.route('/api/<sid>')
+def story(sid):
+    story = get_story(sid)
     return dict(story=story) if story else abort(404)
 
 @flask_app.route('/')
+@flask_app.route('/search')
 def index():
     return render_template('index.html',
             title='Feed',
             url='news.t0.vc',
             description='Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode')
 
-@flask_app.route('/<id>', strict_slashes=False)
-@flask_app.route('/<id>/c', strict_slashes=False)
-def static_story(id):
+@flask_app.route('/<sid>', strict_slashes=False)
+@flask_app.route('/<sid>/c', strict_slashes=False)
+def static_story(sid):
     try:
-        return flask_app.send_static_file(id)
+        return flask_app.send_static_file(sid)
     except NotFound:
         pass
 
-    story = get_story(id)
+    story = get_story(sid)
     if not story: return abort(404)
 
     score = story['score']
