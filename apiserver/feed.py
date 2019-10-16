@@ -30,7 +30,7 @@ def get_article(url):
             data = {'submitid': '9tjtS1EYe5wy8AJiYgVfH9P97uHU1IHG4lO67hsQpHOC3KKJrhqVIoQG2U7Rg%2Fpr', 'url': url}
             r = requests.post(ARCHIVE_API, data=data, timeout=20, allow_redirects=False)
             if r.status_code == 200:
-                logging.error('Submitted for archiving. Skipping to wait...')
+                logging.info('Submitted for archiving. Skipping to wait...')
                 return ''
             elif 'location' in r.headers:
                 url = r.headers['location']
@@ -47,7 +47,7 @@ def get_article(url):
         headers = {'Referer': 'https://outline.com/'}
         r = requests.get(OUTLINE_API, params=params, headers=headers, timeout=20)
         if r.status_code == 429:
-            logging.error('Rate limited by outline, sleeping 30s and skipping...')
+            logging.info('Rate limited by outline, sleeping 30s and skipping...')
             time.sleep(30)
             return ''
         if r.status_code != 200:
