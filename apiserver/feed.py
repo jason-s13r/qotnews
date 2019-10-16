@@ -94,11 +94,11 @@ def update_story(story):
 
     if story.get('url', '') and not story.get('text', ''):
         if any([story['url'].endswith(ext) for ext in INVALID_FILES]):
-            logging.info('URL invalid file type ({})'.format(ext))
+            logging.info('URL invalid file type')
             return False
 
         if any([domain in story['url'] for domain in INVALID_DOMAINS]):
-            logging.info('URL invalid domain ({})'.format(domain))
+            logging.info('URL invalid domain')
             return False
 
         logging.info('Getting article ' + story['url'])
