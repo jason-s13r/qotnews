@@ -33,6 +33,7 @@ class Feed extends React.Component {
 								.then(result => {
 									localForage.setItem(x.id, result.story)
 										.then(console.log('preloaded', x.id, x.title));
+									this.props.updateCache(x.id, result.story);
 								}, error => {}
 							);
 						});

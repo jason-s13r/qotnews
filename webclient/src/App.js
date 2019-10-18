@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import localForage from 'localforage';
 import './Style-light.css';
 import './Style-dark.css';
 import './fonts/Fonts.css';
@@ -17,6 +18,12 @@ class App extends React.Component {
 		this.state = {
 			theme: localStorage.getItem('theme') || '',
 		};
+
+		this.cache = {};
+	}
+
+	updateCache = (key, value) => {
+		this.cache[key] = value;
 	}
 
 	light() {
@@ -27,6 +34,15 @@ class App extends React.Component {
 	dark() {
 		this.setState({ theme: 'dark' });
 		localStorage.setItem('theme', 'dark');
+	}
+
+	componentDidMount() {
+		if (!this.cache.length) {
+			localForage.iterate((value, key) => {
+				this.updateCache(key, value);
+			});
+			console.log('loaded cache from localforage');
+		}
 	}
 
 	render() {
@@ -46,12 +62,12 @@ class App extends React.Component {
 						<Route path='/(|search)' component={Search} />
 					</div>
 
-					<Route path='/' exact component={Feed} />
+					<Route path='/' exact render={(props) => <Feed {...props} updateCache={this.updateCache} />} />
 					<Switch>
 						<Route path='/search' component={Results} />
-						<Route path='/:id' exact component={Article} />
+						<Route path='/:id' exact render={(props) => <Article {...props} cache={this.cache} />} />
 					</Switch>
-					<Route path='/:id/c' exact component={Comments} />
+					<Route path='/:id/c' exact render={(props) => <Comments {...props} cache={this.cache} />} />
 
 					<ScrollToTop />
 				</Router>

@@ -10,12 +10,17 @@ class Article extends React.Component {
 	constructor(props) {
 		super(props);
 
+		const id = this.props.match.params.id;
+		const cache = this.props.cache;
+
+		if (id in cache) console.log('cache hit');
+
 		this.state = {
-			story: false,
+			story: cache[id] || false,
 			error: false,
 		};
 	}
-	
+
 	componentDidMount() {
 		const id = this.props.match.params.id;
 
