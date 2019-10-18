@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import localForage from 'localforage';
-import { siteLogo, sourceLink, infoLine } from './utils.js';
+import { sourceLink, infoLine } from './utils.js';
 
 class Feed extends React.Component {
 	constructor(props) {
@@ -63,7 +63,9 @@ class Feed extends React.Component {
 								</div>
 
 								<div className='title'>
-									<Link className='link' to={'/' + x.id}>{siteLogo[x.source]} {x.title}</Link>
+									<Link className='link' to={'/' + x.id}>
+										<img className='source-logo' src={'logos/'+x.source+'.png'} /> {x.title}
+									</Link>
 
 									<span className='source'>
 										&#8203;({sourceLink(x)})
