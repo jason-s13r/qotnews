@@ -38,6 +38,11 @@
 	border-bottom: 1px solid #aaaaaa;
 }
 
+.dark .article u {
+	border-bottom: 1px solid #aaaaaa;
+	text-decoration: none;
+}
+
 .dark .story-text img {
 	filter: brightness(50%);
 }
