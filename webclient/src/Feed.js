@@ -27,7 +27,7 @@ class Feed extends React.Component {
 
 					if (updated) {
 						localForage.clear();
-						result.stories.forEach(x => {
+						result.stories.forEach((x, i) => {
 							fetch('/api/' + x.id)
 								.then(res => res.json())
 								.then(result => {
@@ -36,6 +36,12 @@ class Feed extends React.Component {
 									this.props.updateCache(x.id, result.story);
 								}, error => {}
 							);
+
+							if (i < 20 && x.img) {
+								const img = new Image();
+								img.src = x.img;
+								console.log('prefetched image', x.img);
+							}
 						});
 					}
 				},

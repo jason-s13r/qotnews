@@ -5,6 +5,7 @@ logging.basicConfig(
 
 import requests
 import time
+from bs4 import BeautifulSoup
 
 from feeds import hackernews, reddit, tildes
 
@@ -74,6 +75,19 @@ def get_article(url):
         logging.error('Problem getting article: {}'.format(str(e)))
         return ''
 
+def get_first_image(text):
+    soup = BeautifulSoup(text, features='html.parser')
+
+    try:
+        first_img = soup.find('img')
+        url = first_img['src']
+        headers = {'User-Agent': 'Twitterbot/1.0'}
+        length = requests.get(url, headers=headers).headers['Content-length']
+        if int(length) > 1000000: raise
+        return url
+    except:
+        return ''
+
 def update_story(story):
     res = {}
 
@@ -105,6 +119,8 @@ def update_story(story):
         story['text'] = get_article(story['url'])
         if not story['text']: return False
 
+        story['img'] = get_first_image(story['text'])
+
     return True
 
 if __name__ == '__main__':
@@ -116,6 +132,11 @@ if __name__ == '__main__':
     #news_story = test_news_cache[nid]
     #update_story(news_story)
 
-    print(get_article('https://www.bloomberg.com/news/articles/2019-09-23/xi-s-communists-under-pressure-as-high-prices-hit-china-workers'))
+    #print(get_article('https://www.bloomberg.com/news/articles/2019-09-23/xi-s-communists-under-pressure-as-high-prices-hit-china-workers'))
+
+    a = get_article('https://blog.joinmastodon.org/2019/10/mastodon-3.0/')
+    print(a)
+    u = get_first_image(a)
+    print(u)
 
     print('done')
