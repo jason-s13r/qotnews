@@ -31,7 +31,7 @@ export class ToggleDot extends React.Component {
 			<div className='toggleDot'>
 				<div className='button'>
 					<Link to={'/' + id + (article ? '' : '/c')}>
-						<img src={Switch} />
+						<img src={Switch} alt='toggle between article and comments' />
 					</Link>
 				</div>
 			</div>

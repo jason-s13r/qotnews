@@ -71,7 +71,7 @@ class Feed extends React.Component {
 
 								<div className='title'>
 									<Link className='link' to={'/' + x.id}>
-										<img className='source-logo' src={'logos/'+x.source+'.png'} /> {x.title}
+										<img className='source-logo' src={'logos/'+x.source+'.png'} alt='source logo' /> {x.title}
 									</Link>
 
 									<span className='source'>

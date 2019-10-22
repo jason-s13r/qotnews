@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import localForage from 'localforage';
 import { sourceLink, infoLine, ToggleDot } from './utils.js';
@@ -8,7 +7,7 @@ class Article extends React.Component {
 	constructor(props) {
 		super(props);
 
-		const id = this.props.match.params.id;
+		const id = this.props.match ? this.props.match.params.id : 'CLOL';
 		const cache = this.props.cache;
 
 		if (id in cache) console.log('cache hit');
@@ -20,7 +19,7 @@ class Article extends React.Component {
 	}
 	
 	componentDidMount() {
-		const id = this.props.match.params.id;
+		const id = this.props.match ? this.props.match.params.id : 'CLOL';
 
 		localForage.getItem(id)
 			.then(
@@ -43,7 +42,7 @@ class Article extends React.Component {
 	}
 
 	render() {
-		const id = this.props.match.params.id;
+		const id = this.props.match ? this.props.match.params.id : 'CLOL';
 		const story = this.state.story;
 		const error = this.state.error;
 

@@ -4,7 +4,7 @@ import { HashLink } from 'react-router-hash-link';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import localForage from 'localforage';
-import { sourceLink, infoLine, ToggleDot } from './utils.js';
+import { infoLine, ToggleDot } from './utils.js';
 
 class Article extends React.Component {
 	constructor(props) {
@@ -51,7 +51,7 @@ class Article extends React.Component {
 
 	displayComment(story, c, level) {
 		return (
-			<div className={level ? 'comment lined' : 'comment'}>
+			<div className={level ? 'comment lined' : 'comment'} key={c.author+c.date}>
 				<div className='info'>
 					<p>
 						{c.author === story.author ? '[OP]' : ''} {c.author || '[Deleted]'}
