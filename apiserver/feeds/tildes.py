@@ -67,6 +67,8 @@ def story(ref):
 
     soup = BeautifulSoup(html, features='html.parser')
     a = soup.find('article', class_='topic-full')
+    if a is None: return False
+
     h = a.find('header')
     lu = h.find('a', class_='link-user')
 
@@ -112,7 +114,7 @@ if __name__ == '__main__':
     #print(self_post)
     #li_comment = story('gqx')
     #print(li_comment)
-    broken = story('hsg')
+    broken = story('ikn')
     print(broken)
 
     # make sure there's no self-reference
