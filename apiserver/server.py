@@ -91,7 +91,8 @@ def static_story(sid):
             score, 's' if score != 1 else '',
             num_comments, 's' if num_comments != 1 else '',
             source)
-    url = urlparse(story['url']).hostname.replace('www.', '')
+    url = urlparse(story['url']).hostname or urlparse(story['link']).hostname or ''
+    url = url.replace('www.', '')
 
     return render_template('index.html',
             title=story['title'],
