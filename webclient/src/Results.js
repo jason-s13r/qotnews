@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { sourceLink, infoLine } from './utils.js';
+import AbortController from 'abort-controller';
 
 class Results extends React.Component {
 	constructor(props) {
@@ -12,18 +13,28 @@ class Results extends React.Component {
 			error: false,
 		};
 
+		this.controller = null;
 	}
 
 	performSearch = () => {
+		if (this.controller) {
+			this.controller.abort();
+		}
+
+		this.controller = new AbortController();
+		const signal = this.controller.signal;
+
 		const search = this.props.location.search;
-		fetch('/api/search' + search)
+		fetch('/api/search' + search, { method: 'get', signal: signal })
 			.then(res => res.json())
 			.then(
 				(result) => {
 					this.setState({ stories: result.results });
 				},
 				(error) => {
-					this.setState({ error: true });
+					if (error.message !== 'The operation was aborted. ') {
+						this.setState({ error: true });
+					}
 				}
 			);
 	}
