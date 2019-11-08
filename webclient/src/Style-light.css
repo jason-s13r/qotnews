@@ -15,6 +15,7 @@ input {
 	font-size: 1.05rem;
 	background-color: transparent;
 	border: 1px solid #828282;
+	margin: 0.25rem;
 	padding: 6px;
 	border-radius: 4px;
 }
@@ -172,4 +173,8 @@ span.source {
 	position: relative;
 	top: 0.1rem;
 	left: 0.1rem;
+}
+
+.search form {
+	display: inline;
 }

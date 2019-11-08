@@ -13,7 +13,7 @@ import archive
 import feed
 from utils import gen_rand_id
 
-from flask import abort, Flask, request, render_template
+from flask import abort, Flask, request, render_template, stream_with_context, Response
 from werkzeug.exceptions import NotFound
 from flask_cors import CORS
 
@@ -36,11 +36,36 @@ with shelve.open(DATA_FILE) as db:
     news_ref_to_id = db.get('news_ref_to_id', {})
     news_cache = db.get('news_cache', {})
 
+    # clean cache if broken
+    try:
+        for ref in news_list:
+            nid = news_ref_to_id[ref]
+            _ = news_cache[nid]
+    except KeyError as e:
+        logging.error('Unable to find key: ' + str(e))
+        logging.info('Clearing caches...')
+        news_list = []
+        news_ref_to_id = {}
+        news_cache = {}
+
 def get_story(sid):
     if sid in news_cache:
         return news_cache[sid]
     else:
         return archive.get_story(sid)
+
+def new_id():
+    nid = gen_rand_id()
+    while nid in news_cache or archive.get_story(nid):
+        nid = gen_rand_id()
+    return nid
+
+def remove_ref(old_ref):
+    while old_ref in news_list:
+        news_list.remove(old_ref)
+    old_story = news_cache.pop(news_ref_to_id[old_ref])
+    old_id = news_ref_to_id.pop(old_ref)
+    logging.info('Removed ref {} id {}.'.format(old_ref, old_id))
 
 build_folder = '../webclient/build'
 flask_app = Flask(__name__, template_folder=build_folder, static_folder=build_folder, static_url_path='')
@@ -65,6 +90,20 @@ def search():
     else:
         res = []
     return {'results': res}
+
+@flask_app.route('/api/submit', methods=['POST'], strict_slashes=False)
+def submit():
+    url = request.form['url']
+    nid = new_id()
+    news_story = dict(id=nid, ref=url, source='manual')
+    news_cache[nid] = news_story
+    valid = feed.update_story(news_story)
+    if valid:
+        archive.update(news_story)
+        return {'nid': nid}
+    else:
+        news_cache.pop(nid, '')
+        abort(400)
 
 @flask_app.route('/api/<sid>')
 def story(sid):
@@ -104,19 +143,6 @@ def static_story(sid):
             title=story['title'],
             url=url,
             description=description)
-
-def new_id():
-    nid = gen_rand_id()
-    while nid in news_cache or archive.get_story(nid):
-        nid = gen_rand_id()
-    return nid
-
-def remove_ref(old_ref):
-    while old_ref in news_list:
-        news_list.remove(old_ref)
-    old_story = news_cache.pop(news_ref_to_id[old_ref])
-    old_id = news_ref_to_id.pop(old_ref)
-    logging.info('Removed ref {} id {}.'.format(old_ref, old_id))
 
 http_server = WSGIServer(('', 33842), flask_app)
 
@@ -159,7 +185,9 @@ def feed_thread():
             news_index += 1
             if news_index == CACHE_LENGTH: news_index = 0
 
-    except BaseException as e:
+    except KeyboardInterrupt:
+        logging.info('Ending feed thread...')
+    except ValueError as e:
         logging.error('feed_thread error: {} {}'.format(e.__class__.__name__, e))
         http_server.stop()
 

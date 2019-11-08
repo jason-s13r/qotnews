@@ -34,18 +34,16 @@ class Search extends Component {
 		const search = this.state.search;
 
 		return (
-			<div className='search'>
-				<div className='search-inside'>
-					<form onSubmit={this.searchAgain}>
-						<input
-							placeholder='Search...'
-							value={search}
-							onChange={this.searchArticles}
-							ref={this.inputRef}
-						/>
-					</form>
-				</div>
-			</div>
+			<span className='search'>
+				<form onSubmit={this.searchAgain}>
+					<input
+						placeholder='Search...'
+						value={search}
+						onChange={this.searchArticles}
+						ref={this.inputRef}
+					/>
+				</form>
+			</span>
 		);
 	}
 }

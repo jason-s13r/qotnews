@@ -8,6 +8,7 @@ import Feed from './Feed.js';
 import Article from './Article.js';
 import Comments from './Comments.js';
 import Search from './Search.js';
+import Submit from './Submit.js';
 import Results from './Results.js';
 import ScrollToTop from './ScrollToTop.js';
 
@@ -60,6 +61,7 @@ class App extends React.Component {
 							<span className='slogan'>Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode.</span>
 						</p>
 						<Route path='/(|search)' component={Search} />
+						<Route path='/(|search)' component={Submit} />
 					</div>
 
 					<Route path='/' exact render={(props) => <Feed {...props} updateCache={this.updateCache} />} />

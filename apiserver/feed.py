@@ -7,7 +7,7 @@ import requests
 import time
 from bs4 import BeautifulSoup
 
-from feeds import hackernews, reddit, tildes
+from feeds import hackernews, reddit, tildes, manual
 
 OUTLINE_API = 'https://outlineapi.com/article'
 ARCHIVE_API = 'https://archive.fo/submit/'
@@ -99,6 +99,8 @@ def update_story(story):
         res = reddit.story(story['ref'])
     elif story['source'] == 'tildes':
         res = tildes.story(story['ref'])
+    elif story['source'] == 'manual':
+        res = manual.story(story['ref'])
 
     if res:
         story.update(res) # join dicts
