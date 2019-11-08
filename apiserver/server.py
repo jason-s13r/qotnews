@@ -75,7 +75,7 @@ cors = CORS(flask_app)
 def api():
     front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
     front_page = [copy.copy(x) for x in front_page if 'title' in x and x['title']]
-    front_page = front_page[:100]
+    front_page = front_page[:60]
     for story in front_page:
         story.pop('text', None)
         story.pop('comments', None)
@@ -179,6 +179,8 @@ def feed_thread():
                     archive.update(news_story)
                 else:
                     remove_ref(update_ref)
+            else:
+                logging.info('Skipping update - no story #' + str(news_index+1))
 
             gevent.sleep(3)
 

@@ -16,6 +16,7 @@ READ_API = 'http://127.0.0.1:33843'
 ARCHIVE_FIRST = ['bloomberg.com', 'wsj.com']
 INVALID_FILES = ['.pdf', '.png', '.jpg', '.gif']
 INVALID_DOMAINS = ['youtube.com']
+TWO_DAYS = 60*60*24*2
 
 def list():
     feed = []
@@ -106,6 +107,10 @@ def update_story(story):
         story.update(res) # join dicts
     else:
         logging.info('Article not ready yet')
+        return False
+
+    if story['date'] and story['date'] + TWO_DAYS < time.time():
+        logging.info('Article too old, removing')
         return False
 
     if story.get('url', '') and not story.get('text', ''):
