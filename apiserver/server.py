@@ -17,6 +17,12 @@ from flask import abort, Flask, request, render_template
 from werkzeug.exceptions import NotFound
 from flask_cors import CORS
 
+import gevent
+from gevent import monkey
+from gevent.pywsgi import WSGIServer
+
+monkey.patch_all()
+
 archive.init()
 
 CACHE_LENGTH = 300
@@ -99,11 +105,6 @@ def static_story(sid):
             url=url,
             description=description)
 
-print('Starting Flask...')
-web_thread = threading.Thread(target=flask_app.run, kwargs={'port': 33842})
-web_thread.setDaemon(True)
-web_thread.start()
-
 def new_id():
     nid = gen_rand_id()
     while nid in news_cache or archive.get_story(nid):
@@ -117,42 +118,57 @@ def remove_ref(old_ref):
     old_id = news_ref_to_id.pop(old_ref)
     logging.info('Removed ref {} id {}.'.format(old_ref, old_id))
 
+http_server = WSGIServer(('', 33842), flask_app)
+
+def feed_thread():
+    global news_index
+
+    try:
+        while True:
+            # onboard new stories
+            if news_index == 0:
+                feed_list = feed.list()
+                new_items = [(ref, source) for ref, source in feed_list if ref not in news_list]
+                for ref, source in new_items:
+                    news_list.insert(0, ref)
+                    nid = new_id()
+                    news_ref_to_id[ref] = nid
+                    news_cache[nid] = dict(id=nid, ref=ref, source=source)
+
+                if len(new_items):
+                    logging.info('Added {} new refs.'.format(len(new_items)))
+
+                # drop old ones
+                while len(news_list) > CACHE_LENGTH:
+                    old_ref = news_list[-1]
+                    remove_ref(old_ref)
+
+            # update current stories
+            if news_index < len(news_list):
+                update_ref = news_list[news_index]
+                update_id = news_ref_to_id[update_ref]
+                news_story = news_cache[update_id]
+                valid = feed.update_story(news_story)
+                if valid:
+                    archive.update(news_story)
+                else:
+                    remove_ref(update_ref)
+
+            gevent.sleep(3)
+
+            news_index += 1
+            if news_index == CACHE_LENGTH: news_index = 0
+
+    except BaseException as e:
+        logging.error('feed_thread error: {} {}'.format(e.__class__.__name__, e))
+        http_server.stop()
+
+print('Starting Feed thread...')
+gevent.spawn(feed_thread)
+
+print('Starting HTTP thread...')
 try:
-    while True:
-        # onboard new stories
-        if news_index == 0:
-            feed_list = feed.list()
-            new_items = [(ref, source) for ref, source in feed_list if ref not in news_list]
-            for ref, source in new_items:
-                news_list.insert(0, ref)
-                nid = new_id()
-                news_ref_to_id[ref] = nid
-                news_cache[nid] = dict(id=nid, ref=ref, source=source)
-
-            if len(new_items):
-                logging.info('Added {} new refs.'.format(len(new_items)))
-
-            # drop old ones
-            while len(news_list) > CACHE_LENGTH:
-                old_ref = news_list[-1]
-                remove_ref(old_ref)
-
-        # update current stories
-        if news_index < len(news_list):
-            update_ref = news_list[news_index]
-            update_id = news_ref_to_id[update_ref]
-            news_story = news_cache[update_id]
-            valid = feed.update_story(news_story)
-            if valid:
-                archive.update(news_story)
-            else:
-                remove_ref(update_ref)
-
-        time.sleep(3)
-
-        news_index += 1
-        if news_index == CACHE_LENGTH: news_index = 0
-
+    http_server.serve_forever()
 except KeyboardInterrupt:
     logging.info('Exiting...')
 finally:
