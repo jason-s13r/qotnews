@@ -25,7 +25,7 @@ monkey.patch_all()
 
 archive.init()
 
-CACHE_LENGTH = 300
+CACHE_LENGTH = 150
 DATA_FILE = 'data/data'
 
 news_index = 0
@@ -182,7 +182,7 @@ def feed_thread():
             else:
                 logging.info('Skipping update - no story #' + str(news_index+1))
 
-            gevent.sleep(3)
+            gevent.sleep(6)
 
             news_index += 1
             if news_index == CACHE_LENGTH: news_index = 0
