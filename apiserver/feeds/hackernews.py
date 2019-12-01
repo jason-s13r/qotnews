@@ -3,7 +3,13 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG)
 
+if __name__ == '__main__':
+    import sys
+    sys.path.insert(0,'.')
+
 import requests
+
+from utils import clean
 
 API_TOPSTORIES = lambda x: 'https://hacker-news.firebaseio.com/v0/topstories.json'
 API_ITEM = lambda x : 'https://hn.algolia.com/api/v1/items/{}'.format(x)
@@ -34,7 +40,7 @@ def comment(i):
     c['author'] = i.get('author', '')
     c['score'] = i.get('points', 0)
     c['date'] = i.get('created_at_i', 0)
-    c['text'] = i.get('text', '')
+    c['text'] = clean(i.get('text', '') or '')
     c['comments'] = [comment(j) for j in i['children']]
     c['comments'] = list(filter(bool, c['comments']))
     return c
@@ -65,7 +71,7 @@ def story(ref):
     s['num_comments'] = comment_count(s) - 1
 
     if 'text' in r and r['text']:
-        s['text'] = r['text']
+        s['text'] = clean(r['text'] or '')
 
     return s
 

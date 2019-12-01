@@ -12,7 +12,7 @@ from praw.exceptions import PRAWException
 from praw.models import MoreComments
 from prawcore.exceptions import PrawcoreException
 
-from utils import render_md
+from utils import render_md, clean
 
 SUBREDDITS = 'Economics+Foodforthought+TrueReddit+business+technology+privacy'
 
@@ -45,7 +45,7 @@ def comment(i):
     c['author'] = i.author.name if i.author else '[Deleted]'
     c['score'] = i.score
     c['date'] = i.created_utc
-    c['text'] = render_md(i.body)
+    c['text'] = render_md(clean(i.body))
     c['comments'] = [comment(j) for j in i.replies]
     c['comments'] = list(filter(bool, c['comments']))
     return c
@@ -68,7 +68,7 @@ def story(ref):
         s['num_comments'] = r.num_comments
 
         if r.selftext:
-            s['text'] = render_md(r.selftext)
+            s['text'] = render_md(clean(r.selftext))
 
         return s
 
@@ -83,7 +83,7 @@ def story(ref):
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    print(feed())
-    print(reddit.submission(feed()[0]).permalink)
-    print()
-    print(story('cuozg4'))
+    #print(feed())
+    #print(reddit.submission(feed()[0]).permalink)
+    #print()
+    print(story('e4asnp'))

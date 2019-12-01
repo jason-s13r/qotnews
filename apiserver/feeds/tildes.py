@@ -3,9 +3,15 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG)
 
+if __name__ == '__main__':
+    import sys
+    sys.path.insert(0,'.')
+
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+
+from utils import clean
 
 # cache the topic groups to prevent redirects
 group_lookup = {}
@@ -52,7 +58,7 @@ def comment(i):
     c['author'] = str(lu.string if lu else 'unknown user')
     c['score'] = 1
     c['date'] = unix(i.find('time')['datetime'])
-    c['text'] = i.find('div', class_='comment-text').encode_contents().decode()
+    c['text'] = clean(i.find('div', class_='comment-text').encode_contents().decode() or '')
     ct = i.find('ol', class_='comment-tree')
     c['comments'] = [comment(j) for j in ct.findAll('li', recursive=False)] if ct else []
     c['comments'] = list(filter(bool, c['comments']))
@@ -99,7 +105,7 @@ def story(ref):
 
     td = a.find('div', class_='topic-full-text')
     if td:
-        s['text'] = td.encode_contents().decode()
+        s['text'] = clean(td.encode_contents().decode() or '')
 
     return s
 
