@@ -7,7 +7,7 @@ import copy
 import threading
 import time
 import shelve
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 import archive
 import feed
@@ -93,17 +93,38 @@ def search():
 
 @flask_app.route('/api/submit', methods=['POST'], strict_slashes=False)
 def submit():
-    url = request.form['url']
-    nid = new_id()
-    news_story = dict(id=nid, ref=url, source='manual')
-    news_cache[nid] = news_story
-    valid = feed.update_story(news_story)
-    if valid:
-        archive.update(news_story)
-        return {'nid': nid}
-    else:
-        news_cache.pop(nid, '')
+    try:
+        url = request.form['url']
+        nid = new_id()
+
+        parse = urlparse(url)
+        if 'news.ycombinator.com' in parse.hostname:
+            source = 'hackernews'
+            ref = parse_qs(parse.query)['id'][0]
+        elif 'tildes.net' in parse.hostname and '~' in url:
+            source = 'tildes'
+            ref = parse.path.split('/')[2]
+        elif 'reddit.com' in parse.hostname and 'comments' in url:
+            source = 'reddit'
+            ref = parse.path.split('/')[4]
+        else:
+            source = 'manual'
+            ref = url
+
+        news_story = dict(id=nid, ref=ref, source=source)
+        news_cache[nid] = news_story
+        valid = feed.update_story(news_story, manual=True)
+        if valid:
+            archive.update(news_story)
+            return {'nid': nid}
+        else:
+            news_cache.pop(nid, '')
+            raise Exception('Invalid article')
+
+    except BaseException as e:
+        logging.error('Problem with article submission: {} - {}'.format(e.__class__.__name__, str(e)))
         abort(400)
+
 
 @flask_app.route('/api/<sid>')
 def story(sid):

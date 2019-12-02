@@ -89,7 +89,7 @@ def get_first_image(text):
     except:
         return ''
 
-def update_story(story):
+def update_story(story, manual=False):
     res = {}
 
     logging.info('Updating story ' + str(story['ref']))
@@ -109,7 +109,7 @@ def update_story(story):
         logging.info('Article not ready yet')
         return False
 
-    if story['date'] and story['date'] + TWO_DAYS < time.time():
+    if story['date'] and not manual and story['date'] + TWO_DAYS < time.time():
         logging.info('Article too old, removing')
         return False
 

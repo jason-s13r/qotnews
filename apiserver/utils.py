@@ -39,6 +39,8 @@ ALLOWED_TAGS = [
         'sub',
         'details',
         'summary',
+        'br',
+        'pre',
         ]
 
 clean = Cleaner(tags=ALLOWED_TAGS).clean
