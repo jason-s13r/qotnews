@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { sourceLink, infoLine } from './utils.js';
+import { sourceLink, infoLine, logos } from './utils.js';
 import AbortController from 'abort-controller';
 
 class Results extends React.Component {
@@ -70,7 +70,7 @@ class Results extends React.Component {
 
 									<div className='title'>
 										<Link className='link' to={'/' + x.id}>
-											<img className='source-logo' src={'logos/'+x.source+'.png'} alt='source logo' /> {x.title}
+											<img className='source-logo' src={logos[x.source]} alt='source logo' /> {x.title}
 										</Link>
 
 										<span className='source'>
