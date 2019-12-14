@@ -1,6 +1,5 @@
 import logging
-logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+logging.basicConfig( format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG)
 
 import commonmark
@@ -41,6 +40,18 @@ ALLOWED_TAGS = [
         'summary',
         'br',
         'pre',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'table',
+        'thead',
+        'tr',
+        'th',
+        'td',
+        'tbody',
         ]
 
 clean = Cleaner(tags=ALLOWED_TAGS).clean
