@@ -13,9 +13,8 @@ OUTLINE_API = 'https://outlineapi.com/article'
 ARCHIVE_API = 'https://archive.fo/submit/'
 READ_API = 'http://127.0.0.1:33843'
 
-ARCHIVE_FIRST = ['bloomberg.com', 'wsj.com']
 INVALID_FILES = ['.pdf', '.png', '.jpg', '.gif']
-INVALID_DOMAINS = ['youtube.com']
+INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 TWO_DAYS = 60*60*24*2
 
 def list():
@@ -26,24 +25,6 @@ def list():
     return feed
 
 def get_article(url):
-    if any([domain in url for domain in ARCHIVE_FIRST]):
-        try:
-            logging.info('Article from {}, archiving first...'.format(url))
-            data = {'submitid': '9tjtS1EYe5wy8AJiYgVfH9P97uHU1IHG4lO67hsQpHOC3KKJrhqVIoQG2U7Rg%2Fpr', 'url': url}
-            r = requests.post(ARCHIVE_API, data=data, timeout=20, allow_redirects=False)
-            if r.status_code == 200:
-                logging.info('Submitted for archiving. Skipping to wait...')
-                return ''
-            elif 'location' in r.headers:
-                url = r.headers['location']
-            else:
-                raise Exception('Bad response code ' + str(r.status_code))
-        except KeyboardInterrupt:
-            raise
-        except BaseException as e:
-            logging.error('Problem archiving article: {}'.format(str(e)))
-            return ''
-
     try:
         params = {'source_url': url}
         headers = {'Referer': 'https://outline.com/'}
@@ -89,7 +70,7 @@ def get_first_image(text):
     except:
         return ''
 
-def update_story(story, manual=False):
+def update_story(story, is_manual=False):
     res = {}
 
     logging.info('Updating story ' + str(story['ref']))
@@ -109,7 +90,7 @@ def update_story(story, manual=False):
         logging.info('Article not ready yet')
         return False
 
-    if story['date'] and not manual and story['date'] + TWO_DAYS < time.time():
+    if story['date'] and not is_manual and story['date'] + TWO_DAYS < time.time():
         logging.info('Article too old, removing')
         return False
 

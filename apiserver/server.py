@@ -113,7 +113,7 @@ def submit():
 
         news_story = dict(id=nid, ref=ref, source=source)
         news_cache[nid] = news_story
-        valid = feed.update_story(news_story, manual=True)
+        valid = feed.update_story(news_story, is_manual=True)
         if valid:
             archive.update(news_story)
             return {'nid': nid}
