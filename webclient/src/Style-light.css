@@ -3,6 +3,7 @@ body {
 	font: 1rem/1.3 sans-serif;
 	color: #000000;
 	margin-bottom: 100vh;
+	word-break: break-word;
 }
 
 a {
@@ -18,6 +19,10 @@ input {
 	margin: 0.25rem;
 	padding: 6px;
 	border-radius: 4px;
+}
+
+pre {
+	overflow: auto;
 }
 
 .container {
