@@ -2,8 +2,6 @@ import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 
-import Switch from './switch.svg';
-
 export const sourceLink = (story) => {
 	const url = story.url || story.link;
 	const urlObj = new URL(url);
@@ -31,8 +29,22 @@ export class ToggleDot extends React.Component {
 			<div className='toggleDot'>
 				<div className='button'>
 					<Link to={'/' + id + (article ? '' : '/c')}>
-						<img src={Switch} alt='toggle between article and comments' />
+						{article ? '' : ''}
 					</Link>
+				</div>
+			</div>
+		);
+	}
+}
+
+export class ForwardDot extends React.Component {
+	render() {
+		return (
+			<div className='forwardDot'>
+				<div className='button'>
+					<a href='javascript:void(0)' onClick={() => window.history.forward()}>
+						
+					</a>
 				</div>
 			</div>
 		);

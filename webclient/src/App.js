@@ -4,6 +4,7 @@ import localForage from 'localforage';
 import './Style-light.css';
 import './Style-dark.css';
 import './fonts/Fonts.css';
+import { ForwardDot } from './utils.js';
 import Feed from './Feed.js';
 import Article from './Article.js';
 import Comments from './Comments.js';
@@ -70,6 +71,8 @@ class App extends React.Component {
 						<Route path='/:id' exact render={(props) => <Article {...props} cache={this.cache} />} />
 					</Switch>
 					<Route path='/:id/c' exact render={(props) => <Comments {...props} cache={this.cache} />} />
+
+					<ForwardDot />
 
 					<ScrollToTop />
 				</Router>

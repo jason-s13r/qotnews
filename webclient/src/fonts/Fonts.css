@@ -21,3 +21,8 @@
 	font-style: italic;
     src: url('AppSILBI.ttf') format('truetype');
 }
+
+@font-face {
+    font-family: 'Icomoon';
+    src: url('icomoon.ttf') format('truetype');
+}
