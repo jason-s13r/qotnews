@@ -38,13 +38,19 @@ export class ToggleDot extends React.Component {
 }
 
 export class ForwardDot extends React.Component {
+	goForward() {
+		localStorage.setItem('scrollLock', 'True');
+		window.history.forward();
+	}
+
 	render() {
+		const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+		if (!isMobile) return null;
+
 		return (
-			<div className='forwardDot'>
+			<div className='forwardDot' onClick={this.goForward}>
 				<div className='button'>
-					<a href='javascript:void(0)' onClick={() => window.history.forward()}>
-						
-					</a>
+					
 				</div>
 			</div>
 		);

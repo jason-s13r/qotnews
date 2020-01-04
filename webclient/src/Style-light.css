@@ -181,6 +181,7 @@ span.source {
 }
 
 .forwardDot {
+	cursor: pointer;
 	position: fixed;
 	bottom: 1rem;
 	right: 1rem;
