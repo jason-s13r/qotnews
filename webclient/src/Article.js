@@ -24,7 +24,9 @@ class Article extends React.Component {
 		localForage.getItem(id)
 			.then(
 				(value) => {
-					this.setState({ story: value });
+					if (value) {
+						this.setState({ story: value });
+					}
 				}
 			);
 
