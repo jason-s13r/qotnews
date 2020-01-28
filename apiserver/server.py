@@ -42,11 +42,8 @@ with shelve.open(DATA_FILE) as db:
             nid = news_ref_to_id[ref]
             _ = news_cache[nid]
     except KeyError as e:
-        logging.error('Unable to find key: ' + str(e))
-        logging.info('Clearing caches...')
-        news_list = []
-        news_ref_to_id = {}
-        news_cache = {}
+        logging.error('Unable to find key {}. Trying to remove...'.format(str(e)))
+        news_list.remove(str(e))
 
 def get_story(sid):
     if sid in news_cache:
@@ -73,7 +70,12 @@ cors = CORS(flask_app)
 
 @flask_app.route('/api')
 def api():
-    front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
+    try:
+        front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
+    except KeyError as e:
+        logging.error('Unable to find key {}. Trying to remove...'.format(str(e)))
+        news_list.remove(str(e))
+
     front_page = [copy.copy(x) for x in front_page if 'title' in x and x['title']]
     front_page = front_page[:60]
     for story in front_page:
