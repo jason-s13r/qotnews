@@ -52,6 +52,8 @@ def comment(i):
 
     if i.find('div', class_='is-comment-removed'):
         return False
+    if i.find('div', class_='is-comment-deleted'):
+        return False
 
     c = {}
     lu = i.find('a', class_='link-user')
@@ -120,7 +122,7 @@ if __name__ == '__main__':
     #print(self_post)
     #li_comment = story('gqx')
     #print(li_comment)
-    broken = story('ikn')
+    broken = story('l11')
     print(broken)
 
     # make sure there's no self-reference
