@@ -9,11 +9,10 @@ from bs4 import BeautifulSoup
 
 from feeds import hackernews, reddit, tildes, manual
 
-OUTLINE_API = 'https://outlineapi.com/article'
+OUTLINE_API = 'https://api.outline.com/v3/parse_article'
 ARCHIVE_API = 'https://archive.fo/submit/'
 READ_API = 'http://127.0.0.1:33843'
 
-INVALID_FILES = ['.pdf', '.png', '.jpg', '.gif']
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 TWO_DAYS = 60*60*24*2
 
@@ -64,9 +63,16 @@ def get_first_image(text):
         first_img = soup.find('img')
         url = first_img['src']
         headers = {'User-Agent': 'Twitterbot/1.0'}
-        length = requests.get(url, headers=headers).headers['Content-length']
+        length = requests.get(url, headers=headers).headers['content-length']
         if int(length) > 1000000: raise
         return url
+    except:
+        return ''
+
+def get_content_type(url):
+    try:
+        headers = {'User-Agent': 'Twitterbot/1.0'}
+        return requests.get(url, headers=headers).headers['content-type']
     except:
         return ''
 
@@ -95,12 +101,14 @@ def update_story(story, is_manual=False):
         return False
 
     if story.get('url', '') and not story.get('text', ''):
-        if any([story['url'].endswith(ext) for ext in INVALID_FILES]):
-            logging.info('URL invalid file type')
+        if not get_content_type(story['url']).startswith('text/'):
+            logging.info('URL invalid file type / content type:')
+            logging.info(story['url'])
             return False
 
         if any([domain in story['url'] for domain in INVALID_DOMAINS]):
-            logging.info('URL invalid domain')
+            logging.info('URL invalid domain:')
+            logging.info(story['url'])
             return False
 
         logging.info('Getting article ' + story['url'])
