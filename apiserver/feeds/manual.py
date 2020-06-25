@@ -33,7 +33,7 @@ def story(ref):
     s['author_link'] = 'https://news.t0.vc'
     s['score'] = 0
     s['date'] = int(time.time())
-    s['title'] = str(soup.title.string)
+    s['title'] = str(soup.title.string) if soup.title else ref
     s['link'] = ref
     s['url'] = ref
     s['comments'] = []
