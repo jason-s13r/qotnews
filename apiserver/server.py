@@ -5,6 +5,7 @@ logging.basicConfig(
 
 import copy
 import threading
+import traceback
 import time
 import shelve
 from urllib.parse import urlparse, parse_qs
@@ -42,8 +43,14 @@ with shelve.open(DATA_FILE) as db:
             nid = news_ref_to_id[ref]
             _ = news_cache[nid]
     except KeyError as e:
-        logging.error('Unable to find key {}. Trying to remove...'.format(str(e)))
-        news_list.remove(str(e))
+        ekey = str(e)
+        logging.error('Unable to find key {}. Trying to remove...'.format(ekey))
+        if ekey in news_cache:
+            news_cache.remove(ekey)
+        if ekey in news_list:
+            news_list.remove(ekey)
+        if ekey in news_ref_to_id:
+            news_ref_to_id.remove(ekey)
 
 def get_story(sid):
     if sid in news_cache:
@@ -73,8 +80,12 @@ def api():
     try:
         front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
     except KeyError as e:
-        logging.error('Unable to find key {}. Trying to remove...'.format(str(e)))
-        news_list.remove(str(e))
+        ekey = str(e)
+        logging.error('Unable to find key {}. Trying to remove...'.format(ekey))
+        if ekey in news_cache:
+            news_cache.remove(ekey)
+        if ekey in news_list:
+            news_list.remove(ekey)
 
     front_page = [copy.copy(x) for x in front_page if 'title' in x and x['title']]
     front_page = front_page[:60]
@@ -125,6 +136,7 @@ def submit():
 
     except BaseException as e:
         logging.error('Problem with article submission: {} - {}'.format(e.__class__.__name__, str(e)))
+        print(traceback.format_exc())
         abort(400)
 
 
@@ -194,9 +206,19 @@ def feed_thread():
 
             # update current stories
             if news_index < len(news_list):
-                update_ref = news_list[news_index]
-                update_id = news_ref_to_id[update_ref]
-                news_story = news_cache[update_id]
+                try:
+                    update_ref = news_list[news_index]
+                    update_id = news_ref_to_id[update_ref]
+                    news_story = news_cache[update_id]
+                except KeyError as e:
+                    ekey = str(e)
+                    logging.error('Unable to find key {}. Trying to remove...'.format(ekey))
+                    if ekey in news_cache:
+                        news_cache.remove(ekey)
+                    if ekey in news_list:
+                        news_list.remove(ekey)
+                    if ekey in news_ref_to_id:
+                        news_ref_to_id.remove(ekey)
                 valid = feed.update_story(news_story)
                 if valid:
                     archive.update(news_story)
