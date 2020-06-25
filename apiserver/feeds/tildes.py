@@ -91,7 +91,7 @@ def story(ref):
     s['score'] = int(h.find('span', class_='topic-voting-votes').string)
     s['date'] = unix(h.find('time')['datetime'])
     s['title'] = str(h.h1.string)
-    s['group'] = str(soup.find('a', class_='site-header-context').string)
+    s['group'] = str(soup.find('div', class_='site-header-context').a.string)
     group_lookup[ref] = s['group']
     s['link'] = SITE_LINK(s['group'], ref)
     ud = a.find('div', class_='topic-full-link')
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     #print(self_post)
     #li_comment = story('gqx')
     #print(li_comment)
-    broken = story('l11')
+    broken = story('n03')
     print(broken)
 
     # make sure there's no self-reference
