@@ -8,11 +8,15 @@ archive.init()
 with archive.ix.searcher() as searcher:
     for docnum in searcher.document_numbers():
         try:
+            if docnum > 500:
+                break
+
             print('docnum', docnum)
             res = searcher.stored_fields(docnum)
             print('id', res['id'])
-            database.put(res['story'])
+            database.put_story(res['story'])
+            database.put_ref(res['story']['ref'], res['id'])
             print()
-        except:
+        except BaseException as e:
             print('skipping', docnum)
-            pass
+            print('reason:', e)
