@@ -30,7 +30,7 @@ def api(route, ref=None):
         return False
 
 def feed():
-    return api(API_TOPSTORIES) or []
+    return [str(x) for x in api(API_TOPSTORIES)] or []
 
 def comment(i):
     if 'author' not in i:
@@ -77,6 +77,6 @@ def story(ref):
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    #print(feed())
+    print(feed())
     #print(story(20763961))
-    print(story(20802050))
+    #print(story(20802050))

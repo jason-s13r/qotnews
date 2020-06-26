@@ -109,3 +109,4 @@ praw.ini
 data.db
 data.db.bak
 data/archive/*
+qotnews.sqlite

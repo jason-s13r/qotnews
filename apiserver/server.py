@@ -4,13 +4,13 @@ logging.basicConfig(
         level=logging.INFO)
 
 import copy
+import json
 import threading
 import traceback
 import time
-import shelve
 from urllib.parse import urlparse, parse_qs
 
-import archive
+import database
 import feed
 from utils import gen_rand_id
 
@@ -24,52 +24,16 @@ from gevent.pywsgi import WSGIServer
 
 monkey.patch_all()
 
-archive.init()
+database.init()
 
-CACHE_LENGTH = 150
-DATA_FILE = 'data/data'
-
+FEED_LENGTH = 75
 news_index = 0
-
-with shelve.open(DATA_FILE) as db:
-    logging.info('Reading caches from disk...')
-    news_list = db.get('news_list', [])
-    news_ref_to_id = db.get('news_ref_to_id', {})
-    news_cache = db.get('news_cache', {})
-
-    # clean cache if broken
-    try:
-        for ref in news_list:
-            nid = news_ref_to_id[ref]
-            _ = news_cache[nid]
-    except KeyError as e:
-        ekey = str(e)
-        logging.error('Unable to find key {}. Trying to remove...'.format(ekey))
-        if ekey in news_cache:
-            news_cache.remove(ekey)
-        if ekey in news_list:
-            news_list.remove(ekey)
-        if ekey in news_ref_to_id:
-            news_ref_to_id.remove(ekey)
-
-def get_story(sid):
-    if sid in news_cache:
-        return news_cache[sid]
-    else:
-        return archive.get_story(sid)
 
 def new_id():
     nid = gen_rand_id()
-    while nid in news_cache or archive.get_story(nid):
+    while database.get_story(nid):
         nid = gen_rand_id()
     return nid
-
-def remove_ref(old_ref):
-    while old_ref in news_list:
-        news_list.remove(old_ref)
-    old_story = news_cache.pop(news_ref_to_id[old_ref])
-    old_id = news_ref_to_id.pop(old_ref)
-    logging.info('Removed ref {} id {}.'.format(old_ref, old_id))
 
 build_folder = '../webclient/build'
 flask_app = Flask(__name__, template_folder=build_folder, static_folder=build_folder, static_url_path='')
@@ -77,32 +41,23 @@ cors = CORS(flask_app)
 
 @flask_app.route('/api')
 def api():
-    try:
-        front_page = [news_cache[news_ref_to_id[ref]] for ref in news_list]
-    except KeyError as e:
-        ekey = str(e)
-        logging.error('Unable to find key {}. Trying to remove...'.format(ekey))
-        if ekey in news_cache:
-            news_cache.remove(ekey)
-        if ekey in news_list:
-            news_list.remove(ekey)
-
-    front_page = [copy.copy(x) for x in front_page if 'title' in x and x['title']]
-    front_page = front_page[:60]
-    for story in front_page:
-        story.pop('text', None)
-        story.pop('comments', None)
-
-    return {'stories': front_page}
+    stories = database.get_stories(FEED_LENGTH)
+    # hacky nested json
+    res = Response('{"stories":[' + ','.join(stories) + ']}')
+    res.headers['content-type'] = 'application/json'
+    return res
 
 @flask_app.route('/api/search', strict_slashes=False)
 def search():
-    search = request.args.get('q', '')
-    if len(search) >= 3:
-        res = archive.search(search)
+    q = request.args.get('q', '')
+    if len(q) >= 3:
+        results = [x.meta_json for x in database.search(q)]
     else:
-        res = []
-    return {'results': res}
+        results = []
+    # hacky nested json
+    res = Response('{"results":[' + ','.join(results) + ']}')
+    res.headers['content-type'] = 'application/json'
+    return res
 
 @flask_app.route('/api/submit', methods=['POST'], strict_slashes=False)
 def submit():
@@ -124,14 +79,14 @@ def submit():
             source = 'manual'
             ref = url
 
-        news_story = dict(id=nid, ref=ref, source=source)
-        news_cache[nid] = news_story
-        valid = feed.update_story(news_story, is_manual=True)
+        # TODO: return existing refs
+
+        story = dict(id=nid, ref=ref, source=source)
+        valid = feed.update_story(story, is_manual=True)
         if valid:
-            archive.update(news_story)
+            database.put_story(story)
             return {'nid': nid}
         else:
-            news_cache.pop(nid, '')
             raise Exception('Invalid article')
 
     except BaseException as e:
@@ -142,8 +97,14 @@ def submit():
 
 @flask_app.route('/api/<sid>')
 def story(sid):
-    story = get_story(sid)
-    return dict(story=story) if story else abort(404)
+    story = database.get_story(sid)
+    if story:
+        # hacky nested json
+        res = Response('{"story":' + story.full_json + '}')
+        res.headers['content-type'] = 'application/json'
+        return res
+    else:
+        return abort(404)
 
 @flask_app.route('/')
 @flask_app.route('/search')
@@ -161,8 +122,9 @@ def static_story(sid):
     except NotFound:
         pass
 
-    story = get_story(sid)
+    story = database.get_story(sid)
     if not story: return abort(404)
+    story = json.loads(story.full_json)
 
     score = story['score']
     num_comments = story['num_comments']
@@ -179,58 +141,43 @@ def static_story(sid):
             url=url,
             description=description)
 
-http_server = WSGIServer(('', 33842), flask_app)
+http_server = WSGIServer(('', 43842), flask_app)
 
 def feed_thread():
     global news_index
 
     try:
         while True:
+            ref_list = database.get_reflist(FEED_LENGTH)
+
             # onboard new stories
             if news_index == 0:
-                feed_list = feed.list()
-                new_items = [(ref, source) for ref, source in feed_list if ref not in news_list]
-                for ref, source in new_items:
-                    news_list.insert(0, ref)
-                    nid = new_id()
-                    news_ref_to_id[ref] = nid
-                    news_cache[nid] = dict(id=nid, ref=ref, source=source)
-
-                if len(new_items):
-                    logging.info('Added {} new refs.'.format(len(new_items)))
-
-                # drop old ones
-                while len(news_list) > CACHE_LENGTH:
-                    old_ref = news_list[-1]
-                    remove_ref(old_ref)
+                for ref, source in feed.list():
+                    try:
+                        nid = new_id()
+                        database.put_ref(ref, nid)
+                        database.put_story(dict(id=nid, ref=ref, source=source))
+                        logging.info('Added ref ' + ref)
+                    except database.IntegrityError:
+                        continue
 
             # update current stories
-            if news_index < len(news_list):
-                try:
-                    update_ref = news_list[news_index]
-                    update_id = news_ref_to_id[update_ref]
-                    news_story = news_cache[update_id]
-                except KeyError as e:
-                    ekey = str(e)
-                    logging.error('Unable to find key {}. Trying to remove...'.format(ekey))
-                    if ekey in news_cache:
-                        news_cache.remove(ekey)
-                    if ekey in news_list:
-                        news_list.remove(ekey)
-                    if ekey in news_ref_to_id:
-                        news_ref_to_id.remove(ekey)
-                valid = feed.update_story(news_story)
+            if news_index < len(ref_list):
+                update_ref = ref_list[news_index]['ref']
+                update_sid = ref_list[news_index]['sid']
+                story_json = database.get_story(update_sid).full_json
+                story = json.loads(story_json)
+                valid = feed.update_story(story)
                 if valid:
-                    archive.update(news_story)
+                    database.put_story(story)
                 else:
-                    remove_ref(update_ref)
-            else:
-                logging.info('Skipping update - no story #' + str(news_index+1))
+                    database.del_ref(update_ref)
+                    logging.info('Removed ref {}'.format(update_ref))
 
             gevent.sleep(6)
 
             news_index += 1
-            if news_index == CACHE_LENGTH: news_index = 0
+            if news_index == FEED_LENGTH: news_index = 0
 
     except KeyboardInterrupt:
         logging.info('Ending feed thread...')
@@ -246,9 +193,3 @@ try:
     http_server.serve_forever()
 except KeyboardInterrupt:
     logging.info('Exiting...')
-finally:
-    with shelve.open(DATA_FILE) as db:
-        logging.info('Writing caches to disk...')
-        db['news_list'] = news_list
-        db['news_ref_to_id'] = news_ref_to_id
-        db['news_cache'] = news_cache
