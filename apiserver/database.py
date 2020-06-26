@@ -1,6 +1,6 @@
 import json
 
-from sqlalchemy import create_engine, Column, String
+from sqlalchemy import create_engine, Column, String, ForeignKey, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -12,9 +12,16 @@ Base = declarative_base()
 class Story(Base):
     __tablename__ = 'stories'
 
-    sid = Column(String, primary_key=True)
+    sid = Column(String(16), primary_key=True)
     meta_json = Column(String)
     full_json = Column(String)
+
+class Reflist(Base):
+    __tablename__ = 'reflist'
+
+    rid = Column(Integer, primary_key=True)
+    ref = Column(String(16), unique=True)
+    sid = Column(String, ForeignKey('stories.sid'), unique=True)
 
 def init():
     Base.metadata.create_all(engine)
@@ -27,7 +34,7 @@ def get_full(sid):
     session = Session()
     return session.query(Story).get(sid).full_json
 
-def put(story):
+def put_story(story):
     full_json = json.dumps(story)
 
     story.pop('text')
@@ -44,3 +51,23 @@ def put(story):
         raise
     finally:
         session.close() 
+
+def get_reflist(amount):
+    session = Session()
+    q = session.query(Reflist).order_by(Reflist.rid.desc()).limit(amount)
+    return [dict(ref=x.ref, sid=x.sid) for x in q.all()]
+
+def put_ref(ref, sid):
+    try:
+        session = Session()
+        r = Reflist(ref=ref, sid=sid)
+        session.add(r)
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+if __name__ == '__main__':
+    init()
