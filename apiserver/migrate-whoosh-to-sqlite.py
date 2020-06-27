@@ -1,21 +1,67 @@
 import archive
 import database
+import search
+
 import json
+import requests
 
 database.init()
 archive.init()
+search.init()
+
+count = 0
+
+def database_del_story_by_ref(ref):
+    try:
+        session = database.Session()
+        session.query(database.Story).filter(database.Story.ref==ref).delete()
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+def search_del_story(sid):
+    try:
+        r = requests.delete(search.MEILI_URL + 'indexes/qotnews/documents/'+sid, timeout=2)
+        if r.status_code != 202:
+            raise Exception('Bad response code ' + str(r.status_code))
+        return r.json()
+    except KeyboardInterrupt:
+        raise
+    except BaseException as e:
+        logging.error('Problem deleting MeiliSearch story: {}'.format(str(e)))
+        return False
 
 with archive.ix.searcher() as searcher:
-    for docnum in searcher.document_numbers():
-        try:
-            #if docnum > 500:
-            #    break
+    print('count all', searcher.doc_count_all())
+    print('count', searcher.doc_count())
 
-            print('docnum', docnum)
-            res = searcher.stored_fields(docnum)
-            print('id', res['id'])
-            database.put_story(res['story'])
+    for doc in searcher.documents():
+        try:
+            print('num', count, 'id', doc['id'])
+            count += 1
+
+            try:
+                database.put_story(doc['story'])
+            except database.IntegrityError:
+                print('collision!')
+                old_story = database.get_story_by_ref(doc['story']['ref'])
+                story = json.loads(old_story.full_json)
+                if doc['story']['num_comments'] > story['num_comments']:
+                    print('more comments, replacing')
+                    database_del_story_by_ref(doc['story']['ref'])
+                    database.put_story(doc['story'])
+                    search_del_story(story['id'])
+                else:
+                    print('fewer comments, skipping')
+                    continue
+
+            search.put_story(doc['story'])
             print()
+        except KeyboardInterrupt:
+            break
         except BaseException as e:
-            print('skipping', docnum)
+            print('skipping', doc['id'])
             print('reason:', e)

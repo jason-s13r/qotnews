@@ -14,10 +14,10 @@ class Story(Base):
     __tablename__ = 'stories'
 
     sid = Column(String(16), primary_key=True)
+    ref = Column(String(16), unique=True)
     meta_json = Column(String)
     full_json = Column(String)
     title = Column(String)
-    date = Column(Integer)
 
 class Reflist(Base):
     __tablename__ = 'reflist'
@@ -25,6 +25,7 @@ class Reflist(Base):
     rid = Column(Integer, primary_key=True)
     ref = Column(String(16), unique=True)
     sid = Column(String, ForeignKey('stories.sid'), unique=True)
+    source = Column(String(16))
 
 def init():
     Base.metadata.create_all(engine)
@@ -34,6 +35,7 @@ def get_story(sid):
     return session.query(Story).get(sid)
 
 def put_story(story):
+    story = story.copy()
     full_json = json.dumps(story)
 
     story.pop('text', None)
@@ -44,10 +46,10 @@ def put_story(story):
         session = Session()
         s = Story(
             sid=story['id'],
+            ref=story['ref'],
             full_json=full_json,
             meta_json=meta_json,
             title=story.get('title', None),
-            date=story.get('date', None),
         )
         session.merge(s)
         session.commit()
@@ -57,14 +59,14 @@ def put_story(story):
     finally:
         session.close() 
 
-def search(q):
+def get_story_by_ref(ref):
     session = Session()
-    return session.query(Story).filter(Story.title.contains(q))
+    return session.query(Story).filter(Story.ref==ref).first()
 
 def get_reflist(amount):
     session = Session()
     q = session.query(Reflist).order_by(Reflist.rid.desc()).limit(amount)
-    return [dict(ref=x.ref, sid=x.sid) for x in q.all()]
+    return [dict(ref=x.ref, sid=x.sid, source=x.source) for x in q.all()]
 
 def get_stories(amount):
     session = Session()
@@ -75,10 +77,10 @@ def get_stories(amount):
             limit(amount)
     return [x[1] for x in q]
 
-def put_ref(ref, sid):
+def put_ref(ref, sid, source):
     try:
         session = Session()
-        r = Reflist(ref=ref, sid=sid)
+        r = Reflist(ref=ref, sid=sid, source=source)
         session.add(r)
         session.commit()
     except:
@@ -101,4 +103,4 @@ def del_ref(ref):
 if __name__ == '__main__':
     init()
 
-    print(get_stories(5))
+    print(get_story_by_ref('hgi3sy'))

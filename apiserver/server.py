@@ -11,6 +11,7 @@ import time
 from urllib.parse import urlparse, parse_qs
 
 import database
+import search
 import feed
 from utils import gen_rand_id
 
@@ -25,6 +26,7 @@ from gevent.pywsgi import WSGIServer
 monkey.patch_all()
 
 database.init()
+search.init()
 
 FEED_LENGTH = 75
 news_index = 0
@@ -48,16 +50,13 @@ def api():
     return res
 
 @flask_app.route('/api/search', strict_slashes=False)
-def search():
+def apisearch():
     q = request.args.get('q', '')
     if len(q) >= 3:
-        results = [x.meta_json for x in database.search(q)]
+        results = search.search(q)
     else:
         results = []
-    # hacky nested json
-    res = Response('{"results":[' + ','.join(results) + ']}')
-    res.headers['content-type'] = 'application/json'
-    return res
+    return dict(results=results)
 
 @flask_app.route('/api/submit', methods=['POST'], strict_slashes=False)
 def submit():
@@ -75,19 +74,24 @@ def submit():
         elif 'reddit.com' in parse.hostname and 'comments' in url:
             source = 'reddit'
             ref = parse.path.split('/')[4]
+        elif 'news.t0.vc' in parse.hostname:
+            raise Exception('Invalid article')
         else:
             source = 'manual'
             ref = url
 
-        # TODO: return existing refs
-
-        story = dict(id=nid, ref=ref, source=source)
-        valid = feed.update_story(story, is_manual=True)
-        if valid:
-            database.put_story(story)
-            return {'nid': nid}
+        existing = database.get_story_by_ref(ref)
+        if existing:
+            return {'nid': existing.sid}
         else:
-            raise Exception('Invalid article')
+            story = dict(id=nid, ref=ref, source=source)
+            valid = feed.update_story(story, is_manual=True)
+            if valid:
+                database.put_story(story)
+                search.put_story(story)
+                return {'nid': nid}
+            else:
+                raise Exception('Invalid article')
 
     except BaseException as e:
         logging.error('Problem with article submission: {} - {}'.format(e.__class__.__name__, str(e)))
@@ -148,31 +152,37 @@ def feed_thread():
 
     try:
         while True:
-            ref_list = database.get_reflist(FEED_LENGTH)
-
             # onboard new stories
             if news_index == 0:
                 for ref, source in feed.list():
+                    if database.get_story_by_ref(ref):
+                        continue
                     try:
                         nid = new_id()
-                        database.put_ref(ref, nid)
-                        database.put_story(dict(id=nid, ref=ref, source=source))
+                        database.put_ref(ref, nid, source)
                         logging.info('Added ref ' + ref)
                     except database.IntegrityError:
                         continue
 
+            ref_list = database.get_reflist(FEED_LENGTH)
+
             # update current stories
             if news_index < len(ref_list):
-                update_ref = ref_list[news_index]['ref']
-                update_sid = ref_list[news_index]['sid']
-                story_json = database.get_story(update_sid).full_json
-                story = json.loads(story_json)
+                item = ref_list[news_index]
+
+                try:
+                    story_json = database.get_story(item['sid']).full_json
+                    story = json.loads(story_json)
+                except AttributeError:
+                    story = dict(id=item['sid'], ref=item['ref'], source=item['source'])
+
                 valid = feed.update_story(story)
                 if valid:
                     database.put_story(story)
+                    search.put_story(story)
                 else:
-                    database.del_ref(update_ref)
-                    logging.info('Removed ref {}'.format(update_ref))
+                    database.del_ref(item['ref'])
+                    logging.info('Removed ref {}'.format(item['ref']))
 
             gevent.sleep(6)
 
