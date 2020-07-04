@@ -63,7 +63,7 @@ def get_first_image(text):
         first_img = soup.find('img')
         url = first_img['src']
         headers = {'User-Agent': 'Twitterbot/1.0'}
-        length = requests.get(url, headers=headers).headers['content-length']
+        length = requests.get(url, headers=headers, timeout=4).headers['content-length']
         if int(length) > 1000000: raise
         return url
     except:
@@ -72,9 +72,15 @@ def get_first_image(text):
 def get_content_type(url):
     try:
         headers = {'User-Agent': 'Twitterbot/1.0'}
-        return requests.get(url, headers=headers).headers['content-type']
+        return requests.get(url, headers=headers, timeout=2).headers['content-type']
     except:
-        return ''
+        pass
+
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'}
+        return requests.get(url, headers=headers, timeout=2).headers['content-type']
+    except:
+        return 'text/'
 
 def update_story(story, is_manual=False):
     res = {}
@@ -90,26 +96,35 @@ def update_story(story, is_manual=False):
     elif story['source'] == 'manual':
         res = manual.story(story['ref'])
 
+    logging.info('Got story')
+
     if res:
         story.update(res) # join dicts
     else:
-        logging.info('Article not ready yet')
+        logging.info('Story not ready yet')
         return False
+
+    logging.info('story joined')
 
     if story['date'] and not is_manual and story['date'] + TWO_DAYS < time.time():
-        logging.info('Article too old, removing')
+        logging.info('Story too old, removing')
         return False
 
+    logging.info('story age good')
+
     if story.get('url', '') and not story.get('text', ''):
+        logging.info('inside if')
         if not get_content_type(story['url']).startswith('text/'):
             logging.info('URL invalid file type / content type:')
             logging.info(story['url'])
             return False
+        logging.info('content type good')
 
         if any([domain in story['url'] for domain in INVALID_DOMAINS]):
             logging.info('URL invalid domain:')
             logging.info(story['url'])
             return False
+        logging.info('domain good')
 
         logging.info('Getting article ' + story['url'])
         story['text'] = get_article(story['url'])

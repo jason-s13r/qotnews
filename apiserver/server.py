@@ -184,7 +184,7 @@ def feed_thread():
                     database.del_ref(item['ref'])
                     logging.info('Removed ref {}'.format(item['ref']))
 
-            gevent.sleep(6)
+            gevent.sleep(60)
 
             news_index += 1
             if news_index == FEED_LENGTH: news_index = 0

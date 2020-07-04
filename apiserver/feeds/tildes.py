@@ -73,9 +73,13 @@ def story(ref):
         html = api(API_ITEM(ref))
     if not html: return False
 
+    logging.info('Got Tildes html')
+
     soup = BeautifulSoup(html, features='html.parser')
     a = soup.find('article', class_='topic-full')
     if a is None: return False
+
+    logging.info('Got article tag')
 
     h = a.find('header')
     lu = h.find('a', class_='link-user')
@@ -102,6 +106,8 @@ def story(ref):
     ch = a.find('header', class_='topic-comments-header')
     s['num_comments'] = int(ch.h2.string.split(' ')[0]) if ch else 0
 
+    logging.info('Parsed html data')
+
     if s['score'] < 8 and s['num_comments'] < 6:
         return False
 
@@ -122,7 +128,7 @@ if __name__ == '__main__':
     #print(self_post)
     #li_comment = story('gqx')
     #print(li_comment)
-    broken = story('n03')
+    broken = story('q4y')
     print(broken)
 
     # make sure there's no self-reference
