@@ -46,7 +46,7 @@ pre {
 .item {
 	display: table;
 	color: #828282;
-	margin-bottom: 0.6rem;
+	margin-bottom: 0.7rem;
 }
 
 .item .source-logo {
@@ -59,11 +59,6 @@ pre {
 }
 .item a:hover {
 	text-decoration: underline;
-}
-
-.item .num {
-	display: table-cell;
-	width: 2em;
 }
 
 .item a.link {

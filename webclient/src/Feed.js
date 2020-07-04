@@ -59,10 +59,6 @@ class Feed extends React.Component {
 					<div>
 						{stories.map((x, i) =>
 							<div className='item' key={i}>
-								<div className='num'>
-									{i+1}.
-								</div>
-
 								<div className='title'>
 									<Link className='link' to={'/' + x.id}>
 										<img className='source-logo' src={logos[x.source]} alt='source logo' /> {x.title}
