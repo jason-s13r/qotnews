@@ -56,19 +56,6 @@ def get_article(url):
         logging.error('Problem getting article: {}'.format(str(e)))
         return ''
 
-def get_first_image(text):
-    soup = BeautifulSoup(text, features='html.parser')
-
-    try:
-        first_img = soup.find('img')
-        url = first_img['src']
-        headers = {'User-Agent': 'Twitterbot/1.0'}
-        length = requests.get(url, headers=headers, timeout=4).headers['content-length']
-        if int(length) > 1000000: raise
-        return url
-    except:
-        return ''
-
 def get_content_type(url):
     try:
         headers = {'User-Agent': 'Twitterbot/1.0'}
@@ -130,8 +117,6 @@ def update_story(story, is_manual=False):
         story['text'] = get_article(story['url'])
         if not story['text']: return False
 
-        story['img'] = get_first_image(story['text'])
-
     return True
 
 if __name__ == '__main__':
@@ -147,7 +132,5 @@ if __name__ == '__main__':
 
     a = get_article('https://blog.joinmastodon.org/2019/10/mastodon-3.0/')
     print(a)
-    u = get_first_image(a)
-    print(u)
 
     print('done')
