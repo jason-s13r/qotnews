@@ -36,12 +36,6 @@ class Feed extends React.Component {
 									this.props.updateCache(x.id, result.story);
 								}, error => {}
 							);
-
-							if (i < 20 && x.img) {
-								const img = new Image();
-								img.src = x.img;
-								console.log('prefetched image', x.img);
-							}
 						});
 					}
 				},
