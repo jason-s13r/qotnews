@@ -117,6 +117,7 @@ def update_story(story, is_manual=False):
         story['text'] = get_article(story['url'])
         if not story['text']: return False
 
+    logging.info('returning true')
     return True
 
 if __name__ == '__main__':
