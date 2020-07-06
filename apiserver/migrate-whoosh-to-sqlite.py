@@ -43,22 +43,29 @@ with archive.ix.searcher() as searcher:
             print('num', count, 'id', doc['id'])
             count += 1
 
+            story = doc['story']
+            story.pop('img', None)
+
+            if 'reddit.com/r/technology' in story['link']:
+                print('skipping r/technology')
+                continue
+
             try:
-                database.put_story(doc['story'])
+                database.put_story(story)
             except database.IntegrityError:
                 print('collision!')
-                old_story = database.get_story_by_ref(doc['story']['ref'])
-                story = json.loads(old_story.full_json)
-                if doc['story']['num_comments'] > story['num_comments']:
+                old_story = database.get_story_by_ref(story['ref'])
+                old_story = json.loads(old_story.full_json)
+                if story['num_comments'] > old_story['num_comments']:
                     print('more comments, replacing')
-                    database_del_story_by_ref(doc['story']['ref'])
-                    database.put_story(doc['story'])
-                    search_del_story(story['id'])
+                    database_del_story_by_ref(story['ref'])
+                    database.put_story(story)
+                    search_del_story(old_story['id'])
                 else:
                     print('fewer comments, skipping')
                     continue
 
-            search.put_story(doc['story'])
+            search.put_story(story)
             print()
         except KeyboardInterrupt:
             break
