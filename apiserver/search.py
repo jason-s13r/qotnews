@@ -20,8 +20,36 @@ def create_index():
         logging.error('Problem creating MeiliSearch index: {}'.format(str(e)))
         return False
 
+def update_rankings():
+    try:
+        json = ['typo', 'words', 'proximity', 'attribute', 'desc(date)', 'wordsPosition', 'exactness']
+        r = requests.post(MEILI_URL + 'indexes/qotnews/settings/ranking-rules', json=json, timeout=2)
+        if r.status_code != 202:
+            raise Exception('Bad response code ' + str(r.status_code))
+        return r.json()
+    except KeyboardInterrupt:
+        raise
+    except BaseException as e:
+        logging.error('Problem setting MeiliSearch ranking rules: {}'.format(str(e)))
+        return False
+
+def update_attributes():
+    try:
+        json = ['title', 'url', 'author', 'link', 'id']
+        r = requests.post(MEILI_URL + 'indexes/qotnews/settings/searchable-attributes', json=json, timeout=2)
+        if r.status_code != 202:
+            raise Exception('Bad response code ' + str(r.status_code))
+        return r.json()
+    except KeyboardInterrupt:
+        raise
+    except BaseException as e:
+        logging.error('Problem setting MeiliSearch searchable attributes: {}'.format(str(e)))
+        return False
+
 def init():
     create_index()
+    update_rankings()
+    update_attributes()
 
 def put_story(story):
     story = story.copy()
