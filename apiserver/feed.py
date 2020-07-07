@@ -83,21 +83,15 @@ def update_story(story, is_manual=False):
     elif story['source'] == 'manual':
         res = manual.story(story['ref'])
 
-    logging.info('Got story')
-
     if res:
         story.update(res) # join dicts
     else:
         logging.info('Story not ready yet')
         return False
 
-    logging.info('story joined')
-
     if story['date'] and not is_manual and story['date'] + TWO_DAYS < time.time():
         logging.info('Story too old, removing')
         return False
-
-    logging.info('story age good')
 
     if story.get('url', '') and not story.get('text', ''):
         logging.info('inside if')
@@ -105,19 +99,16 @@ def update_story(story, is_manual=False):
             logging.info('URL invalid file type / content type:')
             logging.info(story['url'])
             return False
-        logging.info('content type good')
 
         if any([domain in story['url'] for domain in INVALID_DOMAINS]):
             logging.info('URL invalid domain:')
             logging.info(story['url'])
             return False
-        logging.info('domain good')
 
         logging.info('Getting article ' + story['url'])
         story['text'] = get_article(story['url'])
         if not story['text']: return False
 
-    logging.info('returning true')
     return True
 
 if __name__ == '__main__':
