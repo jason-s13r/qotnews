@@ -60,27 +60,30 @@ class Results extends React.Component {
 				</Helmet>
 				{error && <p>Connection error?</p>}
 				{stories ?
-					<div>
-						{stories.length ?
-							stories.map((x, i) =>
-								<div className='item' key={i}>
-									<div className='title'>
-										<Link className='link' to={'/' + x.id}>
-											<img className='source-logo' src={logos[x.source]} alt='source logo' /> {x.title}
-										</Link>
+					<>
+						<p>Search results:</p>
+						<div className='comment lined'>
+							{stories.length ?
+								stories.map((x, i) =>
+									<div className='item' key={i}>
+										<div className='title'>
+											<Link className='link' to={'/' + x.id}>
+												<img className='source-logo' src={logos[x.source]} alt='source logo' /> {x.title}
+											</Link>
 
-										<span className='source'>
-											&#8203;({sourceLink(x)})
-										</span>
+											<span className='source'>
+												&#8203;({sourceLink(x)})
+											</span>
+										</div>
+
+										{infoLine(x)}
 									</div>
-
-									{infoLine(x)}
-								</div>
-							)
-						:
-							<p>no results</p>
-						}
-					</div>
+								)
+							:
+								<p>none</p>
+							}
+						</div>
+					</>
 				:
 					<p>loading...</p>
 				}
