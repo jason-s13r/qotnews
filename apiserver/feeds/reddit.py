@@ -14,7 +14,7 @@ from prawcore.exceptions import PrawcoreException
 
 from utils import render_md, clean
 
-SUBREDDITS = 'Economics+Foodforthought+TrueReddit+business+privacy'
+SUBREDDITS = 'Economics+Foodforthought+TrueReddit+privacy'
 
 SITE_LINK = lambda x : 'https://old.reddit.com{}'.format(x)
 SITE_AUTHOR_LINK = lambda x : 'https://old.reddit.com/u/{}'.format(x)
