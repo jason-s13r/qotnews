@@ -145,7 +145,7 @@ def static_story(sid):
             url=url,
             description=description)
 
-http_server = WSGIServer(('', 43842), flask_app)
+http_server = WSGIServer(('', 33842), flask_app)
 
 def feed_thread():
     global news_index
