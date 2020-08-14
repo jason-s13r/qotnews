@@ -65,9 +65,9 @@ def get_content_type(url):
 
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'}
-        return requests.get(url, headers=headers, timeout=2).headers['content-type']
+        return requests.get(url, headers=headers, timeout=10).headers['content-type']
     except:
-        return 'text/'
+        return ''
 
 def update_story(story, is_manual=False):
     res = {}
