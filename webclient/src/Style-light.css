@@ -4,6 +4,7 @@ body {
 	color: #000000;
 	margin-bottom: 100vh;
 	word-break: break-word;
+	font-kerning: normal;
 }
 
 a {

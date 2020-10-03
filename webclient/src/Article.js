@@ -15,6 +15,7 @@ class Article extends React.Component {
 		this.state = {
 			story: cache[id] || false,
 			error: false,
+			pConv: [],
 		};
 	}
 	
@@ -43,10 +44,22 @@ class Article extends React.Component {
 			);
 	}
 
+	pConvert = (n) => {
+		this.setState({ pConv: [...this.state.pConv, n]});
+	}
+
 	render() {
 		const id = this.props.match ? this.props.match.params.id : 'CLOL';
 		const story = this.state.story;
 		const error = this.state.error;
+		const pConv = this.state.pConv;
+		let nodes = null;
+
+		if (story.text) {
+			let domparser = new DOMParser();
+			let doc = domparser.parseFromString(story.text, 'text/html');
+			nodes = doc.querySelector('body').children;
+		}
 
 		return (
 			<div className='article-container'>
@@ -65,8 +78,20 @@ class Article extends React.Component {
 
 						{infoLine(story)}
 
-						{story.text ?
-							<div className='story-text' dangerouslySetInnerHTML={{ __html: story.text }} />
+						{nodes ?
+							<div className='story-text'>
+								{Object.entries(nodes).map(([k, v]) =>
+									pConv.includes(k) ?
+										v.innerHTML.split('\n\n').map(x =>
+											<p dangerouslySetInnerHTML={{ __html: x }} />
+										)
+									:
+										<>
+											<v.localName dangerouslySetInnerHTML={{ __html: v.innerHTML }} />
+											{v.localName == 'pre' && <button onClick={() => this.pConvert(k)}>Convert Code to Paragraph</button>}
+										</>
+								)}
+							</div>
 						:
 							<p>Problem getting article :(</p>
 						}
