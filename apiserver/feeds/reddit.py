@@ -14,7 +14,7 @@ from prawcore.exceptions import PrawcoreException
 
 from utils import render_md, clean
 
-SUBREDDITS = 'Economics+Foodforthought+TrueReddit+privacy'
+SUBREDDITS = 'Economics+AcademicPhilosophy+DepthHub+Foodforthought+HistoryofIdeas+LaymanJournals+PhilosophyofScience+PoliticsPDFs+Scholar+StateOfTheUnion+TheAgora+TrueFilm+TrueReddit+UniversityofReddit+culturalstudies+hardscience+indepthsports+indepthstories+ludology+neurophilosophy+resilientcommunities+worldevents'
 
 SITE_LINK = lambda x : 'https://old.reddit.com{}'.format(x)
 SITE_AUTHOR_LINK = lambda x : 'https://old.reddit.com/u/{}'.format(x)
@@ -66,6 +66,9 @@ def story(ref):
         s['comments'] = [comment(i) for i in r.comments]
         s['comments'] = list(filter(bool, s['comments']))
         s['num_comments'] = r.num_comments
+
+        if s['score'] < 25 and s['num_comments'] < 10:
+            return False
 
         if r.selftext:
             s['text'] = render_md(clean(r.selftext))
