@@ -1,0 +1,6 @@
+# Editor
+*.swp
+*.swo
+
+meilisearch-linux-amd64
+data.ms/
