@@ -56,9 +56,9 @@ class Article extends React.Component {
 		let nodes = null;
 
 		if (story.text) {
-			let domparser = new DOMParser();
-			let doc = domparser.parseFromString(story.text, 'text/html');
-			nodes = doc.querySelector('body').children;
+			let div = document.createElement('div');
+			div.innerHTML = story.text;
+			nodes = div.childNodes;
 		}
 
 		return (
@@ -86,10 +86,14 @@ class Article extends React.Component {
 											<p dangerouslySetInnerHTML={{ __html: x }} />
 										)
 									:
-										<>
-											<v.localName dangerouslySetInnerHTML={{ __html: v.innerHTML }} />
-											{v.localName == 'pre' && <button onClick={() => this.pConvert(k)}>Convert Code to Paragraph</button>}
-										</>
+										(v.nodeName === '#text' ?
+											<p>{v.data}</p>
+										:
+											<>
+												<v.localName dangerouslySetInnerHTML={v.innerHTML ? { __html: v.innerHTML } : null} />
+												{v.localName == 'pre' && <button onClick={() => this.pConvert(k)}>Convert Code to Paragraph</button>}
+											</>
+										)
 								)}
 							</div>
 						:
