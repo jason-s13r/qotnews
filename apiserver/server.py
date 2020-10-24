@@ -3,6 +3,11 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.INFO)
 
+import gevent
+from gevent import monkey
+monkey.patch_all()
+from gevent.pywsgi import WSGIServer
+
 import copy
 import json
 import threading
@@ -18,12 +23,6 @@ from utils import gen_rand_id
 from flask import abort, Flask, request, render_template, stream_with_context, Response
 from werkzeug.exceptions import NotFound
 from flask_cors import CORS
-
-import gevent
-from gevent import monkey
-from gevent.pywsgi import WSGIServer
-
-monkey.patch_all()
 
 database.init()
 search.init()
