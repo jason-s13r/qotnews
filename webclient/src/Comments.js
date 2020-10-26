@@ -18,6 +18,8 @@ class Article extends React.Component {
 		this.state = {
 			story: cache[id] || false,
 			error: false,
+			collapsed: [],
+			expanded: [],
 		};
 	}
 
@@ -49,22 +51,54 @@ class Article extends React.Component {
 			);
 	}
 
+	collapseComment(cid) {
+		this.setState(prevState => ({
+			...prevState,
+			collapsed: [...prevState.collapsed, cid],
+			expanded: prevState.expanded.filter(x => x !== cid),
+		}));
+	}
+
+	expandComment(cid) {
+		this.setState(prevState => ({
+			...prevState,
+			collapsed: prevState.collapsed.filter(x => x !== cid),
+			expanded: [...prevState.expanded, cid],
+		}));
+	}
+
+	countComments(c) {
+		return c.comments.reduce((sum, x) => sum + this.countComments(x), 1);
+	}
+
 	displayComment(story, c, level) {
+		const cid = c.author+c.date;
+
+		const collapsed = this.state.collapsed.includes(cid);
+		const expanded = this.state.expanded.includes(cid);
+
+		const hidden = collapsed || (level == 4 && !expanded);
+		const hasChildren = c.comments.length !== 0;
+
 		return (
-			<div className={level ? 'comment lined' : 'comment'} key={c.author+c.date}>
+			<div className={level ? 'comment lined' : 'comment'} key={cid}>
 				<div className='info'>
 					<p>
 						{c.author === story.author ? '[OP]' : ''} {c.author || '[Deleted]'}
-						&#8203; | <HashLink to={'#'+c.author+c.date} id={c.author+c.date}>{moment.unix(c.date).fromNow()}</HashLink>
+						{' '} | <HashLink to={'#'+cid} id={cid}>{moment.unix(c.date).fromNow()}</HashLink>
+
+						{hidden || hasChildren &&
+							<span className='collapser pointer' onClick={() => this.collapseComment(cid)}>–</span>
+						}
 					</p>
 				</div>
 
 				<div className='text' dangerouslySetInnerHTML={{ __html: c.text }} />
 
-				{level < 5 ?
-					c.comments.map(i => this.displayComment(story, i, level + 1))
+				{hidden && hasChildren ?
+					<div className='comment lined info pointer' onClick={() => this.expandComment(cid)}>[show {this.countComments(c)-1} more]</div>
 				:
-					<div className='info'><p>[replies snipped]</p></div>
+					c.comments.map(i => this.displayComment(story, i, level + 1))
 				}
 			</div>
 		);

@@ -197,3 +197,12 @@ span.source {
 .search form {
 	display: inline;
 }
+
+.collapser {
+	padding-left: 0.5rem;
+	padding-right: 1.5rem;
+}
+
+.pointer {
+	cursor: pointer;
+}
