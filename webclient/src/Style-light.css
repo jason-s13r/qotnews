@@ -159,6 +159,27 @@ span.source {
 	margin-top: -0.5rem;
 }
 
+.comment .text.hidden > p {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: none;
+	color: #828282;
+}
+
+.comment .text.hidden > p:first-child {
+	display: block;
+}
+
+.comment .collapser {
+	padding-left: 0.5rem;
+	padding-right: 1.5rem;
+}
+
+.comment .pointer {
+	cursor: pointer;
+}
+
 .toggleDot {
 	position: fixed;
 	bottom: 1rem;
@@ -196,13 +217,4 @@ span.source {
 
 .search form {
 	display: inline;
-}
-
-.collapser {
-	padding-left: 0.5rem;
-	padding-right: 1.5rem;
-}
-
-.pointer {
-	cursor: pointer;
 }

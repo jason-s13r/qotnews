@@ -93,7 +93,7 @@ class Article extends React.Component {
 					</p>
 				</div>
 
-				<div className='text' dangerouslySetInnerHTML={{ __html: c.text }} />
+				<div className={collapsed ? 'text hidden' : 'text'}  dangerouslySetInnerHTML={{ __html: c.text }} />
 
 				{hidden && hasChildren ?
 					<div className='comment lined info pointer' onClick={() => this.expandComment(cid)}>[show {this.countComments(c)-1} more]</div>
