@@ -712,8 +712,8 @@ raw-body@2.4.0:
     unpipe "1.0.0"
 
 "readability@https://github.com/mozilla/readability":
-  version "0.2.0"
-  resolved "https://github.com/mozilla/readability#2982216913af2c66b0690e88606b03116553ad92"
+  version "0.3.0"
+  resolved "https://github.com/mozilla/readability#d5eea06a0095b3138dbd1f6233f656d690200509"
 
 request-promise-core@1.1.2:
   version "1.1.2"
