@@ -4,7 +4,7 @@ const port = 33843;
 
 const request = require('request');
 const JSDOM = require('jsdom').JSDOM;
-const Readability = require('readability');
+const { Readability } = require('readability');
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -36,7 +36,11 @@ app.post('/', (req, res) => {
 	const requestOptions = {
 		url: url,
 		//headers: {'User-Agent': 'Googlebot/2.1 (+http://www.google.com/bot.html)'},
-		headers: {'User-Agent': 'Twitterbot/1.0'},
+		//headers: {'User-Agent': 'Twitterbot/1.0'},
+		headers: {
+			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
+			'X-Forwarded-For': '66.249.66.1',
+		},
 	};
 
 	console.log('Parse request for:', url);

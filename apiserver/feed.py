@@ -46,7 +46,7 @@ def get_article(url):
     logging.info('Trying our server instead...')
 
     try:
-        r = requests.post(READ_API, data=dict(url=url), timeout=10)
+        r = requests.post(READ_API, data=dict(url=url), timeout=20)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.text
@@ -94,7 +94,6 @@ def update_story(story, is_manual=False):
         return False
 
     if story.get('url', '') and not story.get('text', ''):
-        logging.info('inside if')
         if not get_content_type(story['url']).startswith('text/'):
             logging.info('URL invalid file type / content type:')
             logging.info(story['url'])

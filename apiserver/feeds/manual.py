@@ -7,12 +7,15 @@ import requests
 import time
 from bs4 import BeautifulSoup
 
-USER_AGENT = 'Twitterbot/1.0'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'
 
 def api(route):
     try:
-        headers = {'User-Agent': USER_AGENT}
-        r = requests.get(route, headers=headers, timeout=5)
+        headers = {
+            'User-Agent': USER_AGENT,
+            'X-Forwarded-For': '66.249.66.1',
+        }
+        r = requests.get(route, headers=headers, timeout=10)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.text
