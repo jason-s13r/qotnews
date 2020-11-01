@@ -117,6 +117,11 @@ span.source {
 	margin: 0;
 }
 
+.article table {
+	width: 100%;
+	table-layout: fixed;
+}
+
 .article iframe {
 	display: none;
 }
