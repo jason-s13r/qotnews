@@ -17,10 +17,10 @@ TWO_DAYS = 60*60*24*2
 
 def list():
     feed = []
+    feed += [(x, 'hackernews') for x in hackernews.feed()[:10]]
+    feed += [(x, 'tildes') for x in tildes.feed()[:10]]
     feed += [(x, 'reddit') for x in reddit.feed()[:15]]
     feed += [(x, 'webworm') for x in webworm.feed()[:15]]
-    feed += [(x, 'tildes') for x in tildes.feed()[:10]]
-    feed += [(x, 'hackernews') for x in hackernews.feed()[:10]]
     return feed
 
 def get_article(url):

@@ -66,7 +66,7 @@ def comment(i):
     c = {}
     c['date'] = unix(i.get('date'))
     c['author'] = i.get('name', '')
-    c['score'] = o.get('reactions').get('❤')
+    c['score'] = i.get('reactions').get('❤')
     c['text'] = clean(i.get('body', '') or '')
     c['comments'] = [comment(j) for j in i['children']]
     c['comments'] = list(filter(bool, c['comments']))
@@ -100,7 +100,8 @@ def story(ref):
     s['title'] = r.get('title', '')
     s['link'] = r.get('canonical_url', '')
     s['url'] = r.get('canonical_url', '')
-    s['comments'] = [comment(i) for i in api(API_ITEM_COMMENTS, r.get('id'))]
+    comments = api(API_ITEM_COMMENTS, r.get('id'))
+    s['comments'] = [comment(i) for i in comments.get('comments')]
     s['comments'] = list(filter(bool, s['comments']))
     s['num_comments'] = r.get('comment_count', 0)
 
