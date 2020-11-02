@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from feeds import hackernews, reddit, tildes, manual
 
 OUTLINE_API = 'https://api.outline.com/v3/parse_article'
-ARCHIVE_API = 'https://archive.fo/submit/'
 READ_API = 'http://127.0.0.1:33843'
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
@@ -71,8 +70,6 @@ def get_content_type(url):
 
 def update_story(story, is_manual=False):
     res = {}
-
-    logging.info('Updating story ' + str(story['ref']))
 
     if story['source'] == 'hackernews':
         res = hackernews.story(story['ref'])

@@ -175,6 +175,8 @@ def feed_thread():
                 except AttributeError:
                     story = dict(id=item['sid'], ref=item['ref'], source=item['source'])
 
+                logging.info('Updating story: ' + str(story['ref']) + ', index: ' + str(news_index))
+
                 valid = feed.update_story(story)
                 if valid:
                     database.put_story(story)
@@ -183,7 +185,7 @@ def feed_thread():
                     database.del_ref(item['ref'])
                     logging.info('Removed ref {}'.format(item['ref']))
             else:
-                logging.info('Skipping index')
+                logging.info('Skipping index: ' + str(news_index))
 
             gevent.sleep(6)
 
