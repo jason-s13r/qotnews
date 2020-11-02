@@ -35,7 +35,7 @@ $ source env/bin/activate
 (env) $ pip install -r requirements.txt
 ```
 
-Configure Praw for your Reddit account:
+Configure Praw for your Reddit account (optional):
 
 * Go to https://www.reddit.com/prefs/apps
 * Click "Create app"
@@ -44,15 +44,13 @@ Configure Praw for your Reddit account:
 * Description: blank
 * About URL: blank
 * Redirect URL: your GitHub profile
-* Submit, copy the client ID and client secret into `praw.ini`:
+* Submit, copy the client ID and client secret into `settings.py` below
 
 ```text
-(env) $ vim praw.ini
-[bot]
-client_id=paste here
-client_secret=paste here
-user_agent=script by github/your-username-here
+(env) $ vim settings.py.example
 ```
+
+Edit it and save it as `settings.py`.
 
 Now you can run the server:
 

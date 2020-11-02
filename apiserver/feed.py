@@ -7,6 +7,7 @@ import requests
 import time
 from bs4 import BeautifulSoup
 
+import settings
 from feeds import hackernews, reddit, tildes, manual
 
 OUTLINE_API = 'https://api.outline.com/v3/parse_article'
@@ -17,9 +18,15 @@ TWO_DAYS = 60*60*24*2
 
 def list():
     feed = []
-    feed += [(x, 'hackernews') for x in hackernews.feed()[:15]]
-    feed += [(x, 'reddit') for x in reddit.feed()[:10]]
-    feed += [(x, 'tildes') for x in tildes.feed()[:5]]
+    if settings.NUM_HACKERNEWS:
+        feed += [(x, 'hackernews') for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
+
+    if settings.NUM_REDDIT:
+        feed += [(x, 'reddit') for x in reddit.feed()[:settings.NUM_REDDIT]]
+
+    if settings.NUM_TILDES:
+        feed += [(x, 'tildes') for x in tildes.feed()[:settings.NUM_TILDES]]
+
     return feed
 
 def get_article(url):

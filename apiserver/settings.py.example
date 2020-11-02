@@ -1,0 +1,40 @@
+# QotNews settings
+# edit this file and save it as settings.py
+
+# Feed Lengths
+# Number of top items from each site to pull
+# set to 0 to disable that site
+NUM_HACKERNEWS = 15
+NUM_REDDIT = 10
+NUM_TILDES = 5
+
+# Reddit account info
+# leave blank if not using Reddit
+REDDIT_CLIENT_ID = ''
+REDDIT_CLIENT_SECRET = ''
+REDDIT_USER_AGENT = ''
+
+SUBREDDITS = [
+    'Economics',
+    'AcademicPhilosophy',
+    'DepthHub',
+    'Foodforthought',
+    'HistoryofIdeas',
+    'LaymanJournals',
+    'PhilosophyofScience',
+    'PoliticsPDFs',
+    'Scholar',
+    'StateOfTheUnion',
+    'TheAgora',
+    'TrueFilm',
+    'TrueReddit',
+    'UniversityofReddit',
+    'culturalstudies',
+    'hardscience',
+    'indepthsports',
+    'indepthstories',
+    'ludology',
+    'neurophilosophy',
+    'resilientcommunities',
+    'worldevents',
+]
