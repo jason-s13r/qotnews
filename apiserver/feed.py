@@ -7,7 +7,7 @@ import requests
 import time
 from bs4 import BeautifulSoup
 
-from feeds import hackernews, reddit, tildes, webworm, manual
+from feeds import hackernews, reddit, tildes, substack, manual
 
 OUTLINE_API = 'https://api.outline.com/v3/parse_article'
 READ_API = 'http://127.0.0.1:33843'
@@ -15,12 +15,15 @@ READ_API = 'http://127.0.0.1:33843'
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 TWO_DAYS = 60*60*24*2
 
+webworm = substack.Publication("https://www.webworm.co")
+
 def list():
     feed = []
     feed += [(x, 'hackernews') for x in hackernews.feed()[:10]]
     feed += [(x, 'tildes') for x in tildes.feed()[:10]]
-    feed += [(x, 'reddit') for x in reddit.feed()[:15]]
     feed += [(x, 'webworm') for x in webworm.feed()[:15]]
+    feed += [(x, 'reddit') for x in reddit.feed()[:15]]
+    feed += [(x, 'substack') for x in substack.top.feed()[:15]]
     return feed
 
 def get_article(url):
@@ -80,6 +83,8 @@ def update_story(story, is_manual=False):
         res = tildes.story(story['ref'])
     elif story['source'] == 'webworm':
         res = webworm.story(story['ref'])
+    elif story['source'] == 'substack':
+        res = substack.top.story(story['ref'])
     elif story['source'] == 'manual':
         res = manual.story(story['ref'])
 
