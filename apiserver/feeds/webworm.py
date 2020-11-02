@@ -8,17 +8,18 @@ if __name__ == '__main__':
     sys.path.insert(0,'.')
 
 import requests
+from datetime import datetime
 
 from utils import clean
 
 WEBWORM_DOMAIN = "https://www.webworm.co"
 
-API_STORIES = lambda x: f'{WEBWORM_DOMAIN}/api/v1/archive?sort=new&search=&offset=0&limit=100'
+API_STORIES = lambda x: f"{WEBWORM_DOMAIN}/api/v1/archive?sort=new&search=&offset=0&limit=100"
 #API_ITEM = lambda x : f'https://hn.algolia.com/api/v1/items/{x}'
 API_ITEM_COMMENTS = lambda x: f"{WEBWORM_DOMAIN}/api/v1/post/{x}/comments?all_comments=true&sort=best_first"
 
-SITE_LINK = lambda x: f'{WEBWORM_DOMAIN}/p/{x}'
-SITE_AUTHOR_LINK = lambda x : f'{WEBWORM_DOMAIN}/people/{x}'
+SITE_LINK = lambda x: f"{WEBWORM_DOMAIN}/p/{x}"
+SITE_AUTHOR_LINK = lambda x : f"{WEBWORM_DOMAIN}/people/{x}"
 
 def api(route, ref=None):
     try:
@@ -55,17 +56,21 @@ def bylines(b):
     a['link'] = SITE_AUTHOR_LINK(b.get('id'))
     return a
 
+def unix(date_str):
+    return int(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ').timestamp())
+
 def comment(i):
     if 'body' not in i:
         return False
 
     c = {}
+    c['date'] = unix(i.get('date'))
     c['author'] = i.get('name', '')
     c['score'] = o.get('reactions').get('❤')
-    c['date'] = i.get('created_at_i', 0)
     c['text'] = clean(i.get('body', '') or '')
     c['comments'] = [comment(j) for j in i['children']]
     c['comments'] = list(filter(bool, c['comments']))
+
     return c
 
 def comment_count(i):
@@ -87,20 +92,22 @@ def story(ref):
         return False
 
     s = {}
-    authors = list(filter(None, [bylines(byline) for byline in r.get('publishedBylines')]))
     s['author'] = ''
     s['author_link'] = ''
-    if len(authors):
-        s['author'] = authors[0].get('name')
-        s['author_link'] = authors[0].get('link')
+
+    s['date'] = unix(r.get('post_date'))
     s['score'] = r.get('reactions').get('❤')
-    s['date'] = r.get('post_date', 0)
     s['title'] = r.get('title', '')
     s['link'] = r.get('canonical_url', '')
     s['url'] = r.get('canonical_url', '')
     s['comments'] = [comment(i) for i in api(API_ITEM_COMMENTS, r.get('id'))]
     s['comments'] = list(filter(bool, s['comments']))
     s['num_comments'] = r.get('comment_count', 0)
+
+    authors = list(filter(None, [bylines(byline) for byline in r.get('publishedBylines')]))
+    if len(authors):
+        s['author'] = authors[0].get('name')
+        s['author_link'] = authors[0].get('link')
 
     if 'text' in r and r['text']:
         s['text'] = clean(r['text'] or '')

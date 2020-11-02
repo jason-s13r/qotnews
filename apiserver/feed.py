@@ -13,7 +13,7 @@ OUTLINE_API = 'https://api.outline.com/v3/parse_article'
 READ_API = 'http://127.0.0.1:33843'
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
-TWO_DAYS = 60*60*24*10
+TWO_DAYS = 60*60*24*2
 
 def list():
     feed = []
