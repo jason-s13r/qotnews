@@ -26,6 +26,16 @@ def api(route, ref=None):
     except KeyboardInterrupt:
         raise
     except BaseException as e:
+        logging.error('Problem hitting hackernews API: {}, trying again'.format(str(e)))
+
+    try:
+        r = requests.get(route(ref), timeout=15)
+        if r.status_code != 200:
+            raise Exception('Bad response code ' + str(r.status_code))
+        return r.json()
+    except KeyboardInterrupt:
+        raise
+    except BaseException as e:
         logging.error('Problem hitting hackernews API: {}'.format(str(e)))
         return False
 
