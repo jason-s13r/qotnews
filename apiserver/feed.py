@@ -38,11 +38,11 @@ def list():
         feed += [(x, 'substack') for x in substack.top.feed()[:settings.NUM_SUBSTACK]]
 
     for key, publication in substacks.items():
-        count = settings.SUBSTACK[key].count
+        count = settings.SUBSTACK[key]['count']
         feed += [(x, key) for x in publication.feed()[:count]]
 
     for key, sites in sitemaps.items():
-        count = settings.SITEMAP[key].count
+        count = settings.SITEMAP[key]['count']
         feed += [(x, key) for x in sites.feed()[:count]]
 
 

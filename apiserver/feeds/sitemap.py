@@ -10,6 +10,7 @@ if __name__ == '__main__':
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+import extruct
 
 from utils import clean
 
@@ -81,23 +82,40 @@ class Sitemap:
         if not r:
             return False
 
-        (data, method) = get_article_details(ref)
-        if not data:
+        html = xml(lambda x: ref)
+
+        if not html:
             return False
-        if 'outline' not in method:
-            return False
+
+        data = extruct.extract(html)
+
         s = {}
-        s['author'] = data['author']
         s['author_link'] = ''
-        s['date'] = unix(r.find('lastmod').text)
-        s['score'] = 0
-        s['title'] = data['title']
-        s['link'] = data['article_url']
-        s['url'] = data['article_url']
+        s['score'] = ''
         s['comments'] = []
         s['num_comments'] = 0
-        s['text'] = data['html']
-        
+        s['link'] = ref
+        s['url'] = ref
+        s['date'] = unix(r.find('lastmod').text)
+
+        for og in data['opengraph']:
+           titles = list(filter(None, [value if 'og:title' in key else None for key, value in og['properties']]))
+           if len(titles):
+               s['title'] = titles[0]
+
+
+        for md in data['microdata']:
+            if md['type'] == 'https://schema.org/NewsArticle':
+                props = md['properties']
+                s['title'] = props['headline']
+                if props['author']:
+                    s['author'] = props['author']['properties']['name']
+
+        for ld in data['json-ld']:
+            if ld['@type'] == 'Article':
+                s['title'] = ld['headline']
+                if ld['author']:
+                    s['author'] = ld['author']['name']
         return s
 
 
