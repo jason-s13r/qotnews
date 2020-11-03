@@ -21,7 +21,7 @@ for key, value in settings.SUBSTACK.items():
     substacks[key] = substack.Publication(value['url'])
 categories = {}
 for key, value in settings.CATEGORY.items():
-    categories[key] = news.Cateogry(value['url'])
+    categories[key] = news.Category(value['url'])
 sitemaps = {}
 for key, value in settings.SITEMAP.items():
     sitemaps[key] = news.Sitemap(value['url'])

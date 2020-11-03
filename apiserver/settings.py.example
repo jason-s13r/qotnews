@@ -19,7 +19,7 @@ NUM_SUBSTACK = 10
 #     'the bulletin': { 'url': "https://thespinoff.substack.com", 'count': 10},
 # }
 
-# CATEGORIES = {
+# CATEGORY = {
 #     'rnz national': { 'url': "https://www.rnz.co.nz/news/national", 'count': 10},
 # }
 
