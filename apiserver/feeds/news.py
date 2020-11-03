@@ -109,36 +109,20 @@ class Sitemap:
         return [x.find('loc').text for x in articles] or []
 
     def story(self, ref):
-        markup = xml(lambda x: self.sitemap_url)
-        if not markup: return []
-        soup = BeautifulSoup(markup, features='lxml')
-        articles = soup.find('urlset').findAll('url')
-        articles = list(filter(None, [a if a.find('lastmod') is not None else None for a in articles]))
-        articles = list(filter(None, [a if a.find('loc').text == ref else None for a in articles]))
-
-        if len(articles) == 0:
+        markup = xml(lambda x: ref)
+        if not markup:
             return False
-
-        r = articles[0]
-        if not r:
-            return False
-
-        html = xml(lambda x: ref)
-
-        if not html:
-            return False
-
-        data = extruct.extract(html)
 
         s = {}
         s['author_link'] = ''
-        s['score'] = ''
+        s['score'] = 0
         s['comments'] = []
         s['num_comments'] = 0
         s['link'] = ref
         s['url'] = ref
-        s['date'] = unix(r.find('lastmod').text)
+        s['date'] = 0
 
+        data = extruct.extract(markup)
         s = parse_extruct(s, data)
         return s
 
@@ -162,17 +146,16 @@ class Category:
         if not markup:
             return False
 
-        data = extruct.extract(markup)
-
         s = {}
         s['author_link'] = ''
-        s['score'] = ''
+        s['score'] = 0
         s['comments'] = []
         s['num_comments'] = 0
         s['link'] = ref
         s['url'] = ref
         s['date'] = 0
 
+        data = extruct.extract(markup)
         s = parse_extruct(s, data)
         return s
 
