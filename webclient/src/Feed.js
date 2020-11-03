@@ -57,15 +57,15 @@ class Feed extends React.Component {
 				{error && <p>Connection error?</p>}
 				{stories ?
 					<div>
-						{stories.map((x, i) =>
-							<div className='item' key={i}>
+						{stories.map(x =>
+							<div className='item' key={x.id}>
 								<div className='title'>
 									<Link className='link' to={'/' + x.id}>
 										<img className='source-logo' src={logos[x.source]} alt='source logo' /> {x.title}
 									</Link>
 
 									<span className='source'>
-										&#8203;({sourceLink(x)})
+										({sourceLink(x)})
 									</span>
 								</div>
 
