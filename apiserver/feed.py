@@ -7,6 +7,7 @@ import requests
 import time
 from bs4 import BeautifulSoup
 
+import settings
 from feeds import hackernews, reddit, tildes, substack, manual, sitemap
 
 OUTLINE_API = 'https://api.outline.com/v3/parse_article'
@@ -22,14 +23,30 @@ nzherald = sitemap.Sitemap("https://www.nzherald.co.nz/arcio/news-sitemap/")
 
 def list():
     feed = []
-    feed += [(x, 'hackernews') for x in hackernews.feed()[:10]]
-    feed += [(x, 'tildes') for x in tildes.feed()[:10]]
-    feed += [(x, 'stuff') for x in stuff.feed()[:10]]
-    feed += [(x, 'nzherald') for x in nzherald.feed()[:10]]
-    feed += [(x, 'substack') for x in substack.top.feed()[:15]]
-    feed += [(x, 'reddit') for x in reddit.feed()[:15]]
-    feed += [(x, 'webworm') for x in webworm.feed()[:15]]
-    feed += [(x, 'the bulletin') for x in bulletin.feed()[:15]]
+    if settings.NUM_HACKERNEWS:
+        feed += [(x, 'hackernews') for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
+
+    if settings.NUM_REDDIT:
+        feed += [(x, 'reddit') for x in reddit.feed()[:settings.NUM_REDDIT]]
+
+    if settings.NUM_TILDES:
+        feed += [(x, 'tildes') for x in tildes.feed()[:settings.NUM_TILDES]]
+
+    if settings.NUM_SUBSTACK:
+        feed += [(x, 'substack') for x in substack.top.feed()[:settings.NUM_SUBSTACK]]
+
+    if settings.NUM_STUFF:
+        feed += [(x, 'stuff') for x in stuff.feed()[:settings.NUM_STUFF]]
+
+    if settings.NUM_NZHERALD:
+        feed += [(x, 'nzherald') for x in nzherald.feed()[:settings.NUM_NZHERALD]]
+
+    if settings.NUM_WEBWORM:
+        feed += [(x, 'webworm') for x in webworm.feed()[:settings.NUM_WEBWORM]]
+
+    if settings.NUM_BULLETIN:
+        feed += [(x, 'the bulletin') for x in bulletin.feed()[:settings.NUM_BULLETIN]]
+
     return feed
 
 def get_article(url):

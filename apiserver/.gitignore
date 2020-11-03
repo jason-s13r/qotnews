@@ -105,7 +105,7 @@ ENV/
 # DB
 db.sqlite3
 
-praw.ini
+settings.py
 data.db
 data.db.bak
 data/archive/*

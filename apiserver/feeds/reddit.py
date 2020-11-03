@@ -12,18 +12,24 @@ from praw.exceptions import PRAWException
 from praw.models import MoreComments
 from prawcore.exceptions import PrawcoreException
 
+import settings
 from utils import render_md, clean
-
-SUBREDDITS = 'newzealand'
 
 SITE_LINK = lambda x : 'https://old.reddit.com{}'.format(x)
 SITE_AUTHOR_LINK = lambda x : 'https://old.reddit.com/u/{}'.format(x)
 
-reddit = praw.Reddit('bot')
+if settings.NUM_REDDIT:
+    reddit = praw.Reddit(
+        client_id=settings.REDDIT_CLIENT_ID,
+        client_secret=settings.REDDIT_CLIENT_SECRET,
+        user_agent=settings.REDDIT_USER_AGENT,
+    )
+
+    subs = '+'.join(settings.SUBREDDITS)
 
 def feed():
     try:
-        return [x.id for x in reddit.subreddit(SUBREDDITS).hot()]
+        return [x.id for x in reddit.subreddit(subs).hot()]
     except KeyboardInterrupt:
         raise
     except PRAWException as e:
