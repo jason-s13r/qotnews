@@ -23,10 +23,6 @@ class Feed extends React.Component {
 					console.log('updated:', updated);
 
 					const { stories } = result;
-					if (stories) {
-						stories.sort((a, b) => b.date - a.date);
-					}
-
 					this.setState({ stories });
 					localStorage.setItem('stories', JSON.stringify(stories));
 
@@ -53,6 +49,10 @@ class Feed extends React.Component {
 	render() {
 		const stories = this.state.stories;
 		const error = this.state.error;
+
+		if (stories) {
+			stories.sort((a, b) => b.date - a.date);
+		}
 
 		return (
 			<div className='container'>
