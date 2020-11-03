@@ -17,10 +17,10 @@ INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 TWO_DAYS = 60*60*24*2
 
 substacks = {}
-for key, value in settings.SUBSTACK.values():
+for key, value in settings.SUBSTACK.items():
     substacks[key] = substack.Publication(value['url'])
 sitemaps = {}
-for key, value in settings.SITEMAP.values():
+for key, value in settings.SITEMAP.items():
     sitemaps[key] = sitemap.Sitemap(value['url'])
 
 def list():
@@ -37,11 +37,11 @@ def list():
     if settings.NUM_SUBSTACK:
         feed += [(x, 'substack') for x in substack.top.feed()[:settings.NUM_SUBSTACK]]
 
-    for key, publication in substacks.values():
+    for key, publication in substacks.items():
         count = settings.SUBSTACK[key].count
         feed += [(x, key) for x in publication.feed()[:count]]
 
-    for key, sites in sitemaps.values():
+    for key, sites in sitemaps.items():
         count = settings.SITEMAP[key].count
         feed += [(x, key) for x in sites.feed()[:count]]
 
