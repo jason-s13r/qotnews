@@ -108,20 +108,20 @@ class Sitemap:
             if md['type'] == 'https://schema.org/NewsArticle':
                 props = md['properties']
                 s['title'] = props['headline']
-                if props['author']:
+                if 'author' in props and props['author']:
                     s['author'] = props['author']['properties']['name']
 
         for ld in data['json-ld']:
             if ld['@type'] == 'Article':
                 s['title'] = ld['headline']
-                if ld['author']:
+                if 'author' in ld and ld['author']:
                     s['author'] = ld['author']['name']
         return s
 
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    # site = Sitemap("https://www.stuff.co.nz/sitemap.xml")
+    #site = Sitemap("https://www.stuff.co.nz/sitemap.xml")
     site = Sitemap("https://www.nzherald.co.nz/arcio/news-sitemap/")
     posts = site.feed()
     print(posts[:1])
