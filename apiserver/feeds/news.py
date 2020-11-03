@@ -21,7 +21,8 @@ def unix(date_str):
     date_tzfix = date_str
     if ":" == date_tzfix[-3]:
         date_tzfix = date_tzfix[:-3]+date_tzfix[-2:]
-    formats = ['%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%dT%H:%M:%S.%f%z']
+    formats = ['%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%dT%H:%M:%S.%f%z', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%f']
+    formats = formats + [f.replace("T%H", " %H") for f in formats]
     for f in formats:
         try:
             return int(datetime.strptime(date_str, f).timestamp())
@@ -54,11 +55,9 @@ def parse_extruct(s, data):
                         s['title'] = values['@value']
                 if 'http://ogp.me/ns/article#modified_time' in props:
                     for values in props['http://ogp.me/ns/article#modified_time']:
-                        print(f"modified_time: {values['@value']}")
                         s['date'] = unix(values['@value'])
                 if 'http://ogp.me/ns/article#published_time' in props:
                     for values in props['http://ogp.me/ns/article#published_time']:
-                        print(f"published_time: {values['@value']}")
                         s['date'] = unix(values['@value'])
 
     for og in data['opengraph']:
@@ -175,6 +174,11 @@ if __name__ == '__main__':
 
     print("Category: RadioNZ Te Ao Māori")
     site = Category("https://www.rnz.co.nz/news/te-manu-korihi/")
+    posts = site.feed()
+    print(posts[:1])
+    print(site.story(posts[0]))
+    print("Category: Newsroom Business")
+    site = Category("https://www.newsroom.co.nz/business/")
     posts = site.feed()
     print(posts[:1])
     print(site.story(posts[0]))
