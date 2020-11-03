@@ -19,6 +19,10 @@ NUM_SUBSTACK = 10
 #     'the bulletin': { 'url': "https://thespinoff.substack.com", 'count': 10},
 # }
 
+# CATEGORIES = {
+#     'rnz national': { 'url': "https://www.rnz.co.nz/news/national", 'count': 10},
+# }
+
 # Reddit account info
 # leave blank if not using Reddit
 REDDIT_CLIENT_ID = ''

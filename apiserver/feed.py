@@ -8,7 +8,7 @@ import time
 from bs4 import BeautifulSoup
 
 import settings
-from feeds import hackernews, reddit, tildes, substack, manual, sitemap
+from feeds import hackernews, reddit, tildes, substack, manual, news
 
 OUTLINE_API = 'https://api.outline.com/v3/parse_article'
 READ_API = 'http://127.0.0.1:33843'
@@ -19,9 +19,12 @@ TWO_DAYS = 60*60*24*2
 substacks = {}
 for key, value in settings.SUBSTACK.items():
     substacks[key] = substack.Publication(value['url'])
+categories = {}
+for key, value in settings.CATEGORY.items():
+    categories[key] = news.Cateogry(value['url'])
 sitemaps = {}
 for key, value in settings.SITEMAP.items():
-    sitemaps[key] = sitemap.Sitemap(value['url'])
+    sitemaps[key] = news.Sitemap(value['url'])
 
 def list():
     feed = []
@@ -40,6 +43,10 @@ def list():
     for key, publication in substacks.items():
         count = settings.SUBSTACK[key]['count']
         feed += [(x, key) for x in publication.feed()[:count]]
+
+    for key, sites in categories.items():
+        count = settings.CATEGORY[key]['count']
+        feed += [(x, key) for x in sites.feed()[:count]]
 
     for key, sites in sitemaps.items():
         count = settings.SITEMAP[key]['count']
@@ -105,6 +112,8 @@ def update_story(story, is_manual=False):
         res = tildes.story(story['ref'])
     elif story['source'] == 'substack':
         res = substack.top.story(story['ref'])
+    elif story['source'] in categories.keys():
+        res = categories[story['source']].story(story['ref'])
     elif story['source'] in sitemaps.keys():
         res = sitemaps[story['source']].story(story['ref'])
     elif story['source'] in substacks.keys():
