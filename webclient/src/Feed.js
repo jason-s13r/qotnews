@@ -22,20 +22,25 @@ class Feed extends React.Component {
 					const updated = !this.state.stories || this.state.stories[0].id !== result.stories[0].id;
 					console.log('updated:', updated);
 
-					this.setState({ stories: result.stories });
-					localStorage.setItem('stories', JSON.stringify(result.stories));
+					const { stories } = result;
+					if (stories) {
+						stories.sort((a, b) => b.date - a.date);
+					}
+
+					this.setState({ stories });
+					localStorage.setItem('stories', JSON.stringify(stories));
 
 					if (updated) {
 						localForage.clear();
-						result.stories.forEach((x, i) => {
+						stories.forEach((x, i) => {
 							fetch('/api/' + x.id)
 								.then(res => res.json())
-								.then(result => {
-									localForage.setItem(x.id, result.story)
+								.then(({ story }) => {
+									localForage.setItem(x.id, story)
 										.then(console.log('preloaded', x.id, x.title));
-									this.props.updateCache(x.id, result.story);
-								}, error => {}
-							);
+									this.props.updateCache(x.id, story);
+								}, error => { }
+								);
 						});
 					}
 				},
@@ -73,7 +78,7 @@ class Feed extends React.Component {
 							</div>
 						)}
 					</div>
-				:
+					:
 					<p>loading...</p>
 				}
 			</div>
