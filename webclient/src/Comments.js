@@ -89,9 +89,9 @@ class Article extends React.Component {
 
 						{hasChildren && (
 							hidden ?
-								<span className='collapser pointer' onClick={() => this.collapseComment(cid)}>–</span>
-								:
 								<span className='collapser expander pointer' onClick={() => this.expandComment(cid)}>+</span>
+								:
+								<span className='collapser pointer' onClick={() => this.collapseComment(cid)}>–</span>
 						)}
 					</p>
 				</div>
