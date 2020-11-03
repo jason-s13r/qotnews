@@ -72,7 +72,7 @@ class Article extends React.Component {
 	}
 
 	displayComment(story, c, level) {
-		const cid = c.author+c.date;
+		const cid = c.author + c.date;
 
 		const collapsed = this.state.collapsed.includes(cid);
 		const expanded = this.state.expanded.includes(cid);
@@ -85,19 +85,22 @@ class Article extends React.Component {
 				<div className='info'>
 					<p>
 						{c.author === story.author ? '[OP]' : ''} {c.author || '[Deleted]'}
-						{' '} | <HashLink to={'#'+cid} id={cid}>{moment.unix(c.date).fromNow()}</HashLink>
+						{' '} | <HashLink to={'#' + cid} id={cid}>{moment.unix(c.date).fromNow()}</HashLink>
 
-						{hidden || hasChildren &&
-							<span className='collapser pointer' onClick={() => this.collapseComment(cid)}>–</span>
-						}
+						{hasChildren && (
+							hidden ?
+								<span className='collapser pointer' onClick={() => this.collapseComment(cid)}>–</span>
+								:
+								<span className='collapser expander pointer' onClick={() => this.expandComment(cid)}>+</span>
+						)}
 					</p>
 				</div>
 
-				<div className={collapsed ? 'text hidden' : 'text'}  dangerouslySetInnerHTML={{ __html: c.text }} />
+				<div className={collapsed ? 'text hidden' : 'text'} dangerouslySetInnerHTML={{ __html: c.text }} />
 
 				{hidden && hasChildren ?
-					<div className='comment lined info pointer' onClick={() => this.expandComment(cid)}>[show {this.countComments(c)-1} more]</div>
-				:
+					<div className='comment lined info pointer' onClick={() => this.expandComment(cid)}>[show {this.countComments(c) - 1} more]</div>
+					:
 					c.comments.map(i => this.displayComment(story, i, level + 1))
 				}
 			</div>
@@ -130,7 +133,7 @@ class Article extends React.Component {
 							{story.comments.map(c => this.displayComment(story, c, 0))}
 						</div>
 					</div>
-				:
+					:
 					<p>loading...</p>
 				}
 				<ToggleDot id={id} article={true} />
