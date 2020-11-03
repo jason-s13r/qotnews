@@ -64,8 +64,11 @@ def get_article(url):
 
 def get_content_type(url):
     try:
-        headers = {'User-Agent': 'Twitterbot/1.0'}
-        return requests.get(url, headers=headers, timeout=2).headers['content-type']
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+            'X-Forwarded-For': '66.249.66.1',
+        }
+        return requests.get(url, headers=headers, timeout=5).headers['content-type']
     except:
         pass
 
