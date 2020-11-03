@@ -8,10 +8,16 @@ NUM_HACKERNEWS = 15
 NUM_REDDIT = 10
 NUM_TILDES = 5
 NUM_SUBSTACK = 10
-NUM_WEBWORM = 0
-NUM_NZHERALD = 0
-NUM_STUFF = 0
-NUM_BULLETIN = 0
+
+# SITEMAP = {
+#     'nzherald': { 'url': "https://www.nzherald.co.nz/arcio/news-sitemap/", 'count': 10},
+#     'stuff': { 'url': "https://www.stuff.co.nz/sitemap.xml", 'count': 10},
+# }
+
+# SUBSTACK = {
+#     'webworm': { 'url': "https://www.webworm.co", 'count': 10},
+#     'the bulletin': { 'url': "https://thespinoff.substack.com", 'count': 10},
+# }
 
 # Reddit account info
 # leave blank if not using Reddit

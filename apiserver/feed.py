@@ -16,10 +16,12 @@ READ_API = 'http://127.0.0.1:33843'
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 TWO_DAYS = 60*60*24*2
 
-webworm = substack.Publication("https://www.webworm.co")
-bulletin = substack.Publication("https://thespinoff.substack.com")
-stuff = sitemap.Sitemap("https://www.stuff.co.nz/sitemap.xml")
-nzherald = sitemap.Sitemap("https://www.nzherald.co.nz/arcio/news-sitemap/")
+substacks = {}
+for key, value in settings.SUBSTACK.values():
+    substacks[key] = substack.Publication(value['url'])
+sitemaps = {}
+for key, value in settings.SITEMAP.values():
+    sitemaps[key] = sitemap.Sitemap(value['url'])
 
 def list():
     feed = []
@@ -35,17 +37,14 @@ def list():
     if settings.NUM_SUBSTACK:
         feed += [(x, 'substack') for x in substack.top.feed()[:settings.NUM_SUBSTACK]]
 
-    if settings.NUM_STUFF:
-        feed += [(x, 'stuff') for x in stuff.feed()[:settings.NUM_STUFF]]
+    for key, publication in substacks.values():
+        count = settings.SUBSTACK[key].count
+        feed += [(x, key) for x in publication.feed()[:count]]
 
-    if settings.NUM_NZHERALD:
-        feed += [(x, 'nzherald') for x in nzherald.feed()[:settings.NUM_NZHERALD]]
+    for key, sites in sitemaps.values():
+        count = settings.SITEMAP[key].count
+        feed += [(x, key) for x in sites.feed()[:count]]
 
-    if settings.NUM_WEBWORM:
-        feed += [(x, 'webworm') for x in webworm.feed()[:settings.NUM_WEBWORM]]
-
-    if settings.NUM_BULLETIN:
-        feed += [(x, 'the bulletin') for x in bulletin.feed()[:settings.NUM_BULLETIN]]
 
     return feed
 
@@ -104,16 +103,12 @@ def update_story(story, is_manual=False):
         res = reddit.story(story['ref'])
     elif story['source'] == 'tildes':
         res = tildes.story(story['ref'])
-    elif story['source'] == 'webworm':
-        res = webworm.story(story['ref'])
-    elif story['source'] == 'the bulletin':
-        res = bulletin.story(story['ref'])
     elif story['source'] == 'substack':
         res = substack.top.story(story['ref'])
-    elif story['source'] == 'stuff':
-        res = stuff.story(story['ref'])
-    elif story['source'] == 'nzherald':
-        res = nzherald.story(story['ref'])
+    elif story['source'] in sitemaps.keys():
+        res = sitemaps[story['source']].story(story['ref'])
+    elif story['source'] in substacks.keys():
+        res = substacks[story['source']].story(story['ref'])
     elif story['source'] == 'manual':
         res = manual.story(story['ref'])
 
