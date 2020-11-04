@@ -9,19 +9,16 @@ NUM_REDDIT = 10
 NUM_TILDES = 5
 NUM_SUBSTACK = 10
 
-# SITEMAP = {
-#     'nzherald': { 'url': "https://www.nzherald.co.nz/arcio/news-sitemap/", 'count': 10},
-#     'stuff': { 'url': "https://www.stuff.co.nz/sitemap.xml", 'count': 10},
-# }
+SITEMAP = {}
+# SITEMAP['nzherald'] = { 'url': "https://www.nzherald.co.nz/arcio/news-sitemap/", 'count': 10},
+# SITEMAP['stuff'] = { 'url': "https://www.stuff.co.nz/sitemap.xml", 'count': 10},
 
-# SUBSTACK = {
-#     'webworm': { 'url': "https://www.webworm.co", 'count': 10},
-#     'the bulletin': { 'url': "https://thespinoff.substack.com", 'count': 10},
-# }
+SUBSTACK = {}
+# SUBSTACK['webworm'] = { 'url': "https://www.webworm.co", 'count': 10},
+# SUBSTACK['the bulletin'] = { 'url': "https://thespinoff.substack.com", 'count': 10},
 
-# CATEGORY = {
-#     'rnz national': { 'url': "https://www.rnz.co.nz/news/national", 'count': 10},
-# }
+CATEGORY = {}
+# CATEGORY['rnz national'] = { 'url': "https://www.rnz.co.nz/news/national", 'count': 10},
 
 SCRAPERS = ['declutter', 'outline', 'local']
 
