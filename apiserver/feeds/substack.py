@@ -12,6 +12,7 @@ from datetime import datetime
 
 from utils import clean
 
+SUBSTACK_REFERER = 'https://substack.com'
 SUBSTACK_API_TOP_POSTS = lambda x: "https://substack.com/api/v1/reader/top-posts"
 
 def author_link(author_id, base_url):
@@ -24,9 +25,10 @@ def api_stories(x, base_url):
 def unix(date_str):
     return int(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ').timestamp())
 
-def api(route, ref=None):
+def api(route, ref=None, referer=None):
     try:
-        r = requests.get(route(ref), timeout=5)
+        headers = {'Referer': referer}
+        r = requests.get(route(ref), headers=headers, timeout=5)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.json()
@@ -36,7 +38,7 @@ def api(route, ref=None):
         logging.error('Problem hitting Substack API: {}, trying again'.format(str(e)))
 
     try:
-        r = requests.get(route(ref), timeout=15)
+        r = requests.get(route(ref), headers=headers, timeout=15)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.json()
@@ -65,12 +67,12 @@ class Publication:
         self.BASE_DOMAIN = domain
 
     def feed(self):
-        stories = api(lambda x: api_stories(x, self.BASE_DOMAIN))
+        stories = api(lambda x: api_stories(x, self.BASE_DOMAIN), referer=self.BASE_DOMAIN)
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         return [str(i.get("id")) for i in stories or []]
 
     def story(self, ref):
-        stories = api(lambda x: api_stories(x, self.BASE_DOMAIN))
+        stories = api(lambda x: api_stories(x, self.BASE_DOMAIN), referer=self.BASE_DOMAIN)
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         stories = list(filter(None, [i if str(i.get('id')) == ref else None for i in stories]))
 
@@ -90,7 +92,7 @@ class Publication:
         s['title'] = r.get('title', '')
         s['link'] = r.get('canonical_url', '')
         s['url'] = r.get('canonical_url', '')
-        comments = api(lambda x: api_comments(x, self.BASE_DOMAIN), r.get('id'))
+        comments = api(lambda x: api_comments(x, self.BASE_DOMAIN), r.get('id'), referer=self.BASE_DOMAIN)
         s['comments'] = [comment(i) for i in comments.get('comments')]
         s['comments'] = list(filter(bool, s['comments']))
         s['num_comments'] = r.get('comment_count', 0)
@@ -113,12 +115,12 @@ class Publication:
 
 class Top:
     def feed(self):
-        stories = api(SUBSTACK_API_TOP_POSTS)
+        stories = api(SUBSTACK_API_TOP_POSTS, referer=SUBSTACK_REFERER)
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         return [str(i.get("id")) for i in stories or []]
 
     def story(self, ref):
-        stories = api(SUBSTACK_API_TOP_POSTS)
+        stories = api(SUBSTACK_API_TOP_POSTS, referer=SUBSTACK_REFERER)
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         stories = list(filter(None, [i if str(i.get('id')) == ref else None for i in stories]))
 
@@ -140,7 +142,7 @@ class Top:
         s['title'] = r.get('title', '')
         s['link'] = r.get('canonical_url', '')
         s['url'] = r.get('canonical_url', '')
-        comments = api(lambda x: api_comments(x, base_url), r.get('id'))
+        comments = api(lambda x: api_comments(x, base_url), r.get('id'), referer=SUBSTACK_REFERER)
         s['comments'] = [comment(i) for i in comments.get('comments')]
         s['comments'] = list(filter(bool, s['comments']))
         s['num_comments'] = r.get('comment_count', 0)
