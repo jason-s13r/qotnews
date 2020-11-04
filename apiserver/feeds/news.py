@@ -16,6 +16,7 @@ from utils import clean
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'
 
+
 def unix(date_str):
     date_tzfix = date_str
     if ":" == date_tzfix[-3]:
@@ -33,6 +34,7 @@ def unix(date_str):
             pass
     return 0
 
+
 def xml(route, ref=None):
     try:
         headers = {'User-Agent': USER_AGENT, 'X-Forwarded-For': '66.249.66.1'}
@@ -45,6 +47,7 @@ def xml(route, ref=None):
     except BaseException as e:
         logging.error('Problem hitting URL: {}'.format(str(e)))
         return False
+
 
 def parse_extruct(s, data):
     for rdfa in data['rdfa']:
@@ -94,6 +97,7 @@ def parse_extruct(s, data):
 
     return s
 
+
 class Sitemap:
     def __init__(self, url):
         self.sitemap_url = url
@@ -104,43 +108,8 @@ class Sitemap:
         soup = BeautifulSoup(markup, features='lxml')
         articles = soup.find('urlset').findAll('url')
         articles = list(filter(None, [a if a.find('lastmod') is not None else None for a in articles]))
-        return [x.find('loc').text for x in articles] or []
-
-    def story(self, ref):
-        markup = xml(lambda x: ref)
-        if not markup:
-            return False
-
-        s = {}
-        s['author_link'] = ''
-        s['score'] = 0
-        s['comments'] = []
-        s['num_comments'] = 0
-        s['link'] = ref
-        s['url'] = ref
-        s['date'] = 0
-
-        data = extruct.extract(markup)
-        s = parse_extruct(s, data)
-
-        if not s['date']:
-            return False
-        return s
-
-class Category:
-    def __init__(self, url):
-        self.category_url = url
-        self.base_url = '/'.join(url.split('/')[:3])
-
-    def feed(self):
-        markup = xml(lambda x: self.category_url)
-        if not markup: return []
-        soup = BeautifulSoup(markup, features='html.parser')
-        links = soup.find_all('a', href=True)
-        links = [link.get('href') for link in links]
-        links = [f"{self.base_url}{link}" if link.startswith('/') else link for link in links]
-        links = list(filter(None, [link if link.startswith(self.category_url) else None for link in links]))
-        links = list(filter(None, [link if link != self.category_url else None for link in links]))
+        links = [x.find('loc').text for x in articles] or []
+        links = list(set(links))
         return links
 
     def story(self, ref):
@@ -163,6 +132,47 @@ class Category:
         if not s['date']:
             return False
         return s
+
+
+class Category:
+    def __init__(self, url):
+        self.category_url = url
+        self.base_url = '/'.join(url.split('/')[:3])
+
+    def feed(self):
+        markup = xml(lambda x: self.category_url)
+        if not markup: return []
+        soup = BeautifulSoup(markup, features='html.parser')
+        links = soup.find_all('a', href=True)
+        links = [link.get('href') for link in links]
+        links = [f"{self.base_url}{link}" if link.startswith('/') else link for link in links]
+        links = list(filter(None, [link if link.startswith(self.category_url) else None for link in links]))
+        links = list(filter(None, [link if link != self.category_url else None for link in links]))
+        links = list(set(links))
+
+        return links
+
+    def story(self, ref):
+        markup = xml(lambda x: ref)
+        if not markup:
+            return False
+
+        s = {}
+        s['author_link'] = ''
+        s['score'] = 0
+        s['comments'] = []
+        s['num_comments'] = 0
+        s['link'] = ref
+        s['url'] = ref
+        s['date'] = 0
+
+        data = extruct.extract(markup)
+        s = parse_extruct(s, data)
+
+        if not s['date']:
+            return False
+        return s
+
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
