@@ -9,13 +9,10 @@ OUTLINE_API = 'https://api.outline.com/v3/parse_article'
 TIMEOUT = 20
 
 def get_html(url):
-    try:
-        details = get_details(url)
-        if not details:
-            return ''
-        return details['html']
-    except:
-        raise
+    details = get_details(url)
+    if not details:
+        return ''
+    return details['html']
 
 def get_details(url):
     try:

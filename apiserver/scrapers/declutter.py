@@ -9,14 +9,11 @@ TIMEOUT = 30
 
 
 def get_html(url):
-    try:
-        logging.info(f"Declutter Scraper: {url}")
-        details = get_details(url)
-        if not details:
-            return ''
-        return details['content']
-    except:
-        raise
+    logging.info(f"Declutter Scraper: {url}")
+    details = get_details(url)
+    if not details:
+        return ''
+    return details['content']
 
 def get_details(url):
     try:

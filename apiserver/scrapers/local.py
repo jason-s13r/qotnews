@@ -8,14 +8,11 @@ READ_API = 'http://127.0.0.1:33843/details'
 TIMEOUT = 20
 
 def get_html(url):
-    try:
-        logging.info(f"Local Scraper: {url}")
-        details = get_details(url)
-        if not details:
-            return ''
-        return details['content']
-    except:
-        raise
+    logging.info(f"Local Scraper: {url}")
+    details = get_details(url)
+    if not details:
+        return ''
+    return details['content']
 
 def get_details(url):
     try:
