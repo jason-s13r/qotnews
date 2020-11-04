@@ -14,7 +14,6 @@ import extruct
 
 from utils import clean
 
-OUTLINE_API = 'https://api.outline.com/v3/parse_article'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'
 
 def unix(date_str):
@@ -123,6 +122,9 @@ class Sitemap:
 
         data = extruct.extract(markup)
         s = parse_extruct(s, data)
+
+        if not s['date']:
+            return False
         return s
 
 class Category:
@@ -138,6 +140,7 @@ class Category:
         links = [link.get('href') for link in links]
         links = [f"{self.base_url}{link}" if link.startswith('/') else link for link in links]
         links = list(filter(None, [link if link.startswith(self.category_url) else None for link in links]))
+        links = list(filter(None, [link if link != self.category_url else None for link in links]))
         return links
 
     def story(self, ref):
@@ -156,6 +159,9 @@ class Category:
 
         data = extruct.extract(markup)
         s = parse_extruct(s, data)
+
+        if not s['date']:
+            return False
         return s
 
 # scratchpad so I can quickly develop the parser
