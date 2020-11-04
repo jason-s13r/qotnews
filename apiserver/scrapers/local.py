@@ -9,7 +9,7 @@ READ_API = 'http://127.0.0.1:33843/details'
 
 def get_html(url):
     try:
-        logging.info(f'Local Scraper: {url}')
+        logging.info(f"Local Scraper: {url}")
         details = get_details(url)
         return details['content']
     except:

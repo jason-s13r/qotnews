@@ -9,7 +9,7 @@ DECLUTTER_API = 'https://declutter.1j.nz/details'
 
 def get_html(url):
     try:
-		logging.info(f'Declutter Scraper: {url}')
+        logging.info(f"Declutter Scraper: {url}")
         details = get_details(url)
         return details['content']
     except:

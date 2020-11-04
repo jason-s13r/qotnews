@@ -17,7 +17,7 @@ def get_html(url):
 
 def get_details(url):
     try:
-		logging.info(f'Outline Scraper: {url}')
+        logging.info(f"Outline Scraper: {url}")
         params = {'source_url': url}
         headers = {'Referer': OUTLINE_REFERER}
         r = requests.get(OUTLINE_API, params=params, headers=headers, timeout=20)
@@ -35,4 +35,4 @@ def get_details(url):
         raise
     except BaseException as e:
         logging.error('Problem outlining article: {}'.format(str(e)))
-		return {}
+        return {}
