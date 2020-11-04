@@ -9,9 +9,7 @@ from bs4 import BeautifulSoup
 
 import settings
 from feeds import hackernews, reddit, tildes, substack, manual, news
-
-OUTLINE_API = 'https://api.outline.com/v3/parse_article'
-READ_API = 'http://127.0.0.1:33843'
+from scrapers import outline, declutter, local
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 TWO_DAYS = 60*60*24*2
@@ -57,36 +55,27 @@ def list():
 
 def get_article(url):
     try:
-        params = {'source_url': url}
-        headers = {'Referer': 'https://outline.com/'}
-        r = requests.get(OUTLINE_API, params=params, headers=headers, timeout=20)
-        if r.status_code == 429:
-            logging.info('Rate limited by outline, sleeping 30s and skipping...')
-            time.sleep(30)
-            return ''
-        if r.status_code != 200:
-            raise Exception('Bad response code ' + str(r.status_code))
-        html = r.json()['data']['html']
-        if 'URL is not supported by Outline' in html:
-            raise Exception('URL not supported by Outline')
-        return html
+        return declutter.get_html(url)
     except KeyboardInterrupt:
         raise
-    except BaseException as e:
-        logging.error('Problem outlining article: {}'.format(str(e)))
-
-    logging.info('Trying our server instead...')
+    except:
+        pass
 
     try:
-        r = requests.post(READ_API, data=dict(url=url), timeout=20)
-        if r.status_code != 200:
-            raise Exception('Bad response code ' + str(r.status_code))
-        return r.text
+        return outline.get_html(url)
     except KeyboardInterrupt:
         raise
-    except BaseException as e:
-        logging.error('Problem getting article: {}'.format(str(e)))
-        return ''
+    except:
+        pass
+
+    try:
+        return local.get_html(url)
+    except KeyboardInterrupt:
+        raise
+    except:
+        pass
+
+    return ''
 
 def get_content_type(url):
     try:
