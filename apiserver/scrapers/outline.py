@@ -6,11 +6,13 @@ import requests
 
 OUTLINE_REFERER = 'https://outline.com/'
 OUTLINE_API = 'https://api.outline.com/v3/parse_article'
-
+TIMEOUT = 20
 
 def get_html(url):
     try:
         details = get_details(url)
+        if not details:
+            return ''
         return details['html']
     except:
         raise
@@ -20,11 +22,11 @@ def get_details(url):
         logging.info(f"Outline Scraper: {url}")
         params = {'source_url': url}
         headers = {'Referer': OUTLINE_REFERER}
-        r = requests.get(OUTLINE_API, params=params, headers=headers, timeout=20)
+        r = requests.get(OUTLINE_API, params=params, headers=headers, timeout=TIMEOUT)
         if r.status_code == 429:
             logging.info('Rate limited by outline, sleeping 30s and skipping...')
             time.sleep(30)
-            return ''
+            return None
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         data = r.json()['data']
@@ -35,4 +37,4 @@ def get_details(url):
         raise
     except BaseException as e:
         logging.error('Problem outlining article: {}'.format(str(e)))
-        return {}
+        return None

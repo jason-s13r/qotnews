@@ -5,19 +5,22 @@ logging.basicConfig(
 import requests
 
 DECLUTTER_API = 'https://declutter.1j.nz/details'
+TIMEOUT = 30
 
 
 def get_html(url):
     try:
         logging.info(f"Declutter Scraper: {url}")
         details = get_details(url)
+        if not details:
+            return ''
         return details['content']
     except:
         raise
 
 def get_details(url):
     try:
-        r = requests.post(DECLUTTER_API, data=dict(url=url), timeout=20)
+        r = requests.post(DECLUTTER_API, data=dict(url=url), timeout=TIMEOUT)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.json()
@@ -25,4 +28,4 @@ def get_details(url):
         raise
     except BaseException as e:
         logging.error('Problem decluttering article: {}'.format(str(e)))
-        return {}
+        return None

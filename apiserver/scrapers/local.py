@@ -5,19 +5,21 @@ logging.basicConfig(
 import requests
 
 READ_API = 'http://127.0.0.1:33843/details'
-
+TIMEOUT = 20
 
 def get_html(url):
     try:
         logging.info(f"Local Scraper: {url}")
         details = get_details(url)
+        if not details:
+            return ''
         return details['content']
     except:
         raise
 
 def get_details(url):
     try:
-        r = requests.post(READ_API, data=dict(url=url), timeout=20)
+        r = requests.post(READ_API, data=dict(url=url), timeout=TIMEOUT)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.json()
@@ -25,4 +27,4 @@ def get_details(url):
         raise
     except BaseException as e:
         logging.error('Problem getting article: {}'.format(str(e)))
-        return {}
+        return None
