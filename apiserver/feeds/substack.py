@@ -26,9 +26,9 @@ def unix(date_str):
     return int(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ').timestamp())
 
 def api(route, ref=None, referer=None):
+    headers = {'Referer': referer} if referer else None
     try:
-        headers = {'Referer': referer}
-        r = requests.get(route(ref), headers=headers, timeout=5)
+        r = requests.get(route(ref), headers=headers, timeout=10)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.json()
@@ -38,7 +38,7 @@ def api(route, ref=None, referer=None):
         logging.error('Problem hitting Substack API: {}, trying again'.format(str(e)))
 
     try:
-        r = requests.get(route(ref), headers=headers, timeout=15)
+        r = requests.get(route(ref), headers=headers, timeout=20)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.json()
@@ -68,11 +68,13 @@ class Publication:
 
     def feed(self):
         stories = api(lambda x: api_stories(x, self.BASE_DOMAIN), referer=self.BASE_DOMAIN)
+        if not stories: return []
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         return [str(i.get("id")) for i in stories or []]
 
     def story(self, ref):
         stories = api(lambda x: api_stories(x, self.BASE_DOMAIN), referer=self.BASE_DOMAIN)
+        if not stories: return False
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         stories = list(filter(None, [i if str(i.get('id')) == ref else None for i in stories]))
 
@@ -116,11 +118,13 @@ class Publication:
 class Top:
     def feed(self):
         stories = api(SUBSTACK_API_TOP_POSTS, referer=SUBSTACK_REFERER)
+        if not stories: return []
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         return [str(i.get("id")) for i in stories or []]
 
     def story(self, ref):
         stories = api(SUBSTACK_API_TOP_POSTS, referer=SUBSTACK_REFERER)
+        if not stories: return False
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         stories = list(filter(None, [i if str(i.get('id')) == ref else None for i in stories]))
 
@@ -158,5 +162,4 @@ if __name__ == '__main__':
 
     webworm = Publication("https://www.webworm.co/")
     posts = webworm.feed()
-    print(posts[:1])
     print(webworm.story(posts[0]))
