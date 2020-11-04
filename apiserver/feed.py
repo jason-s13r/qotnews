@@ -54,27 +54,26 @@ def list():
     return feed
 
 def get_article(url):
-    try:
-        return declutter.get_html(url)
-    except KeyboardInterrupt:
-        raise
-    except:
-        pass
+    scrapers = {
+        'declutter': declutter,
+        'outline': outline,
+        'local': local,
+    }
+    available = settings.SCRAPERS or ['local']
+    if 'local' not in available:
+        available += ['local']
 
-    try:
-        return outline.get_html(url)
-    except KeyboardInterrupt:
-        raise
-    except:
-        pass
-
-    try:
-        return local.get_html(url)
-    except KeyboardInterrupt:
-        raise
-    except:
-        pass
-
+    for scraper in available:
+        if scraper not in scrapers.keys():
+            continue
+        try:
+            html = scrapers[scraper].get_html(url)
+            if html:
+                return html
+        except KeyboardInterrupt:
+            raise
+        except:
+            pass
     return ''
 
 def get_content_type(url):
