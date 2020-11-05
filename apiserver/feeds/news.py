@@ -17,7 +17,7 @@ import pytz
 from utils import clean
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'
-
+#USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 
 def unix(date_str, tz=None):
     date_tzfix = date_str
@@ -223,4 +223,9 @@ if __name__ == '__main__':
     print(posts[:1])
     print(site.story(posts[0]))
 
-    
+    print("Sitemap: Newsroom")
+    site = Sitemap("https://www.newsroom.co.nz/sitemap.xml")
+    posts = site.feed()
+    print(posts[:5])
+    print(site.story(posts[0]))
+
