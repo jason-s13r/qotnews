@@ -153,7 +153,8 @@ class _Base:
 
         data = extruct.extract(markup)
         s = parse_extruct(s, data)
-        s['date'] = unix(s['date'], tz=self.tz)
+        if s['date']:
+            s['date'] = unix(s['date'], tz=self.tz)
 
         if 'disqus' in markup:
             try:
