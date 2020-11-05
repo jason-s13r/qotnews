@@ -181,6 +181,7 @@ class Sitemap(_Base):
         soup = BeautifulSoup(markup, features='lxml')
         articles = soup.find('urlset').findAll('url')
         articles = list(filter(None, [a if a.find('lastmod') is not None else None for a in articles]))
+        articles.sort(key=lambda a: unix(a.find('lastmod')), reverse=True)
         links = [x.find('loc').text for x in articles] or []
         links = list(set(links))
         if excludes:
