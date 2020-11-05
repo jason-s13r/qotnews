@@ -1,7 +1,7 @@
 import logging
 logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.DEBUG)
+        level=logging.ERROR)
 
 if __name__ == '__main__':
     import sys
@@ -22,7 +22,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 
 
 def unix(date_str, tz=None):
     try:
-        dt = dateutil.parser.parse(date_str, f)
+        dt = dateutil.parser.parse(date_str)
         if tz:
             dt = pytz.timezone(tz).localize(dt)
         return int(dt.timestamp())
@@ -158,6 +158,13 @@ class _Base:
             return False
         return s
 
+def get_sitemap_date(a):
+    if a.find('lastmod'):
+        return a.find('lastmod').text
+    if a.find('news:publication_date'):
+        return a.find('news:publication_date').text
+    return ''
+
 class Sitemap(_Base):
     def __init__(self, url, tz=None):
         self.tz = tz
@@ -167,13 +174,12 @@ class Sitemap(_Base):
         markup = xml(lambda x: self.sitemap_url)
         if not markup: return []
         soup = BeautifulSoup(markup, features='lxml')
-        articles = soup.find('urlset').findAll('url')
-        news = list(filter(None, [a if a.find('news:news') else None for a in articles]))
-        news = list(filter(None, [a if a.find('news:publication_date') else None for a in news]))
-        articles = list(filter(None, [a if a.find('lastmod') else None for a in articles]))
-        links = articles + news
-        links.sort(key=lambda a: unix(a.find('lastmod')), reverse=True)
-        links = [x.find('loc').text for x in articles] or []
+        sitemap = soup.find('urlset').findAll('url')
+
+        links = list(filter(None, [a if a.find('loc') else None for a in sitemap]))
+        links = list(filter(None, [a if get_sitemap_date(a) else None for a in links]))
+        links.sort(key=lambda a: unix(get_sitemap_date(a)), reverse=True)
+        links = [x.find('loc').text for x in links] or []
         links = list(set(links))
         if excludes:
             links = list(filter(None, [None if any(e in link for e in excludes) else link for link in links]))
@@ -204,15 +210,15 @@ class Category(_Base):
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
     print("Sitemap: Stuff")
-    site = Sitemap("https://www.stuff.co.nz/sitemap.xml")
+    site = Sitemap("https://www.stuff.co.nz/sitemap/news/sitemap.xml")
     posts = site.feed()
-    print(posts[:1])
+    print(posts[:5])
     print(site.story(posts[0]))
 
     print("Category: RadioNZ Te Ao Māori")
     site = Category("https://www.rnz.co.nz/news/te-manu-korihi/")
     posts = site.feed()
-    print(posts[:1])
+    print(posts[:5])
     print(site.story(posts[0]))
 
     print("Sitemap: Newsroom")
