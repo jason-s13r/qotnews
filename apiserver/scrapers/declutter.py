@@ -5,6 +5,7 @@ logging.basicConfig(
 import requests
 
 DECLUTTER_API = 'https://declutter.1j.nz/details'
+DECLUTTER_COMMENT_API = 'https://declutter.1j.nz/comments'
 TIMEOUT = 30
 
 
@@ -25,4 +26,16 @@ def get_details(url):
         raise
     except BaseException as e:
         logging.error('Problem decluttering article: {}'.format(str(e)))
+        return None
+
+def get_comments(url):
+    try:
+        r = requests.post(DECLUTTER_COMMENT_API, data=dict(url=url), timeout=TIMEOUT)
+        if r.status_code != 200:
+            raise Exception('Bad response code ' + str(r.status_code))
+        return r.json()
+    except KeyboardInterrupt:
+        raise
+    except BaseException as e:
+        logging.error('Problem getting comments for article: {}'.format(str(e)))
         return None

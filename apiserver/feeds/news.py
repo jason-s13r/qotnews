@@ -10,6 +10,7 @@ if __name__ == '__main__':
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+from scrapers import declutter
 import extruct
 
 from utils import clean
@@ -86,7 +87,7 @@ def parse_extruct(s, data):
                 s['author'] = props['author']['properties']['name']
 
     for ld in data['json-ld']:
-        if ld['@type'] == 'Article':
+        if '@type' in ld and ld['@type'] in ['Article', 'NewsArticle']:
             s['title'] = ld['headline']
             if ld['dateModified']:
                 s['date'] = unix(ld['dateModified'])
@@ -94,24 +95,35 @@ def parse_extruct(s, data):
                 s['date'] = unix(ld['datePublished'])
             if 'author' in ld and ld['author']:
                 s['author'] = ld['author']['name']
+        if '@graph' in ld:
+            for gld in ld['@graph']:
+                if '@type' in gld and gld['@type'] in ['Article', 'NewsArticle']:
+                    s['title'] = gld['headline']
+                    if gld['dateModified']:
+                        s['date'] = unix(gld['dateModified'])
+                    if gld['datePublished']:
+                        s['date'] = unix(gld['datePublished'])
 
     return s
 
+def comment(i):
+    if 'author' not in i:
+        return False
 
-class Sitemap:
-    def __init__(self, url):
-        self.sitemap_url = url
+    c = {}
+    c['author'] = i.get('author', '')
+    c['score'] = i.get('points', 0)
+    c['date'] = unix(i.get('date', 0))
+    c['text'] = clean(i.get('text', '') or '')
+    c['comments'] = [comment(j) for j in i['children']]
+    c['comments'] = list(filter(bool, c['comments']))
+    return c
 
-    def feed(self):
-        markup = xml(lambda x: self.sitemap_url)
-        if not markup: return []
-        soup = BeautifulSoup(markup, features='lxml')
-        articles = soup.find('urlset').findAll('url')
-        articles = list(filter(None, [a if a.find('lastmod') is not None else None for a in articles]))
-        links = [x.find('loc').text for x in articles] or []
-        links = list(set(links))
-        return links
+def comment_count(i):
+    alive = 1 if i['author'] else 0
+    return sum([comment_count(c) for c in i['comments']]) + alive
 
+class _Base:
     def story(self, ref):
         markup = xml(lambda x: ref)
         if not markup:
@@ -129,12 +141,36 @@ class Sitemap:
         data = extruct.extract(markup)
         s = parse_extruct(s, data)
 
+        if 'disqus' in markup:
+            try:
+                s['comments'] = declutter.get_comments(ref)
+                c['comments'] = list(filter(bool, c['comments']))
+                s['num_comments'] = comment_count(s['comments'])
+            except KeyboardInterrupt:
+                raise
+            except:
+                pass
+
         if not s['date']:
             return False
         return s
 
+class Sitemap(_Base):
+    def __init__(self, url):
+        self.sitemap_url = url
 
-class Category:
+    def feed(self):
+        markup = xml(lambda x: self.sitemap_url)
+        if not markup: return []
+        soup = BeautifulSoup(markup, features='lxml')
+        articles = soup.find('urlset').findAll('url')
+        articles = list(filter(None, [a if a.find('lastmod') is not None else None for a in articles]))
+        links = [x.find('loc').text for x in articles] or []
+        links = list(set(links))
+        return links
+
+
+class Category(_Base):
     def __init__(self, url):
         self.category_url = url
         self.base_url = '/'.join(url.split('/')[:3])
@@ -149,29 +185,7 @@ class Category:
         links = list(filter(None, [link if link.startswith(self.category_url) else None for link in links]))
         links = list(filter(None, [link if link != self.category_url else None for link in links]))
         links = list(set(links))
-
         return links
-
-    def story(self, ref):
-        markup = xml(lambda x: ref)
-        if not markup:
-            return False
-
-        s = {}
-        s['author_link'] = ''
-        s['score'] = 0
-        s['comments'] = []
-        s['num_comments'] = 0
-        s['link'] = ref
-        s['url'] = ref
-        s['date'] = 0
-
-        data = extruct.extract(markup)
-        s = parse_extruct(s, data)
-
-        if not s['date']:
-            return False
-        return s
 
 
 # scratchpad so I can quickly develop the parser
@@ -182,19 +196,10 @@ if __name__ == '__main__':
     print(posts[:1])
     print(site.story(posts[0]))
 
-    print("Sitemap: NZ Herald")
-    site = Sitemap("https://www.nzherald.co.nz/arcio/news-sitemap/")
-    posts = site.feed()
-    print(posts[:1])
-    print(site.story(posts[0]))
-
     print("Category: RadioNZ Te Ao Māori")
     site = Category("https://www.rnz.co.nz/news/te-manu-korihi/")
     posts = site.feed()
     print(posts[:1])
     print(site.story(posts[0]))
-    print("Category: Newsroom Business")
-    site = Category("https://www.newsroom.co.nz/business/")
-    posts = site.feed()
-    print(posts[:1])
-    print(site.story(posts[0]))
+
+    
