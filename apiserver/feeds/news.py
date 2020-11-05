@@ -29,14 +29,14 @@ def unix(date_str, tz=None):
         try:
             dt = datetime.strptime(date_str, f)
             if tz:
-                dt = dt.replace(tzinfo=pytz.timezone(tz))
+                dt = pytz.timezone(tz).localize(dt)
             return int(dt.timestamp())
         except:
             pass
         try:
             dt = datetime.strptime(date_tzfix, f)
             if tz:
-                dt = dt.replace(tzinfo=pytz.timezone(tz))
+                dt = pytz.timezone(tz).localize(dt)
             return int(dt.timestamp())
         except:
             pass
