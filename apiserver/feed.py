@@ -19,10 +19,10 @@ for key, value in settings.SUBSTACK.items():
     substacks[key] = substack.Publication(value['url'])
 categories = {}
 for key, value in settings.CATEGORY.items():
-    categories[key] = news.Category(value['url'])
+    categories[key] = news.Category(value['url'], value.get('tz'))
 sitemaps = {}
 for key, value in settings.SITEMAP.items():
-    sitemaps[key] = news.Sitemap(value['url'])
+    sitemaps[key] = news.Sitemap(value['url'], value.get('tz'))
 
 def list():
     feed = []
@@ -45,6 +45,7 @@ def list():
     for key, sites in categories.items():
         count = settings.CATEGORY[key].get('count') or 0
         excludes = settings.CATEGORY[key].get('excludes')
+        tz = settings.CATEGORY[key].get('tz')
         feed += [(x, key) for x in sites.feed(excludes)[:count]]
 
     for key, sites in sitemaps.items():

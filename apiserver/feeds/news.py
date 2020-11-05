@@ -12,13 +12,14 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from scrapers import declutter
 import extruct
+import pytz
 
 from utils import clean
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'
 
 
-def unix(date_str):
+def unix(date_str, tz=None):
     date_tzfix = date_str
     if ":" == date_tzfix[-3]:
         date_tzfix = date_tzfix[:-3]+date_tzfix[-2:]
@@ -26,11 +27,17 @@ def unix(date_str):
     formats = formats + [f.replace("T%H", " %H") for f in formats]
     for f in formats:
         try:
-            return int(datetime.strptime(date_str, f).timestamp())
+            dt = datetime.strptime(date_str, f)
+            if tz:
+                dt = dt.astimezone(pytz.timezone(tz))
+            return int(dt.timestamp())
         except:
             pass
         try:
-            return int(datetime.strptime(date_tzfix, f).timestamp())
+            dt = datetime.strptime(date_tzfix, f)
+            if tz:
+                dt = dt.astimezone(pytz.timezone(tz))
+            return int(dt.timestamp())
         except:
             pass
     return 0
@@ -58,20 +65,19 @@ def parse_extruct(s, data):
                         s['title'] = values['@value']
                 if 'http://ogp.me/ns/article#modified_time' in props:
                     for values in props['http://ogp.me/ns/article#modified_time']:
-                        s['date'] = unix(values['@value'])
+                        s['date'] = values['@value']
                 if 'http://ogp.me/ns/article#published_time' in props:
                     for values in props['http://ogp.me/ns/article#published_time']:
-                        s['date'] = unix(values['@value'])
+                        s['date'] = values['@value']
 
     for og in data['opengraph']:
         titles = list(filter(None, [value if 'og:title' in key else None for key, value in og['properties']]))
         modified = list(filter(None, [value if 'article:modified_time' in key else None for key, value in og['properties']]))
         published = list(filter(None, [value if 'article:published_time' in key else None for key, value in og['properties']]))
         if len(modified):
-            s['date'] = unix(modified[0])
+            s['date'] = modified[0]
         if len(published):
-            s['date'] = unix(published[0])
-            s['date'] = unix(published[0] or modified[0] or '')
+            s['date'] = published[0]
         if len(titles):
             s['title'] = titles[0]
 
@@ -80,9 +86,9 @@ def parse_extruct(s, data):
             props = md['properties']
             s['title'] = props['headline']
             if props['dateModified']:
-                s['date'] = unix(props['dateModified'])
+                s['date'] = props['dateModified']
             if props['datePublished']:
-                s['date'] = unix(props['datePublished'])
+                s['date'] = props['datePublished']
             if 'author' in props and props['author']:
                 s['author'] = props['author']['properties']['name']
 
@@ -90,9 +96,9 @@ def parse_extruct(s, data):
         if '@type' in ld and ld['@type'] in ['Article', 'NewsArticle']:
             s['title'] = ld['headline']
             if ld['dateModified']:
-                s['date'] = unix(ld['dateModified'])
+                s['date'] = ld['dateModified']
             if ld['datePublished']:
-                s['date'] = unix(ld['datePublished'])
+                s['date'] = ld['datePublished']
             if 'author' in ld and ld['author']:
                 s['author'] = ld['author']['name']
         if '@graph' in ld:
@@ -100,9 +106,9 @@ def parse_extruct(s, data):
                 if '@type' in gld and gld['@type'] in ['Article', 'NewsArticle']:
                     s['title'] = gld['headline']
                     if gld['dateModified']:
-                        s['date'] = unix(gld['dateModified'])
+                        s['date'] = gld['dateModified']
                     if gld['datePublished']:
-                        s['date'] = unix(gld['datePublished'])
+                        s['date'] = gld['datePublished']
 
     return s
 
@@ -124,6 +130,10 @@ def comment_count(i):
     return sum([comment_count(c) for c in i['comments']]) + alive
 
 class _Base:
+    def __init__(url, tz=None):
+        self.url = url
+        self.tz = tz
+
     def feed(self, excludes=None):
         return []
 
@@ -143,6 +153,7 @@ class _Base:
 
         data = extruct.extract(markup)
         s = parse_extruct(s, data)
+        s['date'] = unix(s['date'], tz=self.tz)
 
         if 'disqus' in markup:
             try:
@@ -159,7 +170,8 @@ class _Base:
         return s
 
 class Sitemap(_Base):
-    def __init__(self, url):
+    def __init__(self, url, tz=None):
+        self.tz = tz
         self.sitemap_url = url
 
     def feed(self, excludes=None):
@@ -176,7 +188,8 @@ class Sitemap(_Base):
 
 
 class Category(_Base):
-    def __init__(self, url):
+    def __init__(self, url, tz=None):
+        self.tz = tz
         self.category_url = url
         self.base_url = '/'.join(url.split('/')[:3])
 
