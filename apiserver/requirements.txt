@@ -18,6 +18,7 @@ packaging==20.4
 praw==6.4.0
 prawcore==1.4.0
 pyparsing==2.4.7
+pytz==2020.4
 requests==2.24.0
 six==1.15.0
 soupsieve==2.0.1
