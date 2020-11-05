@@ -11,6 +11,7 @@ import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 from scrapers import declutter
+import dateutil.parser
 import extruct
 import pytz
 
@@ -20,26 +21,13 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 
 #USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 
 def unix(date_str, tz=None):
-    date_tzfix = date_str
-    if ":" == date_tzfix[-3]:
-        date_tzfix = date_tzfix[:-3]+date_tzfix[-2:]
-    formats = ['%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%dT%H:%M:%S.%f%z', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%f']
-    formats = formats + [f.replace("T%H", " %H") for f in formats]
-    for f in formats:
-        try:
-            dt = datetime.strptime(date_str, f)
-            if tz:
-                dt = pytz.timezone(tz).localize(dt)
-            return int(dt.timestamp())
-        except:
-            pass
-        try:
-            dt = datetime.strptime(date_tzfix, f)
-            if tz:
-                dt = pytz.timezone(tz).localize(dt)
-            return int(dt.timestamp())
-        except:
-            pass
+    try:
+        dt = dateutil.parser.parse(date_str, f)
+        if tz:
+            dt = pytz.timezone(tz).localize(dt)
+        return int(dt.timestamp())
+    except:
+        pass
     return 0
 
 
@@ -180,8 +168,11 @@ class Sitemap(_Base):
         if not markup: return []
         soup = BeautifulSoup(markup, features='lxml')
         articles = soup.find('urlset').findAll('url')
-        articles = list(filter(None, [a if a.find('lastmod') is not None else None for a in articles]))
-        articles.sort(key=lambda a: unix(a.find('lastmod')), reverse=True)
+        news = list(filter(None, [a if a.find('news:news') else None for a in articles]))
+        news = list(filter(None, [a if a.find('news:publication_date') else None for a in news]))
+        articles = list(filter(None, [a if a.find('lastmod') else None for a in articles]))
+        links = articles + news
+        links.sort(key=lambda a: unix(a.find('lastmod')), reverse=True)
         links = [x.find('loc').text for x in articles] or []
         links = list(set(links))
         if excludes:
