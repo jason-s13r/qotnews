@@ -43,12 +43,14 @@ def list():
         feed += [(x, key) for x in publication.feed()[:count]]
 
     for key, sites in categories.items():
-        count = settings.CATEGORY[key]['count']
-        feed += [(x, key) for x in sites.feed()[:count]]
+        count = settings.CATEGORY[key].get('count') or 0
+        excludes = settings.CATEGORY[key].get('excludes')
+        feed += [(x, key) for x in sites.feed(excludes)[:count]]
 
     for key, sites in sitemaps.items():
-        count = settings.SITEMAP[key]['count']
-        feed += [(x, key) for x in sites.feed()[:count]]
+        count = settings.SITEMAP[key].get('count') or 0
+        excludes = settings.SITEMAP[key].get('excludes')
+        feed += [(x, key) for x in sites.feed(excludes)[:count]]
 
 
     return feed
