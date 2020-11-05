@@ -124,7 +124,7 @@ def comment_count(i):
     return sum([comment_count(c) for c in i['comments']]) + alive
 
 class _Base:
-    def feed(self, excludes=[]):
+    def feed(self, excludes=None):
         return []
 
     def story(self, ref):
@@ -162,7 +162,7 @@ class Sitemap(_Base):
     def __init__(self, url):
         self.sitemap_url = url
 
-    def feed(self, excludes=[]):
+    def feed(self, excludes=None):
         markup = xml(lambda x: self.sitemap_url)
         if not markup: return []
         soup = BeautifulSoup(markup, features='lxml')
@@ -170,7 +170,8 @@ class Sitemap(_Base):
         articles = list(filter(None, [a if a.find('lastmod') is not None else None for a in articles]))
         links = [x.find('loc').text for x in articles] or []
         links = list(set(links))
-        links = list(filter(None, [None if any(e in link for e in excludes) else link for link in links]))
+        if excludes:
+            links = list(filter(None, [None if any(e in link for e in excludes) else link for link in links]))
         return links
 
 
@@ -179,7 +180,7 @@ class Category(_Base):
         self.category_url = url
         self.base_url = '/'.join(url.split('/')[:3])
 
-    def feed(self, excludes=[]):
+    def feed(self, excludes=None):
         markup = xml(lambda x: self.category_url)
         if not markup: return []
         soup = BeautifulSoup(markup, features='html.parser')
@@ -189,6 +190,8 @@ class Category(_Base):
         links = list(filter(None, [link if link.startswith(self.category_url) else None for link in links]))
         links = list(filter(None, [link if link != self.category_url else None for link in links]))
         links = list(set(links))
+        if excludes:
+            links = list(filter(None, [None if any(e in link for e in excludes) else link for link in links]))
         return links
 
 
