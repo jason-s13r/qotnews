@@ -39,10 +39,7 @@ def update_attributes():
         r = requests.post(MEILI_URL + 'indexes/qotnews/settings/searchable-attributes', json=json, timeout=2)
         if r.status_code != 202:
             raise Exception('Bad response code ' + str(r.status_code))
-        return r.json()
-        r = requests.delete(MEILI_URL + 'indexes/qotnews/settings/displayed-attributes', timeout=2)
-        if r.status_code != 202:
-            raise Exception('Bad response code ' + str(r.status_code))
+        requests.delete(MEILI_URL + 'indexes/qotnews/settings/displayed-attributes', timeout=2)
         return r.json()
     except KeyboardInterrupt:
         raise
