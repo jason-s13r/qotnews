@@ -28,9 +28,6 @@ from flask_cors import CORS
 database.init()
 search.init()
 
-news_length = 0
-news_index = 0
-
 def new_id():
     nid = gen_rand_id()
     while database.get_story(nid):
@@ -145,51 +142,48 @@ def static_story(sid):
 
 http_server = WSGIServer(('', 33842), flask_app)
 
-def feed_thread():
-    global news_index, news_length
+def _add_new_refs():
+    for ref, source in feed.get_list():
+        if database.get_story_by_ref(ref):
+            continue
+        try:
+            nid = new_id()
+            database.put_ref(ref, nid, source)
+            logging.info('Added ref ' + ref)
+        except database.IntegrityError:
+            continue
 
+def _update_current_story(item):
+    try:
+        story = database.get_story(item['sid']).data
+    except AttributeError:
+        story = dict(id=item['sid'], ref=item['ref'], source=item['source'])
+
+    logging.info('Updating story: {}'.format(str(story['ref'])))
+
+    valid = feed.update_story(story)
+    if valid:
+        database.put_story(story)
+        search.put_story(story)
+    else:
+        database.del_ref(item['ref'])
+        logging.info('Removed ref {}'.format(item['ref']))
+
+def feed_thread():
+    ref_list = []
     try:
         while True:
             # onboard new stories
-            if news_index == 0:
-                for ref, source in feed.get_list():
-                    if database.get_story_by_ref(ref):
-                        continue
-                    try:
-                        nid = new_id()
-                        database.put_ref(ref, nid, source)
-                        logging.info('Added ref ' + ref)
-                    except database.IntegrityError:
-                        continue
-
-            ref_list = database.get_reflist()
-            news_length = len(ref_list)
+            if not len(ref_list):
+                _add_new_refs()
+                ref_list = database.get_reflist()
 
             # update current stories
-            if news_index < len(ref_list):
-                item = ref_list[news_index]
-
-                try:
-                    story = database.get_story(item['sid']).data
-                except AttributeError:
-                    story = dict(id=item['sid'], ref=item['ref'], source=item['source'])
-
-                logging.info('Updating story: ' + str(story['ref']) + ', index: ' + str(news_index))
-
-                valid = feed.update_story(story)
-                if valid:
-                    database.put_story(story)
-                    search.put_story(story)
-                else:
-                    database.del_ref(item['ref'])
-                    logging.info('Removed ref {}'.format(item['ref']))
-            else:
-                logging.info('Skipping index: ' + str(news_index))
+            if len(ref_list):
+                item = ref_list.pop(0)
+                _update_current_story(item)
 
             gevent.sleep(6)
-
-            news_index += 1
-            if news_index >= news_length: news_index = 0
 
     except KeyboardInterrupt:
         logging.info('Ending feed thread...')
