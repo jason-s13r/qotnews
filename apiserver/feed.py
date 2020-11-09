@@ -6,6 +6,7 @@ logging.basicConfig(
 import requests
 import time
 from bs4 import BeautifulSoup
+import itertools
 
 import settings
 from feeds import hackernews, reddit, tildes, substack, manual, news
@@ -27,36 +28,39 @@ sitemaps = {}
 for key, value in settings.SITEMAP.items():
     sitemaps[key] = news.Sitemap(value['url'], value.get('tz'))
 
-def list():
-    feed = []
+def get_list():
+    feeds = {}
+    
     if settings.NUM_HACKERNEWS:
-        feed += [(x, 'hackernews') for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
+        feeds['hackernews'] = [(x, 'hackernews') for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
 
     if settings.NUM_REDDIT:
-        feed += [(x, 'reddit') for x in reddit.feed()[:settings.NUM_REDDIT]]
+        feeds['reddit'] = [(x, 'reddit') for x in reddit.feed()[:settings.NUM_REDDIT]]
 
     if settings.NUM_TILDES:
-        feed += [(x, 'tildes') for x in tildes.feed()[:settings.NUM_TILDES]]
+        feeds['tildes'] = [(x, 'tildes') for x in tildes.feed()[:settings.NUM_TILDES]]
 
     if settings.NUM_SUBSTACK:
-        feed += [(x, 'substack') for x in substack.top.feed()[:settings.NUM_SUBSTACK]]
+        feeds['substack'] = [(x, 'substack') for x in substack.top.feed()[:settings.NUM_SUBSTACK]]
 
     for key, publication in substacks.items():
         count = settings.SUBSTACK[key]['count']
-        feed += [(x, key) for x in publication.feed()[:count]]
+        feeds[key] = [(x, key) for x in publication.feed()[:count]]
 
     for key, sites in categories.items():
         count = settings.CATEGORY[key].get('count') or 0
         excludes = settings.CATEGORY[key].get('excludes')
         tz = settings.CATEGORY[key].get('tz')
-        feed += [(x, key) for x in sites.feed(excludes)[:count]]
+        feeds[key] = [(x, key) for x in sites.feed(excludes)[:count]]
 
     for key, sites in sitemaps.items():
         count = settings.SITEMAP[key].get('count') or 0
         excludes = settings.SITEMAP[key].get('excludes')
-        feed += [(x, key) for x in sites.feed(excludes)[:count]]
+        feeds[key] = [(x, key) for x in sites.feed(excludes)[:count]]
 
-
+    values = feeds.values()
+    feed = itertools.chain.from_iterable(itertools.zip_longest(*values, fillvalue=None))
+    feed = list(filter(None, feed))
     return feed
 
 def get_article(url):

@@ -15,6 +15,7 @@ import traceback
 import time
 from urllib.parse import urlparse, parse_qs
 
+import settings
 import database
 import search
 import feed
@@ -27,7 +28,7 @@ from flask_cors import CORS
 database.init()
 search.init()
 
-FEED_LENGTH = 75
+news_length = 0
 news_index = 0
 
 def new_id():
@@ -42,7 +43,7 @@ cors = CORS(flask_app)
 
 @flask_app.route('/api')
 def api():
-    stories = database.get_stories(FEED_LENGTH)
+    stories = database.get_stories(settings.MAX_STORY_AGE)
     res = Response(json.dumps({"stories": stories}))
     res.headers['content-type'] = 'application/json'
     return res
@@ -145,13 +146,13 @@ def static_story(sid):
 http_server = WSGIServer(('', 33842), flask_app)
 
 def feed_thread():
-    global news_index
+    global news_index, news_length
 
     try:
         while True:
             # onboard new stories
             if news_index == 0:
-                for ref, source in feed.list():
+                for ref, source in feed.get_list():
                     if database.get_story_by_ref(ref):
                         continue
                     try:
@@ -161,7 +162,8 @@ def feed_thread():
                     except database.IntegrityError:
                         continue
 
-            ref_list = database.get_reflist(FEED_LENGTH)
+            ref_list = database.get_reflist()
+            news_length = len(ref_list)
 
             # update current stories
             if news_index < len(ref_list):
@@ -187,7 +189,7 @@ def feed_thread():
             gevent.sleep(6)
 
             news_index += 1
-            if news_index == FEED_LENGTH: news_index = 0
+            if news_index >= news_length: news_index = 0
 
     except KeyboardInterrupt:
         logging.info('Ending feed thread...')

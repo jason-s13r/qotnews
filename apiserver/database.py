@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 
 from sqlalchemy import create_engine, Column, String, ForeignKey, Integer
 from sqlalchemy.ext.declarative import declarative_base
@@ -66,16 +67,18 @@ def get_story_by_ref(ref):
     session = Session()
     return session.query(Story).filter(Story.ref==ref).first()
 
-def get_reflist(amount):
+def get_reflist():
     session = Session()
-    q = session.query(Reflist).order_by(Reflist.rid.desc()).limit(amount)
+    q = session.query(Reflist).order_by(Reflist.rid.desc())
     return [dict(ref=x.ref, sid=x.sid, source=x.source) for x in q.all()]
 
-def get_stories(amount):
+def get_stories(maxage=60*60*24*2):
+    time = datetime.now().timestamp() - maxage
     session = Session()
     q = session.query(Reflist, Story.meta).\
             join(Story).\
             filter(Story.title != None).\
+            filter(Story.meta['date'] > time).\
             order_by(Story.meta['date'].desc()).\
             limit(amount)
     return [x[1] for x in q]
