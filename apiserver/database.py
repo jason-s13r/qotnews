@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, Column, String, ForeignKey, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.types import JSON
 
 engine = create_engine('sqlite:///data/qotnews.sqlite')
 Session = sessionmaker(bind=engine)
@@ -15,8 +16,8 @@ class Story(Base):
 
     sid = Column(String(16), primary_key=True)
     ref = Column(String(16), unique=True)
-    meta_json = Column(String)
-    full_json = Column(String)
+    meta = Column(JSON)
+    data = Column(JSON)
     title = Column(String)
 
 class Reflist(Base):
@@ -36,19 +37,21 @@ def get_story(sid):
 
 def put_story(story):
     story = story.copy()
-    full_json = json.dumps(story)
+    data = {}
+    data.update(story)
 
-    story.pop('text', None)
-    story.pop('comments', None)
-    meta_json = json.dumps(story)
+    meta = {}
+    meta.update(story)
+    meta.pop('text', None)
+    meta.pop('comments', None)
 
     try:
         session = Session()
         s = Story(
             sid=story['id'],
             ref=story['ref'],
-            full_json=full_json,
-            meta_json=meta_json,
+            data=data,
+            meta=meta,
             title=story.get('title', None),
         )
         session.merge(s)
@@ -70,10 +73,10 @@ def get_reflist(amount):
 
 def get_stories(amount):
     session = Session()
-    q = session.query(Reflist, Story.meta_json).\
-            order_by(Reflist.rid.desc()).\
+    q = session.query(Reflist, Story.meta).\
             join(Story).\
             filter(Story.title != None).\
+            order_by(Story.meta['date'].desc()).\
             limit(amount)
     return [x[1] for x in q]
 

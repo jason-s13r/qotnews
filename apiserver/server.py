@@ -43,8 +43,7 @@ cors = CORS(flask_app)
 @flask_app.route('/api')
 def api():
     stories = database.get_stories(FEED_LENGTH)
-    # hacky nested json
-    res = Response('{"stories":[' + ','.join(stories) + ']}')
+    res = Response(json.dumps({"stories": stories}))
     res.headers['content-type'] = 'application/json'
     return res
 
@@ -102,8 +101,7 @@ def submit():
 def story(sid):
     story = database.get_story(sid)
     if story:
-        # hacky nested json
-        res = Response('{"story":' + story.full_json + '}')
+        res = Response(json.dumps({"story": story.data}))
         res.headers['content-type'] = 'application/json'
         return res
     else:
@@ -127,7 +125,7 @@ def static_story(sid):
 
     story = database.get_story(sid)
     if not story: return abort(404)
-    story = json.loads(story.full_json)
+    story = story.data
 
     score = story['score']
     num_comments = story['num_comments']
@@ -170,8 +168,7 @@ def feed_thread():
                 item = ref_list[news_index]
 
                 try:
-                    story_json = database.get_story(item['sid']).full_json
-                    story = json.loads(story_json)
+                    story = database.get_story(item['sid']).data
                 except AttributeError:
                     story = dict(id=item['sid'], ref=item['ref'], source=item['source'])
 

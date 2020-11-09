@@ -50,10 +50,6 @@ class Feed extends React.Component {
 		const stories = this.state.stories;
 		const error = this.state.error;
 
-		if (stories) {
-			stories.sort((a, b) => b.date - a.date);
-		}
-
 		return (
 			<div className='container'>
 				<Helmet>
