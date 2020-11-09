@@ -12,11 +12,7 @@ import settings
 from feeds import hackernews, reddit, tildes, substack, manual, news
 from scrapers import outline, declutter, local
 
-ONE_HOUR = 60*60
-ONE_DAY = 24*ONE_HOUR
-
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
-MAX_AGE_IN_DAYS = 3*ONE_DAY
 
 substacks = {}
 for key, value in settings.SUBSTACK.items():
@@ -128,7 +124,7 @@ def update_story(story, is_manual=False):
         logging.info('Story not ready yet')
         return False
 
-    if story['date'] and not is_manual and story['date'] + MAX_AGE_IN_DAYS < time.time():
+    if story['date'] and not is_manual and story['date'] + settings.MAX_STORY_AGE < time.time():
         logging.info('Story too old, removing')
         return False
 

@@ -79,8 +79,7 @@ def get_stories(maxage=60*60*24*2):
             join(Story).\
             filter(Story.title != None).\
             filter(Story.meta['date'] > time).\
-            order_by(Story.meta['date'].desc()).\
-            limit(amount)
+            order_by(Story.meta['date'].desc())
     return [x[1] for x in q]
 
 def put_ref(ref, sid, source):
