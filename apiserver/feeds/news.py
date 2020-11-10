@@ -139,6 +139,17 @@ class _Base:
         s['url'] = ref
         s['date'] = 0
 
+        soup = BeautifulSoup(markup, features='html.parser')
+        icon32 = soup.find_all('link', rel="icon", href=True, sizes="32x32")
+        icon16 = soup.find_all('link', rel="icon", href=True, sizes="16x16")
+        favicon = soup.find_all('link', rel="shortcut icon", href=True)
+        others = soup.find_all('link', rel="icon", href=True)
+        icons = icon32 + icon16 + favicon + others
+        icons = list(set([i.get('href') for i in icons]))
+
+        if icons:
+            s['icon'] = icons[0]
+
         data = extruct.extract(markup)
         s = parse_extruct(s, data)
         if s['date']:

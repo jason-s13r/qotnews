@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { sourceLink, infoLine, logos } from './utils.js';
+import { sourceLink, infoLine, getLogoUrl } from './utils.js';
 import AbortController from 'abort-controller';
 
 class Results extends React.Component {
@@ -68,7 +68,7 @@ class Results extends React.Component {
 									<div className='item' key={x.id}>
 										<div className='title'>
 											<Link className='link' to={'/' + x.id}>
-												<img className='source-logo' src={logos[x.source]} alt='source logo' /> {x.title}
+												<img className='source-logo' src={getLogoUrl(x)} alt='source logo' /> {x.title}
 											</Link>
 
 											<span className='source'>
@@ -79,12 +79,12 @@ class Results extends React.Component {
 										{infoLine(x)}
 									</div>
 								)
-							:
+								:
 								<p>none</p>
 							}
 						</div>
 					</>
-				:
+					:
 					<p>loading...</p>
 				}
 			</div>
