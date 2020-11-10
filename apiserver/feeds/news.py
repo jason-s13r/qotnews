@@ -145,7 +145,9 @@ class _Base:
         favicon = soup.find_all('link', rel="shortcut icon", href=True)
         others = soup.find_all('link', rel="icon", href=True)
         icons = icon32 + icon16 + favicon + others
+        base_url = '/'.join(ref.split('/')[:3])
         icons = list(set([i.get('href') for i in icons]))
+        icons = [i if i.startswith('http') else base_url + i for i in icons]
 
         if icons:
             s['icon'] = icons[0]
