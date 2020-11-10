@@ -99,7 +99,9 @@ def submit():
 def story(sid):
     story = database.get_story(sid)
     if story:
-        res = Response(json.dumps({"story": story.data}))
+        related = database.get_stories_by_url(story.meta['url'])
+        related = [r.meta for r in related]
+        res = Response(json.dumps({"story": story.data, "related": related}))
         res.headers['content-type'] = 'application/json'
         return res
     else:

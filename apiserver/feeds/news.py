@@ -163,6 +163,8 @@ def get_sitemap_date(a):
         return a.find('lastmod').text
     if a.find('news:publication_date'):
         return a.find('news:publication_date').text
+    if a.find('ns2:publication_date'):
+        return a.find('ns2:publication_date').text
     return ''
 
 class Sitemap(_Base):

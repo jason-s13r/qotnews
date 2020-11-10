@@ -1,6 +1,4 @@
-import json
 from datetime import datetime, timedelta
-
 from sqlalchemy import create_engine, Column, String, ForeignKey, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -66,6 +64,13 @@ def put_story(story):
 def get_story_by_ref(ref):
     session = Session()
     return session.query(Story).filter(Story.ref==ref).first()
+
+def get_stories_by_url(url):
+    session = Session()
+    return session.query(Story).\
+            filter(Story.title != None).\
+            filter(Story.meta['url'].as_string() == url).\
+            order_by(Story.meta['date'].desc())
 
 def get_reflist():
     session = Session()
