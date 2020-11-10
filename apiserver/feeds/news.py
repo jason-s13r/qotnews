@@ -17,12 +17,17 @@ import pytz
 
 from utils import clean
 
+tzinfos = {
+    'NZDT': pytz.timezone('Pacific/Auckland'),
+    'NZST': pytz.timezone('Pacific/Auckland')
+}
+
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'
 #USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 
 def unix(date_str, tz=None):
     try:
-        dt = dateutil.parser.parse(date_str)
+        dt = dateutil.parser.parse(date_str, tzinfos=tzinfos)
         if tz:
             dt = pytz.timezone(tz).localize(dt)
         return int(dt.timestamp())
@@ -46,17 +51,25 @@ def xml(route, ref=None):
 
 
 def parse_extruct(s, data):
+    rdfa_keys = {
+        'title': [
+            'http://ogp.me/ns#title',
+            'https://ogp.me/ns#title',
+        ],
+        'date': [
+            'http://ogp.me/ns/article#modified_time',
+            'https://ogp.me/ns/article#modified_time',
+            'http://ogp.me/ns/article#published_time',
+            'https://ogp.me/ns/article#published_time',
+        ]
+    }
     for rdfa in data['rdfa']:
-            for key, props in rdfa.items():
-                if 'http://ogp.me/ns#title' in props:
-                    for values in props['http://ogp.me/ns#title']:
-                        s['title'] = values['@value']
-                if 'http://ogp.me/ns/article#modified_time' in props:
-                    for values in props['http://ogp.me/ns/article#modified_time']:
-                        s['date'] = values['@value']
-                if 'http://ogp.me/ns/article#published_time' in props:
-                    for values in props['http://ogp.me/ns/article#published_time']:
-                        s['date'] = values['@value']
+        for key, props in rdfa.items():
+            for attribute, properties in rdfa_keys.items():
+                for prop in properties:
+                    if prop in props:
+                        for values in props[prop]:
+                            s[attribute] = values['@value']
 
     for og in data['opengraph']:
         titles = list(filter(None, [value if 'og:title' in key else None for key, value in og['properties']]))
@@ -70,7 +83,7 @@ def parse_extruct(s, data):
             s['title'] = titles[0]
 
     for md in data['microdata']:
-        if md['type'] == 'https://schema.org/NewsArticle':
+        if md['type'] in ['https://schema.org/NewsArticle', 'http://schema.org/NewsArticle']:
             props = md['properties']
             s['title'] = props['headline']
             if props['dateModified']:
@@ -224,20 +237,20 @@ class Category(_Base):
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    print("Sitemap: Stuff")
-    site = Sitemap("https://www.stuff.co.nz/sitemap/news/sitemap.xml")
-    posts = site.feed()
-    print(posts[:5])
-    print(site.story(posts[0]))
-
     print("Category: RadioNZ Te Ao Māori")
     site = Category("https://www.rnz.co.nz/news/te-manu-korihi/")
     posts = site.feed()
     print(posts[:5])
     print(site.story(posts[0]))
 
+    print("Sitemap: tvnz")
+    site = Sitemap("https://www.tvnz.co.nz/system/tvnz/sitemap.xml")
+    posts = site.feed()
+    print(posts[:5])
+    print(site.story(posts[0]))
+
     print("Sitemap: Newsroom")
-    site = Sitemap("https://www.newsroom.co.nz/sitemap.xml")
+    site = Sitemap("https://www.newsroom.co.nz/sitemap.xml", tz='Pacific/Auckland')
     posts = site.feed()
     print(posts[:5])
     print(site.story(posts[0]))
