@@ -1,6 +1,7 @@
 # QotNews settings
 # edit this file and save it as settings.py
 
+HOSTNAME = 'news.t0.vc'
 MAX_STORY_AGE = 3*24*60*60
 
 # Feed Lengths

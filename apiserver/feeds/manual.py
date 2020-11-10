@@ -7,6 +7,8 @@ import requests
 import time
 from bs4 import BeautifulSoup
 
+import settings
+
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0'
 
 def api(route):
@@ -33,7 +35,7 @@ def story(ref):
 
     s = {}
     s['author'] = 'manual submission'
-    s['author_link'] = 'https://news.t0.vc'
+    s['author_link'] = 'https://{}'.format(settings.HOSTNAME)
     s['score'] = 0
     s['date'] = int(time.time())
     s['title'] = str(soup.title.string) if soup.title else ref

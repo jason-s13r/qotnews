@@ -70,7 +70,7 @@ def submit():
         elif 'reddit.com' in parse.hostname and 'comments' in url:
             source = 'reddit'
             ref = parse.path.split('/')[4]
-        elif 'news.t0.vc' in parse.hostname:
+        elif settings.HOSTNAME in parse.hostname:
             raise Exception('Invalid article')
         else:
             source = 'manual'
@@ -112,7 +112,7 @@ def story(sid):
 def index():
     return render_template('index.html',
             title='Feed',
-            url='news.t0.vc',
+            url=settings.HOSTNAME,
             description='Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode')
 
 @flask_app.route('/<sid>', strict_slashes=False)
