@@ -10,7 +10,7 @@ import itertools
 
 import settings
 from feeds import hackernews, reddit, tildes, substack, manual, news
-from scrapers import outline, declutter, local
+from scrapers import outline, declutter, browser, local
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 
@@ -26,7 +26,7 @@ for key, value in settings.SITEMAP.items():
 
 def get_list():
     feeds = {}
-    
+
     if settings.NUM_HACKERNEWS:
         feeds['hackernews'] = [(x, 'hackernews') for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
 
@@ -63,6 +63,7 @@ def get_article(url):
     scrapers = {
         'declutter': declutter,
         'outline': outline,
+        'browser': browser,
         'local': local,
     }
     available = settings.SCRAPERS or ['local']

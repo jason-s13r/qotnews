@@ -23,7 +23,7 @@ SUBSTACK = {}
 CATEGORY = {}
 # CATEGORY['rnz national'] = { 'url': "https://www.rnz.co.nz/news/national", 'count': 10},
 
-SCRAPERS = ['declutter', 'outline', 'local']
+SCRAPERS = ['browser', 'declutter', 'outline', 'local']
 
 # Reddit account info
 # leave blank if not using Reddit
