@@ -3,6 +3,7 @@ const { JSDOM } = require("jsdom");
 const { Readability } = require("@mozilla/readability");
 
 const { getUserAgent } = require('../../utils/user-agent');
+const { blockedRegexes, matchUrlDomain } = require("../../utils/sites");
 
 module.exports.getDetails = async (url) => {
 	const { userAgent, headers } = getUserAgent(url);
