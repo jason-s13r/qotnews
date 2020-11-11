@@ -1,0 +1,3 @@
+[submodule "readerserver/scraper/browser/scripts/bypass-paywalls-chrome"]
+	path = readerserver/scraper/browser/scripts/bypass-paywalls-chrome
+	url = https://github.com/iamadamdev/bypass-paywalls-chrome.git

@@ -2,12 +2,12 @@ const port = 33843;
 const express = require('express');
 const app = express();
 const simple = require('./scraper/simple');
+const browser = require('./scraper/browser');
 
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-	// const routes = ['/', '/details', '/browser', '/browser/details', '/browser/comments'];
-	const routes = ['/', '/details'];
+	const routes = ['/', '/details', '/browser', '/browser/details', '/browser/comments'];
 
 	const html = routes.map(route => `
 	<form method="POST" action="${route}" accept-charset="UTF-8">
@@ -21,9 +21,9 @@ app.get('/', (req, res) => {
 });
 app.post('/', simple.scrape);
 app.post('/details', simple.details);
-// app.post('/browser', browser.scrape);
-// app.post('/browser/details', browser.details);
-// app.post('/browser/comments', browser.comments);
+app.post('/browser', browser.scrape);
+app.post('/browser/details', browser.details);
+app.post('/browser/comments', browser.comments);
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}!`);
