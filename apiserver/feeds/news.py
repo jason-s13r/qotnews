@@ -92,7 +92,10 @@ def parse_extruct(s, data):
             if props['datePublished']:
                 s['date'] = props['datePublished']
             if 'author' in props and props['author']:
-                s['author'] = props['author']['properties']['name']
+                if 'properties' in props['author']:
+                    s['author'] = props['author']['properties']['name']
+                elif isinstance(props['author'], list):
+                    s['author'] = props['author'][0]['properties']['name']
 
     for ld in data['json-ld']:
         if '@type' in ld and ld['@type'] in ['Article', 'NewsArticle']:
@@ -104,7 +107,7 @@ def parse_extruct(s, data):
             if 'author' in ld and ld['author']:
                 if 'name' in ld['author']:
                     s['author'] = ld['author']['name']
-                elif len(ld['author']):
+                elif isinstance(ld['author'], list):
                     s['author'] = ld['author'][0]['name']
         if '@graph' in ld:
             for gld in ld['@graph']:
