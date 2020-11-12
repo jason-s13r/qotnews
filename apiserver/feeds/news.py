@@ -202,17 +202,17 @@ class Sitemap(_Base):
         self.tz = tz
         self.sitemap_url = url
 
-    def _feed(self, feed_url, excludes=None):
-        too_old = datetime.now().timestamp() - settings.MAX_STORY_AGE
-        markup = xml(lambda x: feed_url)
-        if not markup: return []
-        soup = BeautifulSoup(markup, features='lxml')
-        if soup.find('sitemapindex'):
-            sitemap = soup.find('sitemapindex').findAll('sitemap')
-        else:
-            sitemap = soup.find('urlset').findAll('url')
+    def feed(self, excludes=None):
+        links = []
+        if isinstance(self.sitemap_url, str):
+            links += self._get_sitemap(self.sitemap_url, excludes)
+        elif isinstance(self.sitemap_url, list):
+            for url in self.sitemap_url:
+                links += self._get_sitemap(url, excludes)
+        return list(set(links))
 
-        links = list(filter(None, [a if a.find('loc') else None for a in sitemap]))
+    def _filter_links(self, links, excludes=None):
+        too_old = datetime.now().timestamp() - settings.MAX_STORY_AGE
         links = list(filter(None, [a if get_sitemap_date(a) else None for a in links]))
         links = list(filter(None, [a if unix(get_sitemap_date(a)) > too_old else None for a in links]))
         links.sort(key=lambda a: unix(get_sitemap_date(a)), reverse=True)
@@ -221,37 +221,60 @@ class Sitemap(_Base):
         links = list(set(links))
         if excludes:
             links = list(filter(None, [None if any(e in link for e in excludes) else link for link in links]))
+        return links
 
-        feed_urls = list(filter(None, [l if l.endswith(".xml") else None for l in links]))
-        urls = list(set(links) - set(feed_urls))
-        
+    def _get_sitemap(self, feed_url, excludes=None):
+        markup = xml(lambda x: feed_url)
+        if not markup: return []
+        soup = BeautifulSoup(markup, features='lxml')
+        links = []
+        feed_urls = []
+        if soup.find('sitemapindex'):
+            sitemap = soup.find('sitemapindex').findAll('sitemap')
+            feed_urls = list(filter(None, [a if a.find('loc') else None for a in sitemap]))
+        if soup.find('urlset'):
+            sitemap = soup.find('urlset').findAll('url')
+            links = list(filter(None, [a if a.find('loc') else None for a in sitemap]))
+
+        feed_urls = self._filter_links(feed_urls, excludes)
+        links = self._filter_links(links, excludes)
+
         for url in feed_urls:
-            urls += self._feed(url, excludes)
-        return urls
-
-    def feed(self, excludes=None):
-        return self._feed(self.sitemap_url, excludes)
-
+            links += self._get_sitemap(url, excludes)
+        return list(set(links))
 
 class Category(_Base):
     def __init__(self, url, tz=None):
         self.tz = tz
         self.category_url = url
-        self.base_url = '/'.join(url.split('/')[:3])
 
-    def feed(self, excludes=None):
-        markup = xml(lambda x: self.category_url)
-        if not markup: return []
-        soup = BeautifulSoup(markup, features='html.parser')
-        links = soup.find_all('a', href=True)
-        links = [link.get('href') for link in links]
-        links = [f"{self.base_url}{link}" if link.startswith('/') else link for link in links]
-        links = list(filter(None, [link if link.startswith(self.category_url) else None for link in links]))
-        links = list(filter(None, [link if link != self.category_url else None for link in links]))
+    def _filter_links(self, links, excludes=None):
+        links = list(filter(None, [link if link.startswith(category_url) else None for link in links]))
+        links = list(filter(None, [link if link != category_url else None for link in links]))
         links = list(set(links))
         if excludes:
             links = list(filter(None, [None if any(e in link for e in excludes) else link for link in links]))
         return links
+
+    def _get_category(self, category_url, excludes=None):
+        base_url = '/'.join(category_url.split('/')[:3])
+        markup = xml(lambda x: category_url)
+        if not markup: return []
+        soup = BeautifulSoup(markup, features='html.parser')
+        links = soup.find_all('a', href=True)
+        links = [link.get('href') for link in links]
+        links = [f"{base_url}{link}" if link.startswith('/') else link for link in links]
+        links = self._filter_links(links, excludes)
+        return links
+
+    def feed(self, excludes=None):
+        links = []
+        if isinstance(self.category_url, str):
+            links += self._get_category(self.category_url, excludes)
+        elif isinstance(self.category_url, list):
+            for url in self.category_url:
+                links += self._get_category(url, excludes)
+        return list(set(links))
 
 
 # scratchpad so I can quickly develop the parser
@@ -266,4 +289,16 @@ if __name__ == '__main__':
     posts = site.feed(excludes)
     print(posts[:5])
     print(site.story(posts[0]))
+
+    print("Sitemap: Newshub")
+    site = Sitemap([
+        'https://www.newshub.co.nz/home/politics.gnewssitemap.xml',
+        'https://www.newshub.co.nz/home/new-zealand.gnewssitemap.xml',
+        'https://www.newshub.co.nz/home/world.gnewssitemap.xml',
+        'https://www.newshub.co.nz/home/money.gnewssitemap.xml',
+    ])
+    posts = site.feed()
+    print(posts[:5])
+    print(site.story(posts[0]))
+    print(site.story(posts[:-1]))
 
