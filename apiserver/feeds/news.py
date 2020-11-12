@@ -16,6 +16,7 @@ import extruct
 import pytz
 
 from utils import clean
+import settings
 
 tzinfos = {
     'NZDT': pytz.timezone('Pacific/Auckland'),
@@ -198,20 +199,35 @@ class Sitemap(_Base):
         self.tz = tz
         self.sitemap_url = url
 
-    def feed(self, excludes=None):
-        markup = xml(lambda x: self.sitemap_url)
+    def _feed(self, feed_url, excludes=None):
+        too_old = datetime.now().timestamp() - settings.MAX_STORY_AGE
+        markup = xml(lambda x: feed_url)
         if not markup: return []
         soup = BeautifulSoup(markup, features='lxml')
-        sitemap = soup.find('urlset').findAll('url')
+        if soup.find('sitemapindex'):
+            sitemap = soup.find('sitemapindex').findAll('sitemap')
+        else:
+            sitemap = soup.find('urlset').findAll('url')
 
         links = list(filter(None, [a if a.find('loc') else None for a in sitemap]))
         links = list(filter(None, [a if get_sitemap_date(a) else None for a in links]))
+        links = list(filter(None, [a if unix(get_sitemap_date(a)) > too_old else None for a in links]))
         links.sort(key=lambda a: unix(get_sitemap_date(a)), reverse=True)
+
         links = [x.find('loc').text for x in links] or []
         links = list(set(links))
         if excludes:
             links = list(filter(None, [None if any(e in link for e in excludes) else link for link in links]))
-        return links
+
+        feed_urls = list(filter(None, [l if l.endswith(".xml") else None for l in links]))
+        urls = list(set(links) - set(feed_urls))
+        
+        for url in feed_urls:
+            urls += self._feed(url, excludes)
+        return urls
+
+    def feed(self, excludes=None):
+        return self._feed(self.sitemap_url, excludes)
 
 
 class Category(_Base):
@@ -237,20 +253,8 @@ class Category(_Base):
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    print("Category: RadioNZ Te Ao Māori")
-    site = Category("https://www.rnz.co.nz/news/te-manu-korihi/")
-    posts = site.feed()
-    print(posts[:5])
-    print(site.story(posts[0]))
-
-    print("Sitemap: tvnz")
-    site = Sitemap("https://www.tvnz.co.nz/system/tvnz/sitemap.xml")
-    posts = site.feed()
-    print(posts[:5])
-    print(site.story(posts[0]))
-
-    print("Sitemap: Newsroom")
-    site = Sitemap("https://www.newsroom.co.nz/sitemap.xml", tz='Pacific/Auckland')
+    print("Sitemap: The Spinoff")
+    site = Sitemap("https://thespinoff.co.nz/sitemap.xml")
     posts = site.feed()
     print(posts[:5])
     print(site.story(posts[0]))
