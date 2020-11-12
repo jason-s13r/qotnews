@@ -102,7 +102,10 @@ def parse_extruct(s, data):
             if ld['datePublished']:
                 s['date'] = ld['datePublished']
             if 'author' in ld and ld['author']:
-                s['author'] = ld['author']['name']
+                if 'name' in ld['author']:
+                    s['author'] = ld['author']['name']
+                elif len(ld['author']):
+                    s['author'] = ld['author'][0]['name']
         if '@graph' in ld:
             for gld in ld['@graph']:
                 if '@type' in gld and gld['@type'] in ['Article', 'NewsArticle']:
@@ -255,7 +258,12 @@ class Category(_Base):
 if __name__ == '__main__':
     print("Sitemap: The Spinoff")
     site = Sitemap("https://thespinoff.co.nz/sitemap.xml")
-    posts = site.feed()
+    excludes = [
+        'thespinoff.co.nz/sitemap-misc.xml',
+        'thespinoff.co.nz/sitemap-authors.xml',
+        'thespinoff.co.nz/sitemap-tax-category.xml',
+    ]
+    posts = site.feed(excludes)
     print(posts[:5])
     print(site.story(posts[0]))
 
