@@ -248,7 +248,7 @@ class Category(_Base):
         self.tz = tz
         self.category_url = url
 
-    def _filter_links(self, links, excludes=None):
+    def _filter_links(self, links, category_url, excludes=None):
         links = list(filter(None, [link if link.startswith(category_url) else None for link in links]))
         links = list(filter(None, [link if link != category_url else None for link in links]))
         links = list(set(links))
@@ -264,7 +264,7 @@ class Category(_Base):
         links = soup.find_all('a', href=True)
         links = [link.get('href') for link in links]
         links = [f"{base_url}{link}" if link.startswith('/') else link for link in links]
-        links = self._filter_links(links, excludes)
+        links = self._filter_links(links, category_url, excludes)
         return links
 
     def feed(self, excludes=None):
