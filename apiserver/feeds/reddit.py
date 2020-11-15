@@ -73,7 +73,7 @@ def story(ref):
         s['comments'] = list(filter(bool, s['comments']))
         s['num_comments'] = r.num_comments
 
-        if s['score'] < 25 and s['num_comments'] < 10:
+        if s['score'] < settings.REDDIT_SCORE_THRESHOLD and s['num_comments'] < settings.REDDIT_COMMENT_THRESHOLD:
             return False
 
         if r.selftext:

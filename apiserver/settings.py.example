@@ -31,6 +31,10 @@ REDDIT_CLIENT_ID = ''
 REDDIT_CLIENT_SECRET = ''
 REDDIT_USER_AGENT = ''
 
+# Minimum points or number of comments before including a thread:
+REDDIT_COMMENT_THRESHOLD = 10
+REDDIT_SCORE_THRESHOLD = 25
+
 SUBREDDITS = [
     'Economics',
     'AcademicPhilosophy',
