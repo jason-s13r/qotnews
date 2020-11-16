@@ -145,12 +145,12 @@ def static_story(sid):
 http_server = WSGIServer(('', 33842), flask_app)
 
 def _add_new_refs():
-    for ref, source in feed.get_list():
+    for ref, source, urlref in feed.get_list():
         if database.get_story_by_ref(ref):
             continue
         try:
             nid = new_id()
-            database.put_ref(ref, nid, source)
+            database.put_ref(ref, nid, source, urlref)
             logging.info('Added ref ' + ref)
         except database.IntegrityError:
             continue
@@ -163,7 +163,7 @@ def _update_current_story(item):
 
     logging.info('Updating story: {}'.format(str(story['ref'])))
 
-    valid = feed.update_story(story)
+    valid = feed.update_story(story, urlref=item['urlref'])
     if valid:
         database.put_story(story)
         search.put_story(story)

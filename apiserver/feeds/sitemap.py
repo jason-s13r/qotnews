@@ -58,9 +58,10 @@ def _get_sitemap(feed_url, excludes=None):
     return list(set(links))
 
 class Sitemap(Base):
-    def __init__(self, url, tz=None):
-        self.tz = tz
-        self.sitemap_url = url
+    def __init__(self, config):
+        self.config = config
+        self.sitemap_url = config.get('url')
+        self.tz = config.get('tz')
 
     def feed(self, excludes=None):
         links = []
@@ -69,7 +70,8 @@ class Sitemap(Base):
         elif isinstance(self.sitemap_url, list):
             for url in self.sitemap_url:
                 links += _get_sitemap(url, excludes)
-        return list(set(links))
+        links = list(set(links))
+        return [(self.get_id(link), link) for link in links]
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':

@@ -34,9 +34,10 @@ def _get_category(category_url, excludes=None):
     return links
 
 class Category(Base):
-    def __init__(self, url, tz=None):
-        self.tz = tz
-        self.category_url = url
+    def __init__(self, config):
+        self.config = config
+        self.category_url = config.get('url')
+        self.tz = config.get('tz')
 
     def feed(self, excludes=None):
         links = []
@@ -45,7 +46,8 @@ class Category(Base):
         elif isinstance(self.category_url, list):
             for url in self.category_url:
                 links += _get_category(url, excludes)
-        return list(set(links))
+        links = list(set(links))
+        return [(self.get_id(link), link) for link in links]
 
 
 # scratchpad so I can quickly develop the parser

@@ -3,6 +3,7 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG)
 
+import re
 import requests
 from bs4 import BeautifulSoup
 from scrapers import declutter
@@ -32,15 +33,29 @@ def comment_count(i):
     return sum([comment_count(c) for c in i['comments']]) + alive
 
 class Base:
-    def __init__(url, tz=None):
-        self.url = url
-        self.tz = tz
+    def __init__(config):
+        self.config = config
+        self.url = config.get('url')
+        self.tz = config.get('tz')
+
+    def get_id(self, link):
+        patterns = self.config.get('patterns')
+        if not patterns:
+            return link
+        patterns = [re.compile(p) for p in patterns]
+        patterns = list(filter(None, [p.match(link) for p in patterns]))
+        patterns = list(set([':'.join(p.groups()) for p in patterns]))
+        if not patterns:
+            return link
+        return patterns[0]
 
     def feed(self, excludes=None):
         return []
 
-    def story(self, ref):
-        markup = xml(lambda x: ref)
+    def story(self, ref, urlref):
+        if urlref is None:
+            return False
+        markup = xml(lambda x: urlref)
         if not markup:
             return False
 
@@ -49,8 +64,8 @@ class Base:
         s['score'] = 0
         s['comments'] = []
         s['num_comments'] = 0
-        s['link'] = ref
-        s['url'] = ref
+        s['link'] = urlref
+        s['url'] = urlref
         s['date'] = 0
 
         soup = BeautifulSoup(markup, features='html.parser')
@@ -59,7 +74,7 @@ class Base:
         favicon = soup.find_all('link', rel="shortcut icon", href=True)
         others = soup.find_all('link', rel="icon", href=True)
         icons = icon32 + icon16 + favicon + others
-        base_url = '/'.join(ref.split('/')[:3])
+        base_url = '/'.join(urlref.split('/')[:3])
         icons = list(set([i.get('href') for i in icons]))
         icons = [i if i.startswith('http') else base_url + i for i in icons]
 
@@ -73,7 +88,7 @@ class Base:
 
         if 'disqus' in markup:
             try:
-                s['comments'] = declutter.get_comments(ref)
+                s['comments'] = declutter.get_comments(urlref)
                 c['comments'] = list(filter(bool, c['comments']))
                 s['num_comments'] = comment_count(s['comments'])
             except KeyboardInterrupt:

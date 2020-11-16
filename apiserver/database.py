@@ -24,6 +24,7 @@ class Reflist(Base):
 
     rid = Column(Integer, primary_key=True)
     ref = Column(String(16), unique=True)
+    urlref = Column(String)
     sid = Column(String, ForeignKey('stories.sid'), unique=True)
     source = Column(String(16))
 
@@ -75,7 +76,7 @@ def get_stories_by_url(url):
 def get_reflist():
     session = Session()
     q = session.query(Reflist).order_by(Reflist.rid.desc())
-    return [dict(ref=x.ref, sid=x.sid, source=x.source) for x in q.all()]
+    return [dict(ref=x.ref, sid=x.sid, source=x.source, urlref=x.urlref) for x in q.all()]
 
 def get_stories(maxage=60*60*24*2):
     time = datetime.now().timestamp() - maxage
@@ -87,10 +88,10 @@ def get_stories(maxage=60*60*24*2):
             order_by(Story.meta['date'].desc())
     return [x[1] for x in q]
 
-def put_ref(ref, sid, source):
+def put_ref(ref, sid, source, urlref):
     try:
         session = Session()
-        r = Reflist(ref=ref, sid=sid, source=source)
+        r = Reflist(ref=ref, sid=sid, source=source, urlref=urlref)
         session.add(r)
         session.commit()
     except:

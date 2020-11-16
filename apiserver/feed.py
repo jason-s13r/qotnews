@@ -21,40 +21,40 @@ for key, value in settings.SUBSTACK.items():
     substacks[key] = substack.Publication(value['url'])
 categories = {}
 for key, value in settings.CATEGORY.items():
-    categories[key] = Category(value['url'], value.get('tz'))
+    categories[key] = Category(value)
 sitemaps = {}
 for key, value in settings.SITEMAP.items():
-    sitemaps[key] = Sitemap(value['url'], value.get('tz'))
+    sitemaps[key] = Sitemap(value)
 
 def get_list():
     feeds = {}
 
     if settings.NUM_HACKERNEWS:
-        feeds['hackernews'] = [(x, 'hackernews') for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
+        feeds['hackernews'] = [(x, 'hackernews', x) for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
 
     if settings.NUM_REDDIT:
-        feeds['reddit'] = [(x, 'reddit') for x in reddit.feed()[:settings.NUM_REDDIT]]
+        feeds['reddit'] = [(x, 'reddit', x) for x in reddit.feed()[:settings.NUM_REDDIT]]
 
     if settings.NUM_TILDES:
-        feeds['tildes'] = [(x, 'tildes') for x in tildes.feed()[:settings.NUM_TILDES]]
+        feeds['tildes'] = [(x, 'tildes', x) for x in tildes.feed()[:settings.NUM_TILDES]]
 
     if settings.NUM_SUBSTACK:
-        feeds['substack'] = [(x, 'substack') for x in substack.top.feed()[:settings.NUM_SUBSTACK]]
+        feeds['substack'] = [(x, 'substack', x) for x in substack.top.feed()[:settings.NUM_SUBSTACK]]
 
     for key, publication in substacks.items():
         count = settings.SUBSTACK[key]['count']
-        feeds[key] = [(x, key) for x in publication.feed()[:count]]
+        feeds[key] = [(x, key, u) for x, u in publication.feed()[:count]]
 
     for key, sites in categories.items():
         count = settings.CATEGORY[key].get('count') or 0
         excludes = settings.CATEGORY[key].get('excludes')
         tz = settings.CATEGORY[key].get('tz')
-        feeds[key] = [(x, key) for x in sites.feed(excludes)[:count]]
+        feeds[key] = [(x, key, u) for x, u in sites.feed(excludes)[:count]]
 
     for key, sites in sitemaps.items():
         count = settings.SITEMAP[key].get('count') or 0
         excludes = settings.SITEMAP[key].get('excludes')
-        feeds[key] = [(x, key) for x in sites.feed(excludes)[:count]]
+        feeds[key] = [(x, key, u) for x, u in sites.feed(excludes)[:count]]
 
     values = feeds.values()
     feed = itertools.chain.from_iterable(itertools.zip_longest(*values, fillvalue=None))
@@ -101,7 +101,7 @@ def get_content_type(url):
     except:
         return ''
 
-def update_story(story, is_manual=False):
+def update_story(story, is_manual=False, urlref=None):
     res = {}
 
     if story['source'] == 'hackernews':
@@ -113,9 +113,9 @@ def update_story(story, is_manual=False):
     elif story['source'] == 'substack':
         res = substack.top.story(story['ref'])
     elif story['source'] in categories.keys():
-        res = categories[story['source']].story(story['ref'])
+        res = categories[story['source']].story(story['ref'], urlref)
     elif story['source'] in sitemaps.keys():
-        res = sitemaps[story['source']].story(story['ref'])
+        res = sitemaps[story['source']].story(story['ref'], urlref)
     elif story['source'] in substacks.keys():
         res = substacks[story['source']].story(story['ref'])
     elif story['source'] == 'manual':
