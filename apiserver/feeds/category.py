@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 import settings
 from utils import clean
 from misc.api import xml
-from _news import Base
+from misc.news import Base
 
 def _filter_links(links, category_url, excludes=None):
     links = list(filter(None, [link if link.startswith(category_url) else None for link in links]))

@@ -3,10 +3,6 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG)
 
-if __name__ == '__main__':
-    import sys
-    sys.path.insert(0,'.')
-
 import requests
 from bs4 import BeautifulSoup
 from scrapers import declutter

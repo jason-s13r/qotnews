@@ -14,7 +14,7 @@ import settings
 from utils import clean
 from misc.time import unix
 from misc.api import xml
-from _news import Base
+from misc.news import Base
 
 def _get_sitemap_date(a):
     if a.find('lastmod'):
