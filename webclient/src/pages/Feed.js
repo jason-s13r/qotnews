@@ -1,8 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import localForage from 'localforage';
-import { sourceLink, infoLine, getLogoUrl } from './utils.js';
+import { StoryItem } from '../components/StoryItem.js';
 
 class Feed extends React.Component {
 	constructor(props) {
@@ -56,27 +55,7 @@ class Feed extends React.Component {
 					<title>Feed - QotNews</title>
 				</Helmet>
 				{error && <p>Connection error?</p>}
-				{stories ?
-					<div>
-						{stories.map(x =>
-							<div className='item' key={x.id}>
-								<div className='title'>
-									<Link className='link' to={'/' + x.id}>
-										<img className='source-logo' src={getLogoUrl(x)} alt='source logo' /> {x.title}
-									</Link>
-
-									<span className='source'>
-										({sourceLink(x)})
-									</span>
-								</div>
-
-								{infoLine(x)}
-							</div>
-						)}
-					</div>
-					:
-					<p>loading...</p>
-				}
+				{stories ? stories.map(story => <StoryItem story={story}></StoryItem>) : <p>loading...</p>}
 			</div>
 		);
 	}

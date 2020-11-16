@@ -5,13 +5,14 @@ import './Style-light.css';
 import './Style-dark.css';
 import './fonts/Fonts.css';
 import { ForwardDot } from './utils.js';
-import Feed from './Feed.js';
-import Article from './Article.js';
-import Comments from './Comments.js';
 import Search from './Search.js';
 import Submit from './Submit.js';
-import Results from './Results.js';
 import ScrollToTop from './ScrollToTop.js';
+import Feed from './pages/Feed.js';
+import Article from './pages/Article.js';
+import Comments from './pages/Comments.js';
+import Results from './pages/Results.js';
+
 
 class App extends React.Component {
 	constructor(props) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import localForage from 'localforage';
-import { sourceLink, infoLine, ToggleDot } from './utils.js';
+import { sourceLink, infoLine, ToggleDot } from '../utils.js';
 
 class Article extends React.Component {
 	constructor(props) {
@@ -18,7 +18,7 @@ class Article extends React.Component {
 			pConv: [],
 		};
 	}
-	
+
 	componentDidMount() {
 		const id = this.props.match ? this.props.match.params.id : 'CLOL';
 
@@ -45,7 +45,7 @@ class Article extends React.Component {
 	}
 
 	pConvert = (n) => {
-		this.setState({ pConv: [...this.state.pConv, n]});
+		this.setState({ pConv: [...this.state.pConv, n] });
 	}
 
 	render() {
@@ -85,10 +85,10 @@ class Article extends React.Component {
 										v.innerHTML.split('\n\n').map(x =>
 											<p dangerouslySetInnerHTML={{ __html: x }} />
 										)
-									:
+										:
 										(v.nodeName === '#text' ?
 											<p>{v.data}</p>
-										:
+											:
 											<>
 												<v.localName dangerouslySetInnerHTML={v.innerHTML ? { __html: v.innerHTML } : null} />
 												{v.localName == 'pre' && <button onClick={() => this.pConvert(k)}>Convert Code to Paragraph</button>}
@@ -96,11 +96,11 @@ class Article extends React.Component {
 										)
 								)}
 							</div>
-						:
+							:
 							<p>Problem getting article :(</p>
 						}
 					</div>
-				:
+					:
 					<p>loading...</p>
 				}
 				<ToggleDot id={id} article={false} />

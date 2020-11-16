@@ -1,8 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { sourceLink, infoLine, getLogoUrl } from './utils.js';
 import AbortController from 'abort-controller';
+import { StoryItem } from '../components/StoryItem.js';
 
 class Results extends React.Component {
 	constructor(props) {
@@ -63,25 +62,7 @@ class Results extends React.Component {
 					<>
 						<p>Search results:</p>
 						<div className='comment lined'>
-							{stories.length ?
-								stories.map(x =>
-									<div className='item' key={x.id}>
-										<div className='title'>
-											<Link className='link' to={'/' + x.id}>
-												<img className='source-logo' src={getLogoUrl(x)} alt='source logo' /> {x.title}
-											</Link>
-
-											<span className='source'>
-												({sourceLink(x)})
-											</span>
-										</div>
-
-										{infoLine(x)}
-									</div>
-								)
-								:
-								<p>none</p>
-							}
+							{stories ? stories.map(story => <StoryItem story={story}></StoryItem>) : <p>loading...</p>}
 						</div>
 					</>
 					:
