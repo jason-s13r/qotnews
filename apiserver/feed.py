@@ -9,7 +9,9 @@ from bs4 import BeautifulSoup
 import itertools
 
 import settings
-from feeds import hackernews, reddit, tildes, substack, manual, news
+from feeds import hackernews, reddit, tildes, substack, manual
+from feeds.sitemap import Sitemap
+from feeds.category import Category
 from scrapers import outline, declutter, browser, local
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
@@ -19,10 +21,10 @@ for key, value in settings.SUBSTACK.items():
     substacks[key] = substack.Publication(value['url'])
 categories = {}
 for key, value in settings.CATEGORY.items():
-    categories[key] = news.Category(value['url'], value.get('tz'))
+    categories[key] = Category(value['url'], value.get('tz'))
 sitemaps = {}
 for key, value in settings.SITEMAP.items():
-    sitemaps[key] = news.Sitemap(value['url'], value.get('tz'))
+    sitemaps[key] = Sitemap(value['url'], value.get('tz'))
 
 def get_list():
     feeds = {}
