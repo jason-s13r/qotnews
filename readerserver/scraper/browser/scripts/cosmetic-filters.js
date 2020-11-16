@@ -39,6 +39,9 @@
 	if (matchDomain(["tvnz.co.nz"])) {
 		removeSelectors([".signup-container container"]);
 	}
+	if (matchDomain(["thespinoff.co.nz"])) {
+		removeSelectors([".the-spinoff-club-interruptive", ".bulletin-signup"]);
+	}
 
 	function matchDomain(domains) {
 		const hostname = window.location.hostname;
