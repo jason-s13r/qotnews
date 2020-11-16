@@ -43,7 +43,7 @@ def get_list():
 
     for key, publication in substacks.items():
         count = settings.SUBSTACK[key]['count']
-        feeds[key] = [(x, key, u) for x, u in publication.feed()[:count]]
+        feeds[key] = [(x, key, x) for x in publication.feed()[:count]]
 
     for key, sites in categories.items():
         count = settings.CATEGORY[key].get('count') or 0
