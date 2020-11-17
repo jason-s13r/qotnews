@@ -25,9 +25,9 @@ module.exports.getDetails = async (url) => {
 			}
 			return route.continue();
 		});
-		await tab.addInitScript({ path: "scraper/browser/scripts/bypass-paywalls-chrome/src/js/contentScript.js" });
-		await tab.addInitScript({ path: "scraper/browser/scripts/cosmetic-filters.js" });
-		await tab.addInitScript({ path: "scraper/browser/scripts/fix-relative-links.js" });
+		await tab.addInitScript({ path: "scraper/headless/scripts/bypass-paywalls-chrome/src/js/contentScript.js" });
+		await tab.addInitScript({ path: "scraper/headless/scripts/cosmetic-filters.js" });
+		await tab.addInitScript({ path: "scraper/headless/scripts/fix-relative-links.js" });
 		await tab.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
 		await tab.waitForTimeout(2000);
 

@@ -4,11 +4,11 @@ logging.basicConfig(
         level=logging.DEBUG)
 import requests
 
-READ_API = 'http://127.0.0.1:33843/details'
+READ_API = 'http://127.0.0.1:33843/simple/details'
 TIMEOUT = 20
 
 def get_html(url):
-    logging.info(f"Local Scraper: {url}")
+    logging.info(f"Simple Scraper: {url}")
     details = get_details(url)
     if not details:
         return ''

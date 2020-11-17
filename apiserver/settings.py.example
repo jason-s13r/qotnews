@@ -51,7 +51,7 @@ CATEGORY = {}
 #     ],
 # }
 
-SCRAPERS = ['browser', 'declutter', 'outline', 'local']
+SCRAPERS = ['headless', 'outline', 'declutter', 'simple']
 
 # Reddit account info
 # leave blank if not using Reddit

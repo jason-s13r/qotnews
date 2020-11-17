@@ -12,7 +12,7 @@ import settings
 from feeds import hackernews, reddit, tildes, substack, manual
 from feeds.sitemap import Sitemap
 from feeds.category import Category
-from scrapers import outline, declutter, browser, local
+from scrapers import outline, declutter, headless, simple
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 
@@ -63,14 +63,14 @@ def get_list():
 
 def get_article(url):
     scrapers = {
-        'declutter': declutter,
+        'headless': headless,
+        'simple': simple,
         'outline': outline,
-        'browser': browser,
-        'local': local,
+        'declutter': declutter,
     }
-    available = settings.SCRAPERS or ['local']
-    if 'local' not in available:
-        available += ['local']
+    available = settings.SCRAPERS or ['headless', 'simple']
+    if 'simple' not in available:
+        available += ['simple']
 
     for scraper in available:
         if scraper not in scrapers.keys():

@@ -4,13 +4,13 @@ logging.basicConfig(
         level=logging.DEBUG)
 import requests
 
-READ_API = 'http://127.0.0.1:33843/browser/details'
-READ_COMMENT__API = 'http://127.0.0.1:33843/browser/commentd'
+READ_API = 'http://127.0.0.1:33843/headless/details'
+READ_COMMENT__API = 'http://127.0.0.1:33843/headless/comments'
 TIMEOUT = 60
 
 
 def get_html(url):
-    logging.info(f"Reader Scraper: {url}")
+    logging.info(f"Headless Browser Scraper: {url}")
     details = get_details(url)
     if not details:
         return ''
@@ -25,7 +25,7 @@ def get_details(url):
     except KeyboardInterrupt:
         raise
     except BaseException as e:
-        logging.error('Problem Scraping article: {}'.format(str(e)))
+        logging.error('Problem scraping article: {}'.format(str(e)))
         return None
 
 def get_comments(url):
