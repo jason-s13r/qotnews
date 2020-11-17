@@ -88,7 +88,7 @@
 					return displayNone || visibilityHidden;
 				})
 				.forEach((element) => element && element.remove());
-		}, 500);
+		}, 1500);
 	}
 
 	function removeSelectors(selectors) {
