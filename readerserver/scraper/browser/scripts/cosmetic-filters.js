@@ -34,7 +34,12 @@
 		removeSelectors([".article_content__section", ".bio"]);
 	}
 	if (matchDomain(["newshub.co.nz"])) {
-		removeSelectors([".c-ArticleHeading-authorPicture", ".relatedarticles"]);
+		removeSelectors([
+			".c-ArticleHeading-authorPicture",
+			".relatedarticles",
+			".ArticleAttribution",
+			'.GlobalFooter'
+		]);
 	}
 	if (matchDomain(["tvnz.co.nz"])) {
 		removeSelectors([".signup-container container"]);
