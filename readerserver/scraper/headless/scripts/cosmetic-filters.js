@@ -45,7 +45,11 @@
 		removeSelectors([".signup-container container"]);
 	}
 	if (matchDomain(["thespinoff.co.nz"])) {
-		removeSelectors([".the-spinoff-club-interruptive", ".bulletin-signup"]);
+		removeSelectors([
+			".the-spinoff-club-interruptive",
+			".bulletin-signup",
+			".sponsor_post_footer"
+		]);
 	}
 
 	function matchDomain(domains) {
@@ -84,7 +88,7 @@
 					return displayNone || visibilityHidden;
 				})
 				.forEach((element) => element && element.remove());
-		}, 1000);
+		}, 500);
 	}
 
 	function removeSelectors(selectors) {
@@ -99,6 +103,6 @@
 				return undefined;
 			});
 			removeDOMElement(...elements);
-		}, 1000);
+		}, 500);
 	}
 })();
