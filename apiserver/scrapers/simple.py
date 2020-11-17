@@ -3,8 +3,9 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG)
 import requests
+from settings import READER_PORT
 
-READ_API = 'http://127.0.0.1:33843/simple/details'
+READ_API = 'http://127.0.0.1:{}/simple/details'.format(READER_PORT or 3000)
 TIMEOUT = 20
 
 def get_html(url):

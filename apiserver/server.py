@@ -142,7 +142,7 @@ def static_story(sid):
             url=url,
             description=description)
 
-http_server = WSGIServer(('', 33842), flask_app)
+http_server = WSGIServer(('', settings.API_PORT or 33842), flask_app)
 
 def _add_new_refs():
     for ref, source, urlref in feed.get_list():

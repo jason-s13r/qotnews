@@ -3,9 +3,10 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG)
 import requests
+from settings import READER_PORT
 
-READ_API = 'http://127.0.0.1:33843/headless/details'
-READ_COMMENT__API = 'http://127.0.0.1:33843/headless/comments'
+READ_API = 'http://127.0.0.1:{}/headless/details'.format(READER_PORT or 3000)
+READ_COMMENT__API = 'http://127.0.0.1:{}/headless/comments'.format(READER_PORT or 3000)
 TIMEOUT = 60
 
 

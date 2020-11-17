@@ -4,6 +4,10 @@
 HOSTNAME = 'news.t0.vc'
 MAX_STORY_AGE = 3*24*60*60
 
+SCRAPERS = ['headless', 'outline', 'declutter', 'simple']
+API_PORT = 33842
+READER_PORT = 3000
+
 # Feed Lengths
 # Number of top items from each site to pull
 # set to 0 to disable that site
@@ -50,8 +54,6 @@ CATEGORY = {}
 #         'rnz.co.nz/weather',
 #     ],
 # }
-
-SCRAPERS = ['headless', 'outline', 'declutter', 'simple']
 
 # Reddit account info
 # leave blank if not using Reddit

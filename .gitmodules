@@ -1,4 +1,3 @@
-[submodule "readerserver/scraper/headless/scripts/bypass-paywalls-chrome"]
-	path = readerserver/scraper/headless/scripts/bypass-paywalls-chrome
-	url = https://github.com/iamadamdev/bypass-paywalls-chrome/
-	branch = master
+[submodule "readerserver"]
+	path = readerserver
+	url = https://github.com/master5o1/declutter.git
