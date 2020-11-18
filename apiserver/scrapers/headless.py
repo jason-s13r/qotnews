@@ -3,15 +3,14 @@ logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG)
 import requests
-from settings import READER_PORT
+from settings import HEADLESS_READER_PORT
 
-READ_API = 'http://127.0.0.1:{}/headless/details'.format(READER_PORT or 3000)
-READ_COMMENT__API = 'http://127.0.0.1:{}/headless/comments'.format(READER_PORT or 3000)
-TIMEOUT = 60
-
+READ_API = 'http://127.0.0.1:{}/headless/details'.format(HEADLESS_READER_PORT or 33843)
+READ_COMMENT__API = 'http://127.0.0.1:{}/headless/comments'.format(HEADLESS_READER_PORT or 33843)
+TIMEOUT = 90
 
 def get_html(url):
-    logging.info(f"Headless Browser Scraper: {url}")
+    logging.info(f"Headless Scraper: {url}")
     details = get_details(url)
     if not details:
         return ''

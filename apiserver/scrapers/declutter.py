@@ -4,9 +4,9 @@ logging.basicConfig(
         level=logging.DEBUG)
 import requests
 
-DECLUTTER_API = 'https://declutter.1j.nz/details'
-DECLUTTER_COMMENT_API = 'https://declutter.1j.nz/comments'
-TIMEOUT = 30
+DECLUTTER_API = 'https://declutter.1j.nz/headless/details'
+DECLUTTER_COMMENT_API = 'https://declutter.1j.nz/headless/comments'
+TIMEOUT = 90
 
 
 def get_html(url):
