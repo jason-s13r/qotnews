@@ -20,7 +20,7 @@ $ sudo apt install yarn
 Clone this repo:
 
 ```text
-$ git clone https://gogs.tannercollin.com/tanner/qotnews.git
+$ git clone --recurse-submodules https://git.1j.nz/jason/qotnews.git
 $ cd qotnews
 ```
 
@@ -37,14 +37,14 @@ $ source env/bin/activate
 
 Configure Praw for your Reddit account (optional):
 
-* Go to https://www.reddit.com/prefs/apps
-* Click "Create app"
-* Name: whatever
-* App type: script
-* Description: blank
-* About URL: blank
-* Redirect URL: your GitHub profile
-* Submit, copy the client ID and client secret into `settings.py` below
+- Go to https://www.reddit.com/prefs/apps
+- Click "Create app"
+- Name: whatever
+- App type: script
+- Description: blank
+- About URL: blank
+- Redirect URL: your GitHub profile
+- Submit, copy the client ID and client secret into `settings.py` below
 
 ```text
 (env) $ vim settings.py.example
@@ -109,7 +109,7 @@ stdout_logfile_maxbytes=1MB
 [program:qotnewsreader]
 user=qotnews
 directory=/home/qotnews/qotnews/readerserver
-command=node main.js
+command=node index.js
 autostart=true
 autorestart=true
 stderr_logfile=/var/log/qotnewsreader.log
