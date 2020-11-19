@@ -17,6 +17,9 @@ search.init()
 def _update_current_story(story, item):
     logging.info('Updating story: {}'.format(str(story['ref'])))
 
+    if story.get('url', ''):
+        story['text'] = ''
+
     valid = feed.update_story(story, urlref=item['urlref'])
     if valid:
         database.put_story(story)
