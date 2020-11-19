@@ -2,6 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import localForage from 'localforage';
 import { sourceLink, infoLine, ToggleDot } from '../utils.js';
+import { Link } from "react-router-dom";
 
 class Article extends React.Component {
 	constructor(props) {
@@ -14,6 +15,7 @@ class Article extends React.Component {
 
 		this.state = {
 			story: cache[id] || false,
+			related: [],
 			error: false,
 			pConv: [],
 		};
@@ -35,7 +37,7 @@ class Article extends React.Component {
 			.then(res => res.json())
 			.then(
 				(result) => {
-					this.setState({ story: result.story });
+					this.setState({ story: result.story, related: result.related });
 					localForage.setItem(id, result.story);
 				},
 				(error) => {
@@ -51,6 +53,7 @@ class Article extends React.Component {
 	render() {
 		const id = this.props.match ? this.props.match.params.id : 'CLOL';
 		const story = this.state.story;
+		const related = this.state.related;//.filter(r => r.id != id);
 		const error = this.state.error;
 		const pConv = this.state.pConv;
 		let nodes = null;
@@ -77,6 +80,16 @@ class Article extends React.Component {
 						</div>
 
 						{infoLine(story)}
+
+						{related.length ? <div className='related indented info'>
+							<span>Other discussions: </span>
+							{related.map((r, i) =>
+								<>
+									{i !== 0 ? <> &bull; </> : <></>}
+									<Link className='' to={"/" + r.id + "/c"}>{r.source}</Link>
+								</>
+							)}
+						</div> : <></>}
 
 						{nodes ?
 							<div className='story-text'>

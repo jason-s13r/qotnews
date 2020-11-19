@@ -6,7 +6,7 @@ import moment from 'moment';
 import localForage from 'localforage';
 import { infoLine, ToggleDot } from '../utils.js';
 
-class Article extends React.Component {
+class Comments extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -17,6 +17,7 @@ class Article extends React.Component {
 
 		this.state = {
 			story: cache[id] || false,
+			related: [],
 			error: false,
 			collapsed: [],
 			expanded: [],
@@ -37,7 +38,7 @@ class Article extends React.Component {
 			.then(res => res.json())
 			.then(
 				(result) => {
-					this.setState({ story: result.story }, () => {
+					this.setState({ story: result.story, related: result.related }, () => {
 						const hash = window.location.hash.substring(1);
 						if (hash) {
 							document.getElementById(hash).scrollIntoView();
@@ -110,6 +111,7 @@ class Article extends React.Component {
 	render() {
 		const id = this.props.match.params.id;
 		const story = this.state.story;
+		const related = this.state.related;//.filter(r => r.id != id);
 		const error = this.state.error;
 
 		return (
@@ -129,6 +131,17 @@ class Article extends React.Component {
 
 						{infoLine(story)}
 
+						{related.length ? <div className='related indented info'>
+							<span>Other discussions: </span>
+							{related.map((r, i) =>
+								<>
+									{i !== 0 ? <> &bull; </> : <></>}
+									<Link className='' to={"/" + r.id + "/c"}>{r.source}</Link>
+								</>
+							)}
+						</div> : <></>}
+
+
 						<div className='comments'>
 							{story.comments.map(c => this.displayComment(story, c, 0))}
 						</div>
@@ -142,4 +155,4 @@ class Article extends React.Component {
 	}
 }
 
-export default Article;
+export default Comments;
