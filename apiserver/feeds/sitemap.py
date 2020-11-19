@@ -76,7 +76,7 @@ class Sitemap(Base):
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
     print("Sitemap: The Spinoff")
-    site = Sitemap("https://thespinoff.co.nz/sitemap.xml")
+    site = Sitemap({ 'url': "https://thespinoff.co.nz/sitemap.xml" })
     excludes = [
         'thespinoff.co.nz/sitemap-misc.xml',
         'thespinoff.co.nz/sitemap-authors.xml',
@@ -84,16 +84,18 @@ if __name__ == '__main__':
     ]
     posts = site.feed(excludes)
     print(posts[:5])
-    print(site.story(posts[0]))
+    print(site.story(posts[0][0], posts[0][1]))
 
     print("Sitemap: Newshub")
-    site = Sitemap([
-        'https://www.newshub.co.nz/home/politics.gnewssitemap.xml',
-        'https://www.newshub.co.nz/home/new-zealand.gnewssitemap.xml',
-        'https://www.newshub.co.nz/home/world.gnewssitemap.xml',
-        'https://www.newshub.co.nz/home/money.gnewssitemap.xml',
-    ])
+    site = Sitemap({
+        'url': [
+            'https://www.newshub.co.nz/home/politics.gnewssitemap.xml',
+            'https://www.newshub.co.nz/home/new-zealand.gnewssitemap.xml',
+            'https://www.newshub.co.nz/home/world.gnewssitemap.xml',
+            'https://www.newshub.co.nz/home/money.gnewssitemap.xml',
+        ],
+    })
     posts = site.feed()
     print(posts[:5])
-    print(site.story(posts[0]))
-    print(site.story(posts[:-1]))
+    print(site.story(posts[0][0], posts[0][1]))
+    

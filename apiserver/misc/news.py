@@ -14,6 +14,7 @@ from utils import clean
 from misc.metadata import parse_extruct
 from misc.time import unix
 from misc.api import xml
+import misc.stuff as stuff
 
 def comment(i):
     if 'author' not in i:
@@ -89,12 +90,17 @@ class Base:
         if 'disqus' in markup:
             try:
                 s['comments'] = declutter.get_comments(urlref)
-                c['comments'] = list(filter(bool, c['comments']))
+                s['comments'] = list(filter(bool, s['comments']))
                 s['num_comments'] = comment_count(s['comments'])
             except KeyboardInterrupt:
                 raise
             except:
                 pass
+
+        if urlref.startswith('https://www.stuff.co.nz'):
+            s['comments'] = stuff.get_comments(urlref)
+            s['comments'] = list(filter(bool, s['comments']))
+            s['num_comments'] = len(s['comments'])
 
         if not s['date']:
             return False

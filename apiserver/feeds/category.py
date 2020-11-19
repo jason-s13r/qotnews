@@ -53,7 +53,7 @@ class Category(Base):
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
     print("Category: RadioNZ")
-    site = Category("https://www.rnz.co.nz/news/")
+    site = Category({ 'url': "https://www.rnz.co.nz/news/" })
     excludes = [
         'rnz.co.nz/news/sport',
         'rnz.co.nz/weather',
@@ -61,12 +61,12 @@ if __name__ == '__main__':
     ]
     posts = site.feed(excludes)
     print(posts[:5])
-    print(site.story(posts[0]))
+    print(site.story(posts[0][0], posts[0][1]))
 
     print("Category: Newsroom")
-    site = Category("https://www.newsroom.co.nz/news/", tz='Pacific/Auckland')
+    site = Category({ 'url': "https://www.newsroom.co.nz/news/", 'tz': 'Pacific/Auckland'})
     posts = site.feed()
     print(posts[:5])
-    print(site.story(posts[0]))
+    print(site.story(posts[0][0], posts[0][1]))
 
 
