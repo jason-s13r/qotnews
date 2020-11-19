@@ -73,6 +73,13 @@ def get_stories_by_url(url):
             filter(Story.meta['url'].as_string() == url).\
             order_by(Story.meta['date'].desc())
 
+def get_ref_by_sid(sid):
+    session = Session()
+    x = session.query(Reflist).\
+        filter(Reflist.sid == sid).\
+        first()
+    return dict(ref=x.ref, sid=x.sid, source=x.source, urlref=x.urlref)
+
 def get_reflist():
     session = Session()
     q = session.query(Reflist).order_by(Reflist.rid.desc())
