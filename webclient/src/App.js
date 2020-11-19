@@ -71,7 +71,7 @@ class App extends React.Component {
 						<Route path='/search' component={Results} />
 						<Route path='/:id' exact render={(props) => <Article {...props} cache={this.cache} />} />
 					</Switch>
-					<Route path='/:id/c' exact render={(props) => <Comments {...props} cache={this.cache} />} />
+					<Route path='/:id/c' exact render={(props) => <Comments {...props} cache={this.cache} key={props.match.params.id} />} />
 
 					<ForwardDot />
 

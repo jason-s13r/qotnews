@@ -4,7 +4,7 @@ import { HashLink } from 'react-router-hash-link';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import localForage from 'localforage';
-import { infoLine, ToggleDot } from '../utils.js';
+import { infoLine, otherDiscussions, ToggleDot } from '../utils.js';
 
 class Comments extends React.Component {
 	constructor(props) {
@@ -27,12 +27,8 @@ class Comments extends React.Component {
 	componentDidMount() {
 		const id = this.props.match.params.id;
 
-		localForage.getItem(id)
-			.then(
-				(value) => {
-					this.setState({ story: value });
-				}
-			);
+		localForage.getItem(id).then((value) => this.setState({ story: value }));
+		localForage.getItem(`related-${id}`).then((value) => value ? this.setState({ related: value }) : null);
 
 		fetch('/api/' + id)
 			.then(res => res.json())
@@ -45,6 +41,7 @@ class Comments extends React.Component {
 						}
 					});
 					localForage.setItem(id, result.story);
+					localForage.setItem(`related-${id}`, result.related);
 				},
 				(error) => {
 					this.setState({ error: true });
@@ -111,7 +108,7 @@ class Comments extends React.Component {
 	render() {
 		const id = this.props.match.params.id;
 		const story = this.state.story;
-		const related = this.state.related;//.filter(r => r.id != id);
+		const related = this.state.related.filter(r => r.id != id);
 		const error = this.state.error;
 
 		return (
@@ -130,17 +127,7 @@ class Comments extends React.Component {
 						</div>
 
 						{infoLine(story)}
-
-						{related.length ? <div className='related indented info'>
-							<span>Other discussions: </span>
-							{related.map((r, i) =>
-								<>
-									{i !== 0 ? <> &bull; </> : <></>}
-									<Link className='' to={"/" + r.id + "/c"}>{r.source}</Link>
-								</>
-							)}
-						</div> : <></>}
-
+						{otherDiscussions(related)}
 
 						<div className='comments'>
 							{story.comments.map(c => this.displayComment(story, c, 0))}

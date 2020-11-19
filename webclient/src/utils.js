@@ -27,6 +27,26 @@ export const infoLine = (story) => (
 	</div>
 );
 
+export const otherDiscussions = (related) => {
+	const stories = related.filter(r => r.num_comments > 0);
+	if (!stories.length) {
+		return null;
+	}
+	return (
+		<div className='related indented info'>
+			<span>Other discussions: </span>
+			{stories.map((story, i) =>
+				<span id={story.id}>
+					{i !== 0 ? <> &bull; </> : <></>}
+					<Link className={story.num_comments > 99 ? "hot" : ""} to={"/" + story.id + "/c"}>
+						{story.source} ({story.num_comments} comment{story.num_comments !== 1 && "s"})
+					</Link>
+				</span>
+			)}
+		</div>
+	);
+}
+
 export class ToggleDot extends React.Component {
 	render() {
 		const id = this.props.id;

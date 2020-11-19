@@ -1,8 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import localForage from 'localforage';
-import { sourceLink, infoLine, ToggleDot } from '../utils.js';
-import { Link } from "react-router-dom";
+import { sourceLink, infoLine, otherDiscussions, ToggleDot } from '../utils.js';
 
 class Article extends React.Component {
 	constructor(props) {
@@ -24,14 +23,8 @@ class Article extends React.Component {
 	componentDidMount() {
 		const id = this.props.match ? this.props.match.params.id : 'CLOL';
 
-		localForage.getItem(id)
-			.then(
-				(value) => {
-					if (value) {
-						this.setState({ story: value });
-					}
-				}
-			);
+		localForage.getItem(id).then((value) => value ? this.setState({ story: value }) : null);
+		localForage.getItem(`related-${id}`).then((value) => value ? this.setState({ related: value }) : null);
 
 		fetch('/api/' + id)
 			.then(res => res.json())
@@ -39,6 +32,7 @@ class Article extends React.Component {
 				(result) => {
 					this.setState({ story: result.story, related: result.related });
 					localForage.setItem(id, result.story);
+					localForage.setItem(`related-${id}`, result.related);
 				},
 				(error) => {
 					this.setState({ error: true });
@@ -53,7 +47,7 @@ class Article extends React.Component {
 	render() {
 		const id = this.props.match ? this.props.match.params.id : 'CLOL';
 		const story = this.state.story;
-		const related = this.state.related;//.filter(r => r.id != id);
+		const related = this.state.related.filter(r => r.id != id);
 		const error = this.state.error;
 		const pConv = this.state.pConv;
 		let nodes = null;
@@ -80,16 +74,7 @@ class Article extends React.Component {
 						</div>
 
 						{infoLine(story)}
-
-						{related.length ? <div className='related indented info'>
-							<span>Other discussions: </span>
-							{related.map((r, i) =>
-								<>
-									{i !== 0 ? <> &bull; </> : <></>}
-									<Link className='' to={"/" + r.id + "/c"}>{r.source}</Link>
-								</>
-							)}
-						</div> : <></>}
+						{otherDiscussions(related)}
 
 						{nodes ?
 							<div className='story-text'>
