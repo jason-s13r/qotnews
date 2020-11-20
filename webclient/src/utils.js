@@ -15,7 +15,7 @@ export const sourceLink = (story) => {
 
 export const infoLine = (story) => (
 	<div className="info">
-		{story.score} points by {story.author_link ? <a href={story.author_link}>{story.author}</a> : story.author_link}
+		{story.score} points by {story.author_link ? <a href={story.author_link}>{story.author}</a> : story.author}
 		&#8203; {moment.unix(story.date).fromNow()}
 		&#8203; on <a href={story.link}>{story.source}</a> | &#8203;
   		<Link
