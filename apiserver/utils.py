@@ -9,7 +9,7 @@ import string
 from bleach.sanitizer import Cleaner
 
 def gen_rand_id():
-    return ''.join(random.choice(string.ascii_uppercase) for _ in range(4))
+    return ''.join(random.choice(string.ascii_uppercase) for _ in range(5))
 
 def render_md(md):
     if md:

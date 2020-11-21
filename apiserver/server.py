@@ -155,6 +155,7 @@ def _add_new_refs():
             database.put_ref(ref, nid, source, urlref)
             logging.info('Added ref ' + ref)
         except database.IntegrityError:
+            logging.info('Unable to add ref ' + ref)
             continue
 
 def _update_current_story(item):
