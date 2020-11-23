@@ -66,13 +66,20 @@ class Publication:
     def __init__(self, domain):
         self.BASE_DOMAIN = domain
 
+    def ref_prefix(self, ref):
+        return f"{self.BASE_DOMAIN}/#id:{ref}"
+
+    def strip_ref_prefix(self, ref):
+        return ref.replace(f"{self.BASE_DOMAIN}/#id:", '')
+
     def feed(self):
         stories = api(lambda x: api_stories(x, self.BASE_DOMAIN), referer=self.BASE_DOMAIN)
         if not stories: return []
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
-        return [str(i.get("id")) for i in stories or []]
+        return [self.ref_prefix(str(i.get("id"))) for i in stories or []]
 
     def story(self, ref):
+        ref = self.strip_ref_prefix(ref)
         stories = api(lambda x: api_stories(x, self.BASE_DOMAIN), referer=self.BASE_DOMAIN)
         if not stories: return False
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
@@ -116,13 +123,24 @@ class Publication:
 
 
 class Top:
+    def ref_prefix(self, base_url, ref):
+        return f"{base_url}/#id:{ref}"
+
+    def strip_ref_prefix(self, ref):
+        if '/#id:' in ref:
+            base_url, item = ref.split(f"/#id:")
+            return item
+        return ref
+
     def feed(self):
         stories = api(SUBSTACK_API_TOP_POSTS, referer=SUBSTACK_REFERER)
         if not stories: return []
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
-        return [str(i.get("id")) for i in stories or []]
+        stories = [dict(id=i.get('id'), base_url=i.get("pub", { 'base_url': '' }).get("base_url")) for i in stories or []]
+        return [self.ref_prefix(str(i.get("base_url")), str(i.get("id"))) for i in stories]
 
     def story(self, ref):
+        ref = self.strip_ref_prefix(ref)
         stories = api(SUBSTACK_API_TOP_POSTS, referer=SUBSTACK_REFERER)
         if not stories: return False
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))

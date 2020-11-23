@@ -40,7 +40,7 @@ def api(route, ref=None):
         return False
 
 def feed():
-    return [str(x) for x in api(API_TOPSTORIES) or []]
+    return ['hn:'+str(x) for x in api(API_TOPSTORIES) or []]
 
 def comment(i):
     if 'author' not in i:
@@ -60,6 +60,7 @@ def comment_count(i):
     return sum([comment_count(c) for c in i['comments']]) + alive
 
 def story(ref):
+    ref = ref.replace('hn:', '')
     r = api(API_ITEM, ref)
     if not r: return False
 
