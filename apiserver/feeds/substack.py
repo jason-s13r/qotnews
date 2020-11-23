@@ -10,6 +10,7 @@ if __name__ == '__main__':
 import requests
 from datetime import datetime
 
+import settings
 from misc.time import unix
 from misc.metadata import get_icons
 from misc.api import xml, json
@@ -50,9 +51,13 @@ class Publication:
         return ref.replace(f"{self.BASE_DOMAIN}/#id:", '')
 
     def feed(self):
+        too_old = datetime.now().timestamp() - settings.MAX_STORY_AGE
         stories = json(lambda x: api_stories(x, self.BASE_DOMAIN), headers={'Referer': self.BASE_DOMAIN})
         if not stories: return []
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
+        stories = list(filter(None, [i if unix(i.get('post_date')) > too_old else None for i in stories]))
+        stories.sort(key=lambda a: unix(a.get('post_date')), reverse=True)
+
         return [self.ref_prefix(str(i.get("id"))) for i in stories or []]
 
     def story(self, ref):
@@ -116,11 +121,14 @@ class Top:
         return ref
 
     def feed(self):
+        too_old = datetime.now().timestamp() - settings.MAX_STORY_AGE
         stories = json(SUBSTACK_API_TOP_POSTS, headers={'Referer': SUBSTACK_REFERER})
         if not stories: return []
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
-        stories = [dict(id=i.get('id'), base_url=i.get("pub", { 'base_url': '' }).get("base_url")) for i in stories or []]
-        return [self.ref_prefix(str(i.get("base_url")), str(i.get("id"))) for i in stories]
+        stories = list(filter(None, [i if unix(i.get('post_date')) > too_old else None for i in stories]))
+        stories.sort(key=lambda a: unix(a.get('post_date')), reverse=True)
+        stories = [self.ref_prefix(str(i.get("pub").get("base_url")), str(i.get("id"))) for i in stories]
+        return stories
 
     def story(self, ref):
         ref = self.strip_ref_prefix(ref)
