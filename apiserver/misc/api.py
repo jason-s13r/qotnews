@@ -5,13 +5,16 @@ logging.basicConfig(
 
 import requests
 
-USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-FORWARD_IP = '66.249.66.1'
+GOOGLEBOT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+GOOGLEBOT_IP = '66.249.66.1'
+TIMEOUT = 30
 
-def xml(route, ref=None):
+def xml(route, ref=None, headers=dict(), use_googlebot=True):
     try:
-        headers = {'User-Agent': USER_AGENT, 'X-Forwarded-For': FORWARD_IP}
-        r = requests.get(route(ref), headers=headers, timeout=5)
+        if use_googlebot:
+            headers['User-Agent'] = GOOGLEBOT_USER_AGENT
+            headers['X-Forwarded-For'] = GOOGLEBOT_IP
+        r = requests.get(route(ref), headers=headers, timeout=TIMEOUT)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.text
@@ -21,10 +24,12 @@ def xml(route, ref=None):
         logging.error('Problem hitting URL: {}'.format(str(e)))
         return False
 
-def json(route, ref=None):
+def json(route, ref=None, headers=dict(), use_googlebot=True):
     try:
-        headers = {'User-Agent': USER_AGENT, 'X-Forwarded-For': FORWARD_IP}
-        r = requests.get(route(ref), headers=headers, timeout=5)
+        if use_googlebot:
+            headers['User-Agent'] = GOOGLEBOT_USER_AGENT
+            headers['X-Forwarded-For'] = GOOGLEBOT_IP
+        r = requests.get(route(ref), headers=headers, timeout=TIMEOUT)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))
         return r.json()

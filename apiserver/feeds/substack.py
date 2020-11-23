@@ -11,6 +11,8 @@ import requests
 from datetime import datetime
 
 from misc.time import unix
+from misc.metadata import get_icons
+from misc.api import xml, json
 from utils import clean
 
 SUBSTACK_REFERER = 'https://substack.com'
@@ -22,29 +24,6 @@ def api_comments(post_id, base_url):
     return f"{base_url}/api/v1/post/{post_id}/comments?all_comments=true&sort=best_first"
 def api_stories(x, base_url): 
     return f"{base_url}/api/v1/archive?sort=new&search=&offset=0&limit=100"
-
-def api(route, ref=None, referer=None):
-    headers = {'Referer': referer} if referer else None
-    try:
-        r = requests.get(route(ref), headers=headers, timeout=10)
-        if r.status_code != 200:
-            raise Exception('Bad response code ' + str(r.status_code))
-        return r.json()
-    except KeyboardInterrupt:
-        raise
-    except BaseException as e:
-        logging.error('Problem hitting Substack API: {}, trying again'.format(str(e)))
-
-    try:
-        r = requests.get(route(ref), headers=headers, timeout=20)
-        if r.status_code != 200:
-            raise Exception('Bad response code ' + str(r.status_code))
-        return r.json()
-    except KeyboardInterrupt:
-        raise
-    except BaseException as e:
-        logging.error('Problem hitting Substack API: {}'.format(str(e)))
-        return False
 
 def comment(i):
     if 'body' not in i:
@@ -71,14 +50,14 @@ class Publication:
         return ref.replace(f"{self.BASE_DOMAIN}/#id:", '')
 
     def feed(self):
-        stories = api(lambda x: api_stories(x, self.BASE_DOMAIN), referer=self.BASE_DOMAIN)
+        stories = json(lambda x: api_stories(x, self.BASE_DOMAIN), headers={'Referer': self.BASE_DOMAIN})
         if not stories: return []
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         return [self.ref_prefix(str(i.get("id"))) for i in stories or []]
 
     def story(self, ref):
         ref = self.strip_ref_prefix(ref)
-        stories = api(lambda x: api_stories(x, self.BASE_DOMAIN), referer=self.BASE_DOMAIN)
+        stories = json(lambda x: api_stories(x, self.BASE_DOMAIN), headers={'Referer': self.BASE_DOMAIN})
         if not stories: return False
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         stories = list(filter(None, [i if str(i.get('id')) == ref else None for i in stories]))
@@ -99,7 +78,7 @@ class Publication:
         s['title'] = r.get('title', '')
         s['link'] = r.get('canonical_url', '')
         s['url'] = r.get('canonical_url', '')
-        comments = api(lambda x: api_comments(x, self.BASE_DOMAIN), r.get('id'), referer=self.BASE_DOMAIN)
+        comments = json(lambda x: api_comments(x, self.BASE_DOMAIN), r.get('id'), headers={'Referer': self.BASE_DOMAIN})
         s['comments'] = [comment(i) for i in comments.get('comments')]
         s['comments'] = list(filter(bool, s['comments']))
         s['num_comments'] = r.get('comment_count', 0)
@@ -108,6 +87,12 @@ class Publication:
         if len(authors):
             s['author'] = authors[0].get('name')
             s['author_link'] = authors[0].get('link')
+
+        markup = xml(lambda x: s['link'])
+        if markup:
+            icons = get_icons(markup, url=s['link'])
+            if icons:
+                s['icon'] = icons[0]
 
         return s
 
@@ -131,7 +116,7 @@ class Top:
         return ref
 
     def feed(self):
-        stories = api(SUBSTACK_API_TOP_POSTS, referer=SUBSTACK_REFERER)
+        stories = json(SUBSTACK_API_TOP_POSTS, headers={'Referer': SUBSTACK_REFERER})
         if not stories: return []
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         stories = [dict(id=i.get('id'), base_url=i.get("pub", { 'base_url': '' }).get("base_url")) for i in stories or []]
@@ -139,7 +124,7 @@ class Top:
 
     def story(self, ref):
         ref = self.strip_ref_prefix(ref)
-        stories = api(SUBSTACK_API_TOP_POSTS, referer=SUBSTACK_REFERER)
+        stories = json(SUBSTACK_API_TOP_POSTS, headers={'Referer': SUBSTACK_REFERER})
         if not stories: return False
         stories = list(filter(None, [i if i.get("audience") == "everyone" else None for i in stories]))
         stories = list(filter(None, [i if str(i.get('id')) == ref else None for i in stories]))
@@ -162,7 +147,7 @@ class Top:
         s['title'] = r.get('title', '')
         s['link'] = r.get('canonical_url', '')
         s['url'] = r.get('canonical_url', '')
-        comments = api(lambda x: api_comments(x, base_url), r.get('id'), referer=SUBSTACK_REFERER)
+        comments = json(lambda x: api_comments(x, base_url), r.get('id'), headers={'Referer': SUBSTACK_REFERER})
         s['comments'] = [comment(i) for i in comments.get('comments')]
         s['comments'] = list(filter(bool, s['comments']))
         s['num_comments'] = r.get('comment_count', 0)

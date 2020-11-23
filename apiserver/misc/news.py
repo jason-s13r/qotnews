@@ -11,7 +11,7 @@ import extruct
 
 import settings
 from utils import clean
-from misc.metadata import parse_extruct
+from misc.metadata import parse_extruct, get_icons
 from misc.time import unix
 from misc.api import xml
 import misc.stuff as stuff
@@ -69,16 +69,7 @@ class Base:
         s['url'] = urlref
         s['date'] = 0
 
-        soup = BeautifulSoup(markup, features='html.parser')
-        icon32 = soup.find_all('link', rel="icon", href=True, sizes="32x32")
-        icon16 = soup.find_all('link', rel="icon", href=True, sizes="16x16")
-        favicon = soup.find_all('link', rel="shortcut icon", href=True)
-        others = soup.find_all('link', rel="icon", href=True)
-        icons = icon32 + icon16 + favicon + others
-        base_url = '/'.join(urlref.split('/')[:3])
-        icons = list(set([i.get('href') for i in icons]))
-        icons = [i if i.startswith('http') else base_url + i for i in icons]
-
+        icons = get_icons(markup, url=urlref)
         if icons:
             s['icon'] = icons[0]
 
