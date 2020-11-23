@@ -10,6 +10,7 @@ if __name__ == '__main__':
 import requests
 from datetime import datetime
 
+from misc.time import unix
 from utils import clean
 
 SUBSTACK_REFERER = 'https://substack.com'
@@ -21,9 +22,6 @@ def api_comments(post_id, base_url):
     return f"{base_url}/api/v1/post/{post_id}/comments?all_comments=true&sort=best_first"
 def api_stories(x, base_url): 
     return f"{base_url}/api/v1/archive?sort=new&search=&offset=0&limit=100"
-
-def unix(date_str):
-    return int(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ').timestamp())
 
 def api(route, ref=None, referer=None):
     headers = {'Referer': referer} if referer else None
