@@ -30,10 +30,13 @@ class Feed extends React.Component {
 						stories.forEach((x, i) => {
 							fetch('/api/' + x.id)
 								.then(res => res.json())
-								.then(({ story }) => {
-									localForage.setItem(x.id, story)
-										.then(console.log('preloaded', x.id, x.title));
+								.then(({ story, related }) => {
+									Promise.all([
+										localForage.setItem(x.id, story),
+										localForage.setItem(`related-${x.id}`, related)
+									]).then(console.log('preloaded', x.id, x.title));
 									this.props.updateCache(x.id, story);
+									this.props.updateCache(`related-${x.id}`, related);
 								}, error => { }
 								);
 						});
