@@ -147,16 +147,19 @@ def static_story(sid):
 http_server = WSGIServer(('', settings.API_PORT or 33842), flask_app)
 
 def _add_new_refs():
+    added = []
     for ref, source, urlref in feed.get_list():
         if database.get_story_by_ref(ref):
             continue
         try:
             nid = new_id()
             database.put_ref(ref, nid, source, urlref)
+            added.append(ref)
             logging.info('Added ref ' + ref)
         except database.IntegrityError:
             logging.info('Unable to add ref ' + ref)
             continue
+    return added
 
 def _update_current_story(item):
     try:
@@ -183,8 +186,9 @@ def feed_thread():
         while True:
             # onboard new stories
             if not len(ref_list):
-                _add_new_refs()
+                added = _add_new_refs()
                 ref_list = database.get_reflist()
+                ref_list.sort(key=lambda i: i['ref'] in added, reverse=True)
 
             # update current stories
             if len(ref_list):
