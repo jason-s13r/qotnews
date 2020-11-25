@@ -13,16 +13,46 @@ export const sourceLink = (story) => {
 	);
 };
 
+export const storyScore = story => {
+	if (!story.score) {
+		return null;
+	}
+	return (<>{story.score} points</>);
+};
+export const storyAuthor = story => {
+	if (!story.author) {
+		return null;
+	}
+	if (story.author_link) {
+		return (<>by <a href={story.author_link}>{story.author}</a></>);
+	}
+	return <>by {story.author}</>;
+};
+
+export const storyCommentsLink = story => {
+	if (!story.num_comments) {
+		return null;
+	}
+	return (<Link
+		className={story.num_comments > 99 ? "hot" : ""}
+		to={"/" + story.id + "/c"}>
+		{story.num_comments} comment{story.num_comments !== 1 && "s"}
+	</Link>);
+};
+
 export const infoLine = (story) => (
 	<div className="info">
-		{story.score} points by {story.author_link ? <a href={story.author_link}>{story.author}</a> : story.author}
-		&#8203; {moment.unix(story.date).fromNow()}
-		&#8203; on <a href={story.link}>{story.source}</a> | &#8203;
-  		<Link
-			className={story.num_comments > 99 ? "hot" : ""}
-			to={"/" + story.id + "/c"}>
-			{story.num_comments} comment{story.num_comments !== 1 && "s"}
-		</Link>
+		{[
+			<>{moment.unix(story.date).fromNow()} {storyAuthor(story)}</>,
+			<><a href={story.link}>{story.source}</a></>,
+			storyScore(story),/*&#8203;*/
+			storyCommentsLink(story)
+		].filter(e => e).map((e, i) => (
+			<>
+				{i !== 0 ? <> &bull; </> : <></>}
+				{e}
+			</>
+		))}
 	</div>
 );
 
