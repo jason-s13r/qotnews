@@ -84,7 +84,7 @@ class Publication:
         s['link'] = r.get('canonical_url', '')
         s['url'] = r.get('canonical_url', '')
         comments = json(lambda x: api_comments(x, self.BASE_DOMAIN), r.get('id'), headers={'Referer': self.BASE_DOMAIN})
-        s['comments'] = [comment(i) for i in comments.get('comments')]
+        s['comments'] = [] if not comments else [comment(i) for i in comments.get('comments')]
         s['comments'] = list(filter(bool, s['comments']))
         s['num_comments'] = r.get('comment_count', 0)
 
@@ -155,8 +155,8 @@ class Top:
         s['title'] = r.get('title', '')
         s['link'] = r.get('canonical_url', '')
         s['url'] = r.get('canonical_url', '')
-        comments = json(lambda x: api_comments(x, base_url), r.get('id'), headers={'Referer': SUBSTACK_REFERER})
-        s['comments'] = [comment(i) for i in comments.get('comments')]
+        comments = json(lambda x: api_comments(x, base_url), r.get('id'), headers={'Referer': base_url})
+        s['comments'] = [] if not comments else [comment(i) for i in comments.get('comments')]
         s['comments'] = list(filter(bool, s['comments']))
         s['num_comments'] = r.get('comment_count', 0)
 
