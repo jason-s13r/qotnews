@@ -38,9 +38,8 @@
           alt="logo"
           style="height: 1rem; width: 1rem;" />
         <a rel="prefetch" href="/{story.id}">{story.title}</a>
-        (<a href={story.url || story.link}>
-          {new URL(story.url || story.link).hostname.replace(/^www\./, '')}
-        </a>)
+        (<a
+          href={story.url || story.link}>{new URL(story.url || story.link).hostname.replace(/^www\./, '')}</a>)
       </header>
       <section>
         <StoryInfo {story} />
