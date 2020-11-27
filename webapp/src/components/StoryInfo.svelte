@@ -19,7 +19,7 @@
   <a href={story.author_link}>{story.author}</a>
 {:else if story.author}by {story.author}{/if}
 on
-{story.source}
+<a href={story.url}>{story.source}</a>
 {#if story.score}&bull; {story.score} points{/if}
 {#if story.num_comments}
   &bull;
