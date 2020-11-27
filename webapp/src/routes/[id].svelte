@@ -6,18 +6,7 @@
     const data = await res.json();
 
     if (res.status === 200) {
-      const related = [];
-      const others = data.related.filter(
-        (r) => r.id !== data.story.id && !!r.num_comments
-      );
-      for (const other of others) {
-        const r = await this.fetch(`${other.id}.json`);
-        if (r.ok) {
-          const d = await r.json();
-          related.push(d.story);
-        }
-      }
-      return { story: data.story, related };
+      return { story: data.story, related: data.related };
     } else {
       this.error(res.status, data.message);
     }
@@ -30,7 +19,7 @@
   export let story;
   export let related;
 
-  let hasComments = story.num_comments || related.length;
+  let hasComments = related.some((r) => r.num_comments);
 </script>
 
 <style>
@@ -95,7 +84,7 @@
     <h3>
       Other discussions:
       {#each related as r}
-        {#if r.num_comments}
+        {#if r.num_comments && r.id !== story.id}
           <a href="/{r.id}#comments" rel="prefetch">{r.source}</a>
         {/if}
       {/each}
