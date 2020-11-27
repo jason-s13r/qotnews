@@ -53,6 +53,7 @@
     <li>
       <a
         aria-current={segment === undefined ? 'page' : undefined}
+        rel="prefetch"
         href=".">News</a>
     </li>
   </ul>
