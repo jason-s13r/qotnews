@@ -1,9 +1,9 @@
-import fetch from 'node-fetch';
+import fetch from 'isomorphic-fetch';
+
+const API_URL = process.env.API_URL || 'http://news.1j.nz';
 
 export async function get(req, res) {
-	const response = await fetch(`http://localhost:33842/api/${req.params.id}`);
-	res.writeHead(200, {
-		'Content-Type': 'application/json'
-	});
+	const response = await fetch(`${API_URL}/api/${req.params.id}`);
+	res.writeHead(response.status, { 'Content-Type': 'application/json' });
 	res.end(await response.text());
 }

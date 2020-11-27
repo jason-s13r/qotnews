@@ -7,7 +7,7 @@
   export let dateString = formatDistanceToNow(fromUnixTime(comment.date), {
     addSuffix: true,
   });
-  const author = comment.author.replace(" ", "");
+  const author = (comment.author || "").replace(" ", "");
   export let id = `${author}-${comment.date}`;
 
   export function toggleComments() {
@@ -16,45 +16,98 @@
 </script>
 
 <style>
+  .comment {
+    margin: 0.5rem 0;
+  }
+  .comment:not(:first-of-type) {
+    margin: 0.5rem 0;
+    border-top: solid 1px #ddd;
+    padding: 0.5rem 0 0;
+  }
+  .comment-info {
+    color: #222;
+  }
   .comment-author {
+    font-weight: 600;
+    padding: 0 0.4em 0.2em;
+    border-radius: 0.5em;
+    background: #f1f1f1;
+    color: #000;
+  }
+  .comment-author.is-op {
+    background: #333;
+    color: #fff;
   }
   .comment-text {
     padding: 0 0.5rem;
-    color: #333;
+    color: #000;
+  }
+  .comment-text.is-collapsed {
+    height: 3rem;
+    overflow: hidden;
+    color: #888;
+  }
+  .comment-text.is-collapsed::after {
+    content: "...";
+    font-style: italic;
   }
   .comment-children {
-    margin-left: 1rem;
-    padding-left: 1rem;
+    margin-left: 0.5rem;
+    padding-left: 0.5rem;
     border-left: solid 1px #000;
   }
-  .link-button {
+  .toggle-children {
     background: none;
     border: none;
-    padding: 0 0.1rem;
+    padding: 0 0.25rem;
     color: inherit;
     cursor: pointer;
   }
+  .time-link {
+    text-decoration: none;
+  }
+  .time-link:hover {
+    text-decoration: underline;
+  }
+  .is-lighter {
+    color: #888;
+  }
 </style>
 
-<div class="comment" id="comment-{id}">
-  <div class="comment-author">
-    {comment.author}
-    |
-    <a href="{story.id}#comment-{id}">{dateString}</a>
+<article class="comment" id="comment-{id}">
+  <header class="comment-info">
+    <span
+      class={comment.author === story.author ? 'comment-author is-op' : 'comment-author'}>{comment.author || '[Deleted]'}</span>
+    &bull;
+    <a class="time-link" href="{story.id}#comment-{id}">
+      <time
+        datetime={fromUnixTime(comment.date).toISOString()}
+        title={fromUnixTime(comment.date)}>{dateString}</time>
+    </a>
     {#if comment.comments.length}
       <button
-        class="link-button"
+        class="toggle-children"
         on:click={toggleComments}>[{showComments ? '-' : '+'}]</button>
     {/if}
-  </div>
-  <div class="comment-text">
+  </header>
+
+  <section class={showComments ? 'comment-text' : 'comment-text is-collapsed'}>
     {@html comment.text}
-  </div>
-  {#if showComments && comment.comments.length}
+  </section>
+
+  {#if !showComments}
     <div class="comment-children">
+      <button
+        class="toggle-children is-lighter"
+        on:click={toggleComments}>[expand]</button>
+    </div>
+  {/if}
+
+  {#if showComments && comment.comments.length}
+    <footer class="comment-children">
       {#each comment.comments as child}
         <svelte:self {story} comment={child} />
       {/each}
-    </div>
+    </footer>
   {/if}
-</div>
+</article>

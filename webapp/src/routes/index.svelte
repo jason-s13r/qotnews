@@ -22,7 +22,9 @@
 </style>
 
 <svelte:head>
-  <title>News</title>
+  <title>QotNews</title>
+  <meta property="og:title" content="QotNews" />
+  <meta property="og:type" content="website" />
 </svelte:head>
 
 <section>

@@ -1,7 +1,5 @@
 <script context="module">
   export async function preload({ params }) {
-    // the `slug` parameter is available because
-    // this file is called [slug].svelte
     const res = await this.fetch(`${params.id}.json`);
     const data = await res.json();
 
@@ -14,6 +12,7 @@
 </script>
 
 <script>
+  import fromUnixTime from "date-fns/fromUnixTime";
   import Comment from "../components/Comment.svelte";
   import StoryInfo from "../components/StoryInfo.svelte";
   export let story;
@@ -24,44 +23,6 @@
 </script>
 
 <style>
-  /*
-		By default, CSS is locally scoped to the component,
-		and any unused styles are dead-code-eliminated.
-		In this page, Svelte can't know which elements are
-		going to appear inside the {{{post.html}}} block,
-		so we have to use the :global(...) modifier to target
-		all elements inside .content
-	*/
-  .content :global(h2) {
-    font-size: 1.4em;
-    font-weight: 500;
-  }
-
-  .content :global(pre) {
-    background-color: #f9f9f9;
-    box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.05);
-    padding: 0.5em;
-    border-radius: 2px;
-    overflow-x: auto;
-  }
-
-  .content :global(pre) :global(code) {
-    background-color: transparent;
-    padding: 0;
-  }
-
-  .content :global(ul) {
-    line-height: 1.5;
-  }
-
-  .content :global(li) {
-    margin: 0 0 0.5em 0;
-  }
-
-  .content :global(img) {
-    max-width: 100%;
-  }
-
   .spacer {
     margin: 3rem 0;
   }
@@ -69,33 +30,49 @@
 
 <svelte:head>
   <title>{story.title}</title>
+  <meta property="og:title" content={story.title} />
+  <meta property="og:type" content="article" />
+  <meta
+    property="article:published_time"
+    content={fromUnixTime(story.date).toISOString()} />
+  <meta property="article:author" content={story.author || story.source} />
 </svelte:head>
 
-<h1>{story.title}</h1>
-<StoryInfo {story} />
+<article class="article">
+  <header class="article-header">
+    <h1 class="article-title">{story.title}</h1>
+    <StoryInfo class="article-byline" {story} />
+  </header>
 
-<div class="content">
-  {@html story.text}
-</div>
+  <section class="article-body">
+    {@html story.text}
+  </section>
+</article>
 
 {#if hasComments}
   <hr class="spacer" />
-  <h2 id="comments">Comments</h2>
-  {#if others.length}
-    <h3>
-      Other discussions:
-      {#each others as r}
-        {#if r.num_comments}
-          <a href="/{r.id}#comments" rel="prefetch">{r.source}</a>
-        {/if}
-      {/each}
-    </h3>
-  {/if}
-  {#if story.comments.length}
-    <div class="comments">
-      {#each story.comments as comment}
-        <Comment {story} {comment} />
-      {/each}
-    </div>
-  {/if}
+
+  <section class="comments" id="comments">
+    <header>
+      <h2>Comments</h2>
+
+      {#if others.length}
+        <h3>
+          Other discussions:
+          {#each others as r}
+            {#if r.num_comments}
+              <a href="/{r.id}#comments" rel="prefetch">{r.source}</a>
+            {/if}
+          {/each}
+        </h3>
+      {/if}
+    </header>
+    {#if story.comments.length}
+      <div class="comments">
+        {#each story.comments as comment}
+          <Comment {story} {comment} />
+        {/each}
+      </div>
+    {/if}
+  </section>
 {/if}
