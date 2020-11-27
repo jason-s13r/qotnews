@@ -19,6 +19,7 @@
   export let story;
   export let related;
 
+  let others = related.filter((r) => r.id !== story.id && r.num_comments);
   let hasComments = related.some((r) => r.num_comments);
 </script>
 
@@ -80,11 +81,11 @@
 {#if hasComments}
   <hr class="spacer" />
   <h2 id="comments">Comments</h2>
-  {#if related.length}
+  {#if others.length}
     <h3>
       Other discussions:
-      {#each related as r}
-        {#if r.num_comments && r.id !== story.id}
+      {#each others as r}
+        {#if r.num_comments}
           <a href="/{r.id}#comments" rel="prefetch">{r.source}</a>
         {/if}
       {/each}
