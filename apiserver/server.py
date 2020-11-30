@@ -41,7 +41,9 @@ cors = CORS(flask_app)
 
 @flask_app.route('/api')
 def api():
-    stories = database.get_stories(settings.MAX_STORY_AGE)
+    skip = request.args.get('skip', 0)
+    limit = request.args.get('limit', 20)
+    stories = database.get_stories(skip=skip, limit=limit)
     res = Response(json.dumps({"stories": stories}))
     res.headers['content-type'] = 'application/json'
     return res

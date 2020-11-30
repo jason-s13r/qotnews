@@ -1,20 +1,25 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import localForage from 'localforage';
+import { Link } from "react-router-dom";
 import { StoryItem } from '../components/StoryItem.js';
 
 class Feed extends React.Component {
 	constructor(props) {
 		super(props);
 
+		const query = new URLSearchParams(this.props.location.search);
+
 		this.state = {
 			stories: JSON.parse(localStorage.getItem('stories')) || false,
 			error: false,
+			skip: +query.get('skip') || 0,
+			limit: +query.get('limit') || 20
 		};
 	}
 
 	componentDidMount() {
-		fetch('/api')
+		fetch(`/api?skip=${this.state.skip}&limit=${this.state.limit}`)
 			.then(res => res.json())
 			.then(
 				(result) => {
@@ -51,6 +56,8 @@ class Feed extends React.Component {
 	render() {
 		const stories = this.state.stories;
 		const error = this.state.error;
+		const skip = this.state.skip;
+		const limit = this.state.limit;
 
 		return (
 			<div className='container'>
@@ -59,9 +66,21 @@ class Feed extends React.Component {
 				</Helmet>
 				{error && <p>Connection error?</p>}
 				{stories ? stories.map(story => <StoryItem story={story}></StoryItem>) : <p>loading...</p>}
+
+				<div className="pagination">
+					{Number(skip) > 0 && <Link className="pagination-link" to={`/?skip=${Number(skip) - Math.min(Number(skip), Number(limit))}&limit=${limit}`}>Previous</Link>}
+					{stories.length == Number(limit) && <Link className="pagination-link is-right" to={`/?skip=${Number(skip) + Number(limit)}&limit=${limit}`}>Next</Link>}
+				</div>
 			</div>
 		);
 	}
+}
+
+Feed.key = function (props) {
+	const query = new URLSearchParams(props.location.search);
+	const skip = query.get('skip') || 0;
+	const limit = query.get('limit') || 20;
+	return `skip=${skip}&limit=${limit}`;
 }
 
 export default Feed;

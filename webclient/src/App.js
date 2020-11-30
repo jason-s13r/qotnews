@@ -66,12 +66,12 @@ class App extends React.Component {
 						<Route path='/(|search)' component={Submit} />
 					</div>
 
-					<Route path='/' exact render={(props) => <Feed {...props} updateCache={this.updateCache} />} />
+					<Route path='/' exact render={(props) => <Feed {...props} updateCache={this.updateCache} key={Feed.key(props)} />} />
 					<Switch>
 						<Route path='/search' component={Results} />
 						<Route path='/:id' exact render={(props) => <Article {...props} cache={this.cache} />} />
 					</Switch>
-					<Route path='/:id/c' exact render={(props) => <Comments {...props} cache={this.cache} key={props.match.params.id} />} />
+					<Route path='/:id/c' exact render={(props) => <Comments {...props} cache={this.cache} key={`${props.match.params.id}`} />} />
 
 					<ForwardDot />
 

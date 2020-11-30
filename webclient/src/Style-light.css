@@ -229,3 +229,13 @@ span.source {
 .indented {
   padding: 0 0 0 1rem;
 }
+
+.pagination {
+  margin: 3rem 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.pagination-link.is-right {
+  margin-left: auto;
+}

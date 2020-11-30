@@ -1,5 +1,22 @@
 <script>
+  import { goto, prefetch } from "@sapper/app";
+  import { stores } from "@sapper/app";
+
   export let segment;
+  const { page } = stores();
+
+  let q;
+  let search;
+
+  page.subscribe((value) => {
+    q = value.query.q || "";
+  });
+
+  async function handleSearch(event) {
+    const url = `/search?q=${event.target.value}`;
+    await prefetch(url);
+    await goto(url);
+  }
 </script>
 
 <style>
@@ -46,6 +63,12 @@
     padding: 1em 0.5em;
     display: block;
   }
+
+  input {
+    line-height: 2;
+    margin: 1em;
+    vertical-align: middle;
+  }
 </style>
 
 <nav>
@@ -55,6 +78,18 @@
         aria-current={segment === undefined ? 'page' : undefined}
         rel="prefetch"
         href=".">News</a>
+    </li>
+    <li>
+      <form action="/search" method="GET" rel="prefetch">
+        <input
+          id="search"
+          bind:this={search}
+          type="text"
+          name="q"
+          value={q}
+          placeholder="Search..."
+          on:keypress={handleSearch} />
+      </form>
     </li>
   </ul>
 </nav>

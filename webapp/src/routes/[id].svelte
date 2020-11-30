@@ -23,6 +23,22 @@
 </script>
 
 <style>
+  /* .article {
+  }
+  .article-header {
+  }
+
+  .article-header .article-title {
+  }
+
+  .article-header .article-byline {
+  }
+  .article-body {
+  } */
+  .article-body :global(img) {
+    max-width: 100%;
+  }
+
   .spacer {
     margin: 3rem 0;
   }

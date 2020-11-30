@@ -1,14 +1,17 @@
 <script context="module">
   export async function preload(page) {
-    const { skip, limit } = {
+    const { skip, limit, q } = {
       skip: page.query.skip || 0,
       limit: page.query.query || 20,
+      q: page.query.q || "",
     };
-    const res = await this.fetch(`index.json?skip=${skip}&limit=${limit}`);
+    const res = await this.fetch(
+      `search.json?q=${q}&skip=${skip}&limit=${limit}`
+    );
     const data = await res.json();
 
     if (res.status === 200) {
-      return { stories: data.stories, skip, limit };
+      return { stories: data.results, skip, limit };
     } else {
       this.error(res.status, data.message);
     }
@@ -23,12 +26,14 @@
   export let stories;
   export let skip;
   export let limit;
+  export let q;
 
   const { page } = stores();
 
   page.subscribe((value) => {
     skip = value.query.skip || 0;
     limit = value.query.limit || 20;
+    q = value.query.query || "";
   });
 </script>
 
@@ -42,6 +47,15 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+  }
+  .pagination-link {
+    /* border: solid 1px #aaa;
+    border-radius: 0;
+    background: #f1f1f1;
+    border-radius: 5px;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    text-decoration: none; */
   }
   .pagination-link.is-right {
     margin-left: auto;

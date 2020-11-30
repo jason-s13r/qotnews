@@ -85,14 +85,16 @@ def get_reflist():
     q = session.query(Reflist).order_by(Reflist.rid.desc())
     return [dict(ref=x.ref, sid=x.sid, source=x.source, urlref=x.urlref) for x in q.all()]
 
-def get_stories(maxage=60*60*24*2):
+def get_stories(maxage=0, skip=0, limit=20):
     time = datetime.now().timestamp() - maxage
     session = Session()
     q = session.query(Reflist, Story.meta).\
             join(Story).\
             filter(Story.title != None).\
-            filter(Story.meta['date'].as_integer() > time).\
-            order_by(Story.meta['date'].desc())
+            filter(maxage == 0 or Story.meta['date'].as_integer() > time).\
+            order_by(Story.meta['date'].desc()).\
+            offset(skip).\
+            limit(limit)
     return [x[1] for x in q]
 
 def put_ref(ref, sid, source, urlref):
