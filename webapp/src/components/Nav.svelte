@@ -1,4 +1,5 @@
 <script>
+  import { debounce } from 'lodash';
   import { goto, prefetch } from "@sapper/app";
   import { stores } from "@sapper/app";
 
@@ -12,7 +13,9 @@
     q = value.query.q || "";
   });
 
-  async function handleSearch(event) {
+ let handleSearch = debounce(_handleSearch);
+
+  async function _handleSearch(event) {
     const url = `/search?q=${event.target.value}`;
     await prefetch(url);
     await goto(url);
