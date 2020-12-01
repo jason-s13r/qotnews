@@ -28,12 +28,14 @@
 </script>
 
 <style>
-  .navigation [aria-current] {
+  .has-highlight,
+  [aria-current] {
     position: relative;
     display: inline-block;
   }
 
-  .navigation [aria-current]::after {
+  .has-highlight::after,
+  [aria-current]::after {
     position: absolute;
     content: "";
     width: calc(100% - 1em);
@@ -94,13 +96,6 @@
           rel="prefetch"
           href=".">News</a>
       </li>
-      <li class="navigation-item">
-        <a
-          class="navigation-link"
-          aria-current={segment === 'search' ? 'page' : undefined}
-          rel="prefetch"
-          href="/search">Search</a>
-      </li>
     </ul>
     <form action="/search" method="GET" rel="prefetch" role="search">
       <input
@@ -114,7 +109,10 @@
         on:keypress={handleSearch} />
     </form>
     <ul class="navigation-list">
-      <li class="navigation-item"><span class="navigation-text">Qot.</span></li>
+      <li class="navigation-item">
+        <span
+          class="navigation-text {segment !== undefined ? 'has-highlight' : undefined}">Qot.</span>
+      </li>
     </ul>
   </div>
 </nav>
