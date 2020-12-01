@@ -14,7 +14,7 @@
 <script>
   import fromUnixTime from "date-fns/fromUnixTime";
   import Comment from "../components/Comment.svelte";
-  import StoryInfo from "../components/StoryInfo.svelte";
+  import Article from "../components/Article.svelte";
   export let story;
   export let related;
 
@@ -23,24 +23,12 @@
 </script>
 
 <style>
-  /* .article {
-  }
-  .article-header {
-  }
-
-  .article-header .article-title {
-  }
-
-  .article-header .article-byline {
-  }
-  .article-body {
-  } */
-  .article-body :global(img) {
-    max-width: 100%;
-  }
-
   .spacer {
     margin: 3rem 0;
+  }
+  .single {
+    max-width: 56rem;
+    margin: 0 auto;
   }
 </style>
 
@@ -54,41 +42,37 @@
   <meta property="article:author" content={story.author || story.source} />
 </svelte:head>
 
-<article class="article">
-  <header class="article-header">
-    <h1 class="article-title">{story.title}</h1>
-    <StoryInfo class="article-byline" {story} />
-  </header>
+<section class="single">
+  <Article {story} />
 
-  <section class="article-body">
-    {@html story.text}
-  </section>
-</article>
+  {#if hasComments}
+    <hr class="spacer" />
 
-{#if hasComments}
-  <hr class="spacer" />
+    <section id="comments">
+      <header>
+        <h2>Comments</h2>
 
-  <section class="comments" id="comments">
-    <header>
-      <h2>Comments</h2>
-
-      {#if others.length}
-        <h3>
-          Other discussions:
-          {#each others as r}
-            {#if r.num_comments}
-              <a href="/{r.id}#comments" rel="prefetch">{r.source}</a>
-            {/if}
+        {#if others.length}
+          <h3>
+            Other discussions:
+            {#each others as r}
+              {#if r.num_comments}
+                <a href="/{r.id}#comments" rel="prefetch">
+                  {r.source}
+                  ({r.num_comments})
+                </a>
+              {/if}
+            {/each}
+          </h3>
+        {/if}
+      </header>
+      {#if story.comments.length}
+        <div class="comments">
+          {#each story.comments as comment}
+            <Comment {story} {comment} />
           {/each}
-        </h3>
+        </div>
       {/if}
-    </header>
-    {#if story.comments.length}
-      <div class="comments">
-        {#each story.comments as comment}
-          <Comment {story} {comment} />
-        {/each}
-      </div>
-    {/if}
-  </section>
-{/if}
+    </section>
+  {/if}
+</section>

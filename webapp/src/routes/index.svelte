@@ -16,37 +16,11 @@
 </script>
 
 <script>
-  import { stores } from "@sapper/app";
-  import { getLogoUrl } from "../utils/logos.js";
-  import StoryInfo from "../components/StoryInfo.svelte";
+  import StoryList from "../components/StoryList.svelte";
+  import Pagination from "../components/Pagination.svelte";
 
   export let stories;
-  export let skip;
-  export let limit;
-
-  const { page } = stores();
-
-  page.subscribe((value) => {
-    skip = value.query.skip || 0;
-    limit = value.query.limit || 20;
-  });
 </script>
-
-<style>
-  article {
-    margin: 0.5rem 0;
-  }
-
-  .pagination {
-    margin: 3rem 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  .pagination-link.is-right {
-    margin-left: auto;
-  }
-</style>
 
 <svelte:head>
   <title>QotNews</title>
@@ -54,36 +28,6 @@
   <meta property="og:type" content="website" />
 </svelte:head>
 
-<section>
-  {#each stories as story}
-    <article>
-      <header>
-        <img
-          src={getLogoUrl(story)}
-          alt="logo"
-          style="height: 1rem; width: 1rem;" />
-        <a rel="prefetch" href="/{story.id}">{story.title}</a>
-        (<a
-          href={story.url || story.link}>{new URL(story.url || story.link).hostname.replace(/^www\./, '')}</a>)
-      </header>
-      <section>
-        <StoryInfo {story} />
-      </section>
-    </article>
-  {/each}
-</section>
-
-<div class="pagination">
-  {#if Number(skip) > 0}
-    <a
-      class="pagination-link is-left"
-      href="?skip={Number(skip) - Math.min(Number(skip), Number(limit))}&limit={limit}"
-      rel="prefetch">Previous</a>
-  {/if}
-  {#if stories.length == Number(limit)}
-    <a
-      class="pagination-link is-right"
-      href="?skip={Number(skip) + Number(limit)}&limit={limit}"
-      rel="prefetch">Next</a>
-  {/if}
-</div>
+<StoryList {stories}>
+  <Pagination href="/" count={stories.length} />
+</StoryList>

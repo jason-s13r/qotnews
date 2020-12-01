@@ -13,6 +13,12 @@ import Article from './pages/Article.js';
 import Comments from './pages/Comments.js';
 import Results from './pages/Results.js';
 
+const pagingKey = (props) => {
+	const query = new URLSearchParams(props.location.search);
+	const skip = query.get('skip') || 0;
+	const limit = query.get('limit') || 20;
+	return `skip=${skip}&limit=${limit}`;
+}
 
 class App extends React.Component {
 	constructor(props) {
@@ -66,7 +72,7 @@ class App extends React.Component {
 						<Route path='/(|search)' component={Submit} />
 					</div>
 
-					<Route path='/' exact render={(props) => <Feed {...props} updateCache={this.updateCache} key={Feed.key(props)} />} />
+					<Route path='/' exact render={(props) => <Feed {...props} updateCache={this.updateCache} key={pagingKey(props)} />} />
 					<Switch>
 						<Route path='/search' component={Results} />
 						<Route path='/:id' exact render={(props) => <Article {...props} cache={this.cache} />} />

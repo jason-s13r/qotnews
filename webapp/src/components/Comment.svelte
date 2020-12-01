@@ -1,12 +1,9 @@
 <script>
-  import fromUnixTime from "date-fns/fromUnixTime";
-  import formatDistanceToNow from "date-fns/formatDistanceToNow";
+  import Time from "../components/Time.svelte";
+
   export let story;
   export let comment;
   export let showComments = true;
-  export let dateString = formatDistanceToNow(fromUnixTime(comment.date), {
-    addSuffix: true,
-  });
   const author = (comment.author || "").replace(" ", "");
   export let id = `${author}-${comment.date}`;
 
@@ -80,9 +77,7 @@
       class={comment.author === story.author ? 'comment-author is-op' : 'comment-author'}>{comment.author || '[Deleted]'}</span>
     &bull;
     <a class="time-link" href="{story.id}#comment-{id}">
-      <time
-        datetime={fromUnixTime(comment.date).toISOString()}
-        title={fromUnixTime(comment.date)}>{dateString}</time>
+      <Time date={comment.date} />
     </a>
     {#if comment.comments.length}
       <button

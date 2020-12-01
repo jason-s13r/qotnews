@@ -76,11 +76,4 @@ class Feed extends React.Component {
 	}
 }
 
-Feed.key = function (props) {
-	const query = new URLSearchParams(props.location.search);
-	const skip = query.get('skip') || 0;
-	const limit = query.get('limit') || 20;
-	return `skip=${skip}&limit=${limit}`;
-}
-
 export default Feed;
