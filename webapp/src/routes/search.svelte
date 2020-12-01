@@ -2,7 +2,7 @@
   export async function preload(page) {
     const { skip, limit, q } = {
       skip: page.query.skip || 0,
-      limit: page.query.query || 20,
+      limit: page.query.limit || 20,
       q: page.query.q || "",
     };
     const res = await this.fetch(

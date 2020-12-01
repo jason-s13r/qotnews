@@ -1,5 +1,5 @@
 <script>
-  import { debounce } from "lodash";
+  import debounce from "lodash/debounce";
   import { goto, prefetch, stores } from "@sapper/app";
   export let segment;
 
