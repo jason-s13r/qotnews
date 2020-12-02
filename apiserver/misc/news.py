@@ -16,18 +16,10 @@ from misc.time import unix
 from misc.api import xml
 import misc.stuff as stuff
 
-def comment(i):
-    if 'author' not in i:
-        return False
-
-    c = {}
-    c['author'] = i.get('author', '')
-    c['score'] = i.get('points', 0)
-    c['date'] = unix(i.get('date', 0))
-    c['text'] = clean(i.get('text', '') or '')
-    c['comments'] = [comment(j) for j in i['children']]
-    c['comments'] = list(filter(bool, c['comments']))
-    return c
+def clean_comment(comment):
+    comment['text'] = clean(comment['text'])
+    comment['comments'] = [clean_comments(c) for c in comment['comments']]
+    return comment
 
 def comment_count(i):
     alive = 1 if i['author'] else 0
@@ -75,12 +67,14 @@ class Base:
 
         data = extruct.extract(markup)
         s = parse_extruct(s, data)
+        s['title'] = clean(s['title'])
         if s['date']:
             s['date'] = unix(s['date'], tz=self.tz)
 
         if 'disqus' in markup:
             try:
                 s['comments'] = declutter.get_comments(urlref)
+                s['comments'] = [clean_comments(c) for c in s['comments']]
                 s['comments'] = list(filter(bool, s['comments']))
                 s['num_comments'] = comment_count(s['comments'])
             except KeyboardInterrupt:

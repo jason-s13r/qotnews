@@ -1,6 +1,5 @@
 <script>
   import StoryInfo from "../components/StoryInfo.svelte";
-  import Html from "../components/Html.svelte";
 
   export let story;
 
@@ -62,7 +61,7 @@
 <article class="article">
   <header class="article-header">
     <h1 class="article-title">
-      <Html html={story.title} text={story.title} />
+      {@html story.title}
     </h1>
     {#if story.url}
       <div>source: <a class="article-source" href={story.url}>{host}</a></div>
@@ -73,6 +72,6 @@
   </header>
 
   <section class="article-body">
-    <Html html={story.text} />
+    {@html story.text}
   </section>
 </article>

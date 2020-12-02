@@ -7,6 +7,7 @@ if __name__ == '__main__':
 
 from misc.time import unix
 from misc.api import xml
+from utils import clean
 
 def _soup_get_text(soup):
     if not soup: return None
@@ -35,7 +36,7 @@ def _parse_comment(soup):
     if soup.find('link'):
         c['authorLink'] = _soup_get_text(soup.find('link'))
     if soup.find('description'):
-        c['text'] = _soup_get_text(soup.find('description'))
+        c['text'] = clean(_soup_get_text(soup.find('description')))
     if soup.find('pubdate'):
         c['date'] = unix(soup.find('pubdate').text)
     elif soup.find('pubDate'):

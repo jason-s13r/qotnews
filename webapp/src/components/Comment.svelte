@@ -1,6 +1,5 @@
 <script>
   import Time from "../components/Time.svelte";
-  import Html from "../components/Html.svelte";
 
   export let story;
   export let comment;
@@ -86,7 +85,7 @@
   </header>
 
   <section class={showComments ? 'comment-text' : 'comment-text is-collapsed'}>
-    <Html html={comment.text} />
+    {@html comment.text}
   </section>
 
   {#if !showComments}

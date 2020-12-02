@@ -1,7 +1,6 @@
 <script>
   import { getLogoUrl } from "../utils/logos.js";
   import StoryInfo from "../components/StoryInfo.svelte";
-  import Html from "../components/Html.svelte";
   export let stories;
 
   const host = (url) => new URL(url).hostname.replace(/^www\./, "");
@@ -43,7 +42,7 @@
         class="story-icon"
         style="height: 1rem; width: 1rem;" />
       <a class="story-title" rel="prefetch" href="/{story.id}">
-        <Html html={story.title} text={story.title} />
+        {@html story.title}
       </a>
       <a
         class="story-source"
