@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import AbortController from 'abort-controller';
+import { Link } from "react-router-dom";
 import { StoryItem } from '../components/StoryItem.js';
 
 class Results extends React.Component {
