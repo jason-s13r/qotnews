@@ -24,7 +24,10 @@ class Results extends React.Component {
 		const signal = this.controller.signal;
 
 		const search = this.props.location.search;
-		fetch('/api/search' + search, { method: 'get', signal: signal })
+		const params = new URLSearchParams(search);
+		params.set('skip', params.get('skip') || 0);
+		params.set('limit', params.get('limit') || 20);
+		fetch('/api/search?' + params.toString(), { method: 'get', signal: signal })
 			.then(res => res.json())
 			.then(
 				(result) => {

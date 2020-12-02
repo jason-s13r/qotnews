@@ -51,8 +51,10 @@ def api():
 @flask_app.route('/api/search', strict_slashes=False)
 def apisearch():
     q = request.args.get('q', '')
+    skip = request.args.get('skip', 0)
+    limit = request.args.get('limit', 20)
     if len(q) >= 3:
-        results = search.search(q)
+        results = search.search(q, skip=skip, limit=limit)
     else:
         results = []
     return dict(results=results)

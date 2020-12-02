@@ -54,10 +54,6 @@
     overflow: hidden;
     color: #888;
   }
-  .comment-text.is-collapsed::after {
-    content: "...";
-    font-style: italic;
-  }
   .comment-children {
     margin-left: 0.5rem;
     padding-left: 0.5rem;
@@ -85,14 +81,15 @@
   <header class="comment-info">
     <span
       class={comment.author === story.author ? 'comment-author is-op' : 'comment-author'}>{comment.author || '[Deleted]'}</span>
-    &bull;
     <a class="time-link" href="{story.id}#comment-{id}">
       <Time date={comment.date} />
     </a>
     {#if comment.comments.length}
       <button
         class="toggle-children"
-        on:click={toggleComments}>[{showComments ? '-' : '+'}]</button>
+        on:click={toggleComments}>{#if showComments}
+          [&ndash;]
+        {:else}[+]{/if}</button>
     {/if}
   </header>
 

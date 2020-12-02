@@ -11,7 +11,7 @@
 on
 <a class="source" href={story.link || story.url}>{story.source}</a>
 {#if story.score}&bull; {story.score} points{/if}
-{#if story.num_comments}
+{#if Number(story.num_comments)}
   &bull;
   <a rel="prefetch" href="/{story.id}#comments">{story.num_comments}
     comments</a>

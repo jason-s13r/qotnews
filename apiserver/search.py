@@ -67,9 +67,9 @@ def put_story(story):
         logging.error('Problem putting MeiliSearch story: {}'.format(str(e)))
         return False
 
-def search(q):
+def search(q, skip=0, limit=250):
     try:
-        params = dict(q=q, limit=250)
+        params = dict(q=q, skip=skip, limit=limit)
         r = requests.get(MEILI_URL + 'indexes/qotnews/search', params=params, timeout=2)
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))

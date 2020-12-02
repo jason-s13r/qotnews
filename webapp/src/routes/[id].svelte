@@ -18,8 +18,10 @@
   export let story;
   export let related;
 
-  let others = related.filter((r) => r.id !== story.id && r.num_comments);
-  let hasComments = related.some((r) => r.num_comments);
+  let others = related.filter(
+    (r) => r.id !== story.id && Number(r.num_comments)
+  );
+  let hasComments = related.some((r) => Number(r.num_comments));
 </script>
 
 <style>
