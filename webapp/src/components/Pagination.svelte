@@ -37,6 +37,14 @@
     flex-direction: row;
     justify-content: space-between;
   }
+
+  .pagination-link {
+    font-size: 1.5rem;
+    text-decoration: none;
+  }
+  .pagination-link:hover {
+    text-decoration: underline;
+  }
   .pagination-link.is-next {
     margin-left: auto;
   }
@@ -44,12 +52,11 @@
 
 <div class="pagination">
   {#if skip > 0}
-    <a
-      class="pagination-link is-prev"
-      href={prevLink}
-      rel="prefetch">Previous</a>
+    <a class="pagination-link is-prev" href={prevLink} rel="prefetch">&larr;
+      Previous</a>
   {/if}
   {#if count >= limit}
-    <a class="pagination-link is-next" href={nextLink} rel="prefetch">Next</a>
+    <a class="pagination-link is-next" href={nextLink} rel="prefetch">Next
+      &rarr;</a>
   {/if}
 </div>

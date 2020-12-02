@@ -6,11 +6,16 @@
   const { page } = stores();
 
   let search;
+  let isSearching;
 
-  let handleSearch = debounce(_handleSearch, 300, {
+  let __handleSearch = debounce(_handleSearch, 300, {
     trailing: true,
     leading: false,
   });
+  let handleSearch = (e) => {
+    isSearching = true;
+    __handleSearch(e);
+  };
 
   page.subscribe((page) => {
     setTimeout(() => {
@@ -24,6 +29,7 @@
     const url = `/search?q=${event.target.value}`;
     await prefetch(url);
     await goto(url);
+    isSearching = false;
   }
 </script>
 
@@ -57,6 +63,12 @@
     flex-direction: row;
     justify-content: space-between;
   }
+
+  /* @media (max-device-width: 480px) {
+    .navigation-container {
+      justify-content: space-evenly;
+    }
+  } */
   .navigation-container > * {
     vertical-align: middle;
   }
@@ -77,29 +89,61 @@
   }
   .navigation-input {
     line-height: 2;
-    margin: 1em;
     vertical-align: middle;
-    width: 20rem;
-    max-width: 50vw;
+    width: 30rem;
+    max-width: 45vw;
+    font-size: 1.1rem;
+    padding: 0.25em 0.5em;
+    margin: 0.25em 0.5em;
+    border-radius: 5px;
+    border: solid 1px #aaa;
+  }
+  input:focus {
+    box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.25);
+  }
+
+  .is-searching {
+    padding-right: 0.5rem;
+    background-image: url(/svg-loaders/black/grid.svg);
+    background-size: 1.2em 1.2em;
+    background-position: right 0.5em center;
+    background-repeat: no-repeat;
   }
 </style>
 
+<svelte:head>
+  <link rel="preload" href="/svg-loaders/black/grid.svg" as="image" />
+</svelte:head>
+
 <nav class="navigation">
   <div class="navigation-container">
-    <ul class="navigation-list" role="menubar">
+    <ul class="navigation-list" role="menu">
       <li class="navigation-item">
         <a
           class="navigation-link"
           aria-current={segment === undefined ? 'page' : undefined}
           rel="prefetch"
           href=".">
-          {#if segment === undefined}Qot.{:else}&larr; News feed{/if}
+          {#if [undefined, 'submit'].includes(segment)}
+            Qot. news
+          {:else}&larr; News feed{/if}
         </a>
       </li>
+      {#if [undefined, 'submit'].includes(segment)}
+        <li class="navigation-item">
+          <a
+            class="navigation-link"
+            aria-current={segment === 'submit' ? 'page' : undefined}
+            rel="prefetch"
+            href="/submit">
+            Submit
+          </a>
+        </li>
+      {/if}
     </ul>
     <form action="/search" method="GET" rel="prefetch" role="search">
       <input
-        class="navigation-input"
+        class="navigation-input {(isSearching && 'is-searching') || ''}"
         id="search"
         bind:this={search}
         type="text"
