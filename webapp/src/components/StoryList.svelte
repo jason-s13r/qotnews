@@ -1,9 +1,16 @@
 <script>
+  import DOMPurify from "dompurify";
+  import { onMount } from "svelte";
   import { getLogoUrl } from "../utils/logos.js";
   import StoryInfo from "../components/StoryInfo.svelte";
   export let stories;
 
   const host = (url) => new URL(url).hostname.replace(/^www\./, "");
+  let purify = () => "";
+
+  onMount(() => {
+    purify = (html) => DOMPurify.sanitize(html);
+  });
 </script>
 
 <style>
@@ -41,7 +48,10 @@
         alt="logo"
         class="story-icon"
         style="height: 1rem; width: 1rem;" />
-      <a class="story-title" rel="prefetch" href="/{story.id}">{story.title}</a>
+      <a
+        class="story-title"
+        rel="prefetch"
+        href="/{story.id}">{@html purify(story.title)}</a>
       <a
         class="story-source"
         href={story.url || story.link}>{host(story.url || story.link)}</a>

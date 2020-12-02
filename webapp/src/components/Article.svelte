@@ -7,9 +7,11 @@
 
   let host = new URL(story.url || story.link).hostname.replace(/^www\./, "");
   let html;
+  let title;
 
   onMount(() => {
     html = DOMPurify.sanitize(story.text);
+    title = DOMPurify.sanitize(story.title);
   });
 </script>
 
@@ -67,7 +69,9 @@
 
 <article class="article">
   <header class="article-header">
-    <h1 class="article-title">{story.title}</h1>
+    <h1 class="article-title">
+      {@html title}
+    </h1>
     {#if story.url}
       <div>source: <a class="article-source" href={story.url}>{host}</a></div>
     {/if}
