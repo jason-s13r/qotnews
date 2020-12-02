@@ -43,7 +43,7 @@
         class="story-icon"
         style="height: 1rem; width: 1rem;" />
       <a class="story-title" rel="prefetch" href="/{story.id}">
-        <Html html={story.title} />
+        <Html html={story.title} text={story.title} />
       </a>
       <a
         class="story-source"

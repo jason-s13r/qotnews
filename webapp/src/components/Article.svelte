@@ -62,7 +62,7 @@
 <article class="article">
   <header class="article-header">
     <h1 class="article-title">
-      <Html html={story.title} />
+      <Html html={story.title} text={story.title} />
     </h1>
     {#if story.url}
       <div>source: <a class="article-source" href={story.url}>{host}</a></div>

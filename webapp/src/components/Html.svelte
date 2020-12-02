@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
 
   export let html;
+  export let text;
   let purify;
 
   onMount(() => {
@@ -12,4 +13,4 @@
 
 {#if purify}
   {@html html}
-{:else}{html}{/if}
+{:else if text}{text}{/if}
