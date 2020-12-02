@@ -1,18 +1,10 @@
 <script>
-  import DOMPurify from "dompurify";
-  import { onMount } from "svelte";
   import StoryInfo from "../components/StoryInfo.svelte";
+  import Html from "../components/Html.svelte";
 
   export let story;
 
   let host = new URL(story.url || story.link).hostname.replace(/^www\./, "");
-  let html;
-  let title;
-
-  onMount(() => {
-    html = DOMPurify.sanitize(story.text);
-    title = DOMPurify.sanitize(story.title);
-  });
 </script>
 
 <style>
@@ -70,11 +62,7 @@
 <article class="article">
   <header class="article-header">
     <h1 class="article-title">
-      {#if !title}
-        {story.title}
-      {:else}
-        {@html title}
-      {/if}
+      <Html html={story.title} />
     </h1>
     {#if story.url}
       <div>source: <a class="article-source" href={story.url}>{host}</a></div>
@@ -85,10 +73,6 @@
   </header>
 
   <section class="article-body">
-    {#if !html}
-      {story.content}
-    {:else}
-      {@html html}
-    {/if}
+    <Html html={story.text} />
   </section>
 </article>
