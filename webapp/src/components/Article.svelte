@@ -70,7 +70,11 @@
 <article class="article">
   <header class="article-header">
     <h1 class="article-title">
-      {@html title}
+      {#if !title}
+        {story.title}
+      {:else}
+        {@html title}
+      {/if}
     </h1>
     {#if story.url}
       <div>source: <a class="article-source" href={story.url}>{host}</a></div>
@@ -81,6 +85,10 @@
   </header>
 
   <section class="article-body">
-    {@html html}
+    {#if !html}
+      {story.content}
+    {:else}
+      {@html html}
+    {/if}
   </section>
 </article>

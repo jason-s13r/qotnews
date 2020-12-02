@@ -6,7 +6,7 @@
   export let stories;
 
   const host = (url) => new URL(url).hostname.replace(/^www\./, "");
-  let purify = () => "";
+  let purify;
 
   onMount(() => {
     purify = (html) => DOMPurify.sanitize(html);
@@ -48,10 +48,13 @@
         alt="logo"
         class="story-icon"
         style="height: 1rem; width: 1rem;" />
-      <a
-        class="story-title"
-        rel="prefetch"
-        href="/{story.id}">{@html purify(story.title)}</a>
+      <a class="story-title" rel="prefetch" href="/{story.id}">
+        {#if !purify}
+          {story.title}
+        {:else}
+          {@html purify(story.title)}
+        {/if}
+      </a>
       <a
         class="story-source"
         href={story.url || story.link}>{host(story.url || story.link)}</a>
