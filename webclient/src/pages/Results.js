@@ -55,6 +55,13 @@ class Results extends React.Component {
 		const stories = this.state.stories;
 		const error = this.state.error;
 
+		const search = this.props.location.search;
+		const params = new URLSearchParams(search);
+
+		const q = params.get('q') || '';
+		const skip = params.get('skip') || 0;
+		const limit = params.get('limit') || 20;
+
 		return (
 			<div className='container'>
 				<Helmet>
@@ -71,6 +78,11 @@ class Results extends React.Component {
 					:
 					<p>loading...</p>
 				}
+
+				<div className="pagination">
+					{Number(skip) > 0 && <Link className="pagination-link" to={`/search?q=${q}&skip=${Number(skip) - Math.min(Number(skip), Number(limit))}&limit=${limit}`}>Previous</Link>}
+					{stories.length == Number(limit) && <Link className="pagination-link is-right" to={`/search?q=${q}&skip=${Number(skip) + Number(limit)}&limit=${limit}`}>Next</Link>}
+				</div>
 			</div>
 		);
 	}
