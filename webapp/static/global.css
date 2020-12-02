@@ -9,25 +9,11 @@ body {
   margin-bottom: 50vh;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0 0 0.5em 0;
-  font-weight: 400;
-  line-height: 1.2;
-}
-
-h1 {
-  font-size: 2em;
-}
-
 a {
   color: inherit;
 }
 
+pre,
 code {
   font-family: menlo, inconsolata, monospace;
   font-size: calc(1em - 2px);
@@ -35,4 +21,9 @@ code {
   background-color: #f0f0f0;
   padding: 0.2em 0.4em;
   border-radius: 2px;
+}
+
+pre {
+  max-width: 100%;
+  overflow: auto;
 }

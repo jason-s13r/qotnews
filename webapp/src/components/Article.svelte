@@ -1,13 +1,41 @@
 <script>
+  import DOMPurify from "dompurify";
+  import { onMount } from "svelte";
   import StoryInfo from "../components/StoryInfo.svelte";
+
   export let story;
 
   let host = new URL(story.url || story.link).hostname.replace(/^www\./, "");
+  let html;
+
+  onMount(() => {
+    html = DOMPurify.sanitize(story.text);
+  });
 </script>
 
 <style>
+  .article :global(h1),
+  .article :global(h2),
+  .article :global(h3),
+  .article :global(h4),
+  .article :global(h5),
+  .article :global(h6) {
+    margin: 0 0 0.5em 0;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .article :global(h1) {
+    font-size: 2rem;
+  }
+
+  @media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+    .article :global(h1) {
+      font-size: 1.5rem;
+    }
+  }
   .article-title {
-    text-align: justify;
+    text-align: left;
   }
   .article-header {
     padding: 0 0 1rem;
@@ -41,12 +69,14 @@
   <header class="article-header">
     <h1 class="article-title">{story.title}</h1>
     {#if story.url}
-      <div>source: <a href={story.url}>{host}</a></div>
+      <div>source: <a class="article-source" href={story.url}>{host}</a></div>
     {/if}
-    <StoryInfo class="article-byline" {story} />
+    <section class="article-info">
+      <StoryInfo {story} />
+    </section>
   </header>
 
   <section class="article-body">
-    {@html story.text}
+    {@html html}
   </section>
 </article>

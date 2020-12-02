@@ -28,13 +28,11 @@
 </script>
 
 <style>
-  .has-highlight,
   [aria-current] {
     position: relative;
     display: inline-block;
   }
 
-  .has-highlight::after,
   [aria-current]::after {
     position: absolute;
     content: "";
@@ -72,7 +70,6 @@
   .navigation-item {
     list-style: none;
   }
-  .navigation-text,
   .navigation-link {
     text-decoration: none;
     padding: 1em 0.5em;
@@ -82,7 +79,8 @@
     line-height: 2;
     margin: 1em;
     vertical-align: middle;
-    width: 15rem;
+    width: 20rem;
+    max-width: 50vw;
   }
 </style>
 
@@ -94,7 +92,9 @@
           class="navigation-link"
           aria-current={segment === undefined ? 'page' : undefined}
           rel="prefetch"
-          href=".">News</a>
+          href=".">
+          {#if segment === undefined}Qot.{:else}&larr; News feed{/if}
+        </a>
       </li>
     </ul>
     <form action="/search" method="GET" rel="prefetch" role="search">
@@ -108,11 +108,5 @@
         placeholder="Search..."
         on:keypress={handleSearch} />
     </form>
-    <ul class="navigation-list">
-      <li class="navigation-item">
-        <span
-          class="navigation-text {segment !== undefined ? 'has-highlight' : undefined}">Qot.</span>
-      </li>
-    </ul>
   </div>
 </nav>

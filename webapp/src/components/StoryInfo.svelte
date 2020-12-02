@@ -6,10 +6,10 @@
 <Time date={story.date} />
 {#if story.author && story.author_link}
   by
-  <a href={story.author_link}>{story.author}</a>
-{:else if story.author}by {story.author}{/if}
+  <a class="author" href={story.author_link}>{story.author}</a>
+{:else if story.author}by <span class="author">{story.author}</span>{/if}
 on
-<a href={story.link || story.url}>{story.source}</a>
+<a class="source" href={story.link || story.url}>{story.source}</a>
 {#if story.score}&bull; {story.score} points{/if}
 {#if story.num_comments}
   &bull;

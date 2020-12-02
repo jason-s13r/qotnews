@@ -1,13 +1,23 @@
 <script>
+  import DOMPurify from "dompurify";
+  import { onMount } from "svelte";
+
   import Time from "../components/Time.svelte";
 
   export let story;
   export let comment;
   export let showComments = true;
-  const author = (comment.author || "").replace(" ", "");
-  export let id = `${author}-${comment.date}`;
 
-  export function toggleComments() {
+  let author = (comment.author || "").replace(" ", "");
+  let id = `${author}-${comment.date}`;
+
+  let html;
+
+  onMount(() => {
+    html = DOMPurify.sanitize(comment.text);
+  });
+
+  function toggleComments() {
     showComments = !showComments;
   }
 </script>
@@ -87,7 +97,7 @@
   </header>
 
   <section class={showComments ? 'comment-text' : 'comment-text is-collapsed'}>
-    {@html comment.text}
+    {@html html}
   </section>
 
   {#if !showComments}
