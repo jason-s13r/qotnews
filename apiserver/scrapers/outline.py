@@ -12,9 +12,28 @@ def get_html(url):
     details = get_details(url)
     if not details:
         return ''
-    return details['html']
+    return details['content']
 
 def get_details(url):
+    outline = _get_outline(url)
+    if not outline:
+        return None
+    return as_readable(outline)
+
+def as_readable(details):
+    readable = {
+        'title': details['title'],
+        'byline': details['author'],
+        'content': details['html'],
+        'excerpt': _excerpt(details),
+        'siteName': details['site_name'],
+        'url': details['article_url'],
+        'publisher': details['site_name'],
+        'scraper_link': 'https://outline.com/' + details['short_code']
+    }
+    return readable
+
+def _get_outline(url):
     try:
         logging.info(f"Outline Scraper: {url}")
         params = {'source_url': url}
@@ -35,3 +54,10 @@ def get_details(url):
     except BaseException as e:
         logging.error('Problem outlining article: {}'.format(str(e)))
         return None
+
+def _excerpt(details):
+    meta = details.get('meta')
+    if not meta: return ''
+    if meta.get('description'): return meta.get('description', '')
+    if not meta.get('og'): return ''
+    return meta.get('og').get('og:description', '')

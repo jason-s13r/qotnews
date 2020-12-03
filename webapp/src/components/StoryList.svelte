@@ -48,9 +48,9 @@
         class="story-source"
         href={story.url || story.link}>{host(story.url || story.link)}</a>
     </header>
-    <section class="story-info">
+    <aside class="story-info">
       <StoryInfo {story} />
-    </section>
+    </aside>
   </article>
 {/each}
 

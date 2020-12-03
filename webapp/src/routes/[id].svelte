@@ -42,6 +42,7 @@
     property="article:published_time"
     content={fromUnixTime(story.date).toISOString()} />
   <meta property="article:author" content={story.author || story.source} />
+  <meta property="og:description" content={story.excerpt || story.title} />
 </svelte:head>
 
 <section class="single">

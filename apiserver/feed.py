@@ -76,14 +76,14 @@ def get_article(url):
         if scraper not in scrapers.keys():
             continue
         try:
-            html = scrapers[scraper].get_html(url)
-            if html:
-                return html
+            details = scrapers[scraper].get_details(url)
+            if details and details.get('content'):
+                return details, scraper
         except KeyboardInterrupt:
             raise
         except:
             pass
-    return ''
+    return None, None
 
 def get_content_type(url):
     try:
@@ -143,7 +143,12 @@ def update_story(story, is_manual=False, urlref=None):
             return False
 
         logging.info('Getting article ' + story['url'])
-        story['text'] = get_article(story['url'])
+        details, scraper = get_article(story['url'])
+        if not details: return False
+        story['text'] = details.get('content', '')
+        story['excerpt'] = details.get('excerpt', '')
+        story['scraper'] = scraper
+        story['scraper_link'] = details.get('scraper_link', '')
         if not story['text']: return False
 
     return True

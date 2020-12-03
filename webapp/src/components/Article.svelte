@@ -1,9 +1,8 @@
 <script>
   import StoryInfo from "../components/StoryInfo.svelte";
+  import StoryMeta from "../components/StoryMeta.svelte";
 
   export let story;
-
-  let host = new URL(story.url || story.link).hostname.replace(/^www\./, "");
 </script>
 
 <style>
@@ -63,12 +62,13 @@
     <h1 class="article-title">
       {@html story.title}
     </h1>
-    {#if story.url}
-      <div>source: <a class="article-source" href={story.url}>{host}</a></div>
-    {/if}
+
     <section class="article-info">
       <StoryInfo {story} />
     </section>
+    <aside class="article-info">
+      <StoryMeta {story} />
+    </aside>
   </header>
 
   <section class="article-body">
