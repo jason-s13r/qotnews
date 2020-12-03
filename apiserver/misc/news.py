@@ -6,7 +6,7 @@ logging.basicConfig(
 import re
 import requests
 from bs4 import BeautifulSoup
-from scrapers import declutter
+from scrapers.declutter import declutter, headless
 import extruct
 
 import settings

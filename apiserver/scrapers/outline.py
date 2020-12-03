@@ -29,8 +29,10 @@ def as_readable(details):
         'siteName': details['site_name'],
         'url': details['article_url'],
         'publisher': details['site_name'],
-        'scraper_link': 'https://outline.com/' + details['short_code']
+        'scraper_link': 'https://outline.com/' + details['short_code'],
+        'meta': {}
     }
+    readable['meta'].update(details['meta'])
     return readable
 
 def _get_outline(url):
@@ -40,8 +42,7 @@ def _get_outline(url):
         headers = {'Referer': OUTLINE_REFERER}
         r = requests.get(OUTLINE_API, params=params, headers=headers, timeout=TIMEOUT)
         if r.status_code == 429:
-            logging.info('Rate limited by outline, sleeping 30s and skipping...')
-            time.sleep(30)
+            logging.info('Rate limited by outline, skipping...')
             return None
         if r.status_code != 200:
             raise Exception('Bad response code ' + str(r.status_code))

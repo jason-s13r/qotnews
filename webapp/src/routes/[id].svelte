@@ -43,6 +43,9 @@
     content={fromUnixTime(story.date).toISOString()} />
   <meta property="article:author" content={story.author || story.source} />
   <meta property="og:description" content={story.excerpt || story.title} />
+  {#if story.image}
+    <meta property="og:image" content={story.image} />
+  {/if}
 </svelte:head>
 
 <section class="single">

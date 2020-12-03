@@ -12,7 +12,8 @@ import settings
 from feeds import hackernews, reddit, tildes, substack, manual
 from feeds.sitemap import Sitemap
 from feeds.category import Category
-from scrapers import outline, declutter, headless, simple
+from scrapers import outline
+from scrapers.declutter import declutter, headless, simple
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
 
@@ -145,11 +146,17 @@ def update_story(story, is_manual=False, urlref=None):
         logging.info('Getting article ' + story['url'])
         details, scraper = get_article(story['url'])
         if not details: return False
-        story['text'] = details.get('content', '')
-        story['excerpt'] = details.get('excerpt', '')
         story['scraper'] = scraper
-        story['scraper_link'] = details.get('scraper_link', '')
+        story['text'] = details.get('content', '')
         if not story['text']: return False
+        story['excerpt'] = details.get('excerpt', '')
+        story['scraper_link'] = details.get('scraper_link', '')
+        meta = details.get('meta')
+        if meta:
+            og = meta.get('og')
+            story['image'] = meta.get('image', '')
+            if og: 
+                story['image'] = og.get('og:image', meta.get('image', ''))
 
     return True
 
