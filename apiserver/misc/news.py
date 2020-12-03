@@ -60,6 +60,7 @@ class Base:
         s['link'] = urlref
         s['url'] = urlref
         s['date'] = 0
+        s['title'] = ''
 
         icons = get_icons(markup, url=urlref)
         if icons:
@@ -67,7 +68,8 @@ class Base:
 
         data = extruct.extract(markup)
         s = parse_extruct(s, data)
-        s['title'] = clean(s['title'])
+        if s['title']:
+            s['title'] = clean(s['title'])
         if s['date']:
             s['date'] = unix(s['date'], tz=self.tz)
 
