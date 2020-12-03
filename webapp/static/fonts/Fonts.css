@@ -1,0 +1,28 @@
+@font-face {
+    font-family: 'Apparatus SIL';
+    src: url('AppSILR.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Apparatus SIL';
+	font-style: italic;
+    src: url('AppSILI.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Apparatus SIL';
+	font-weight: bold;
+    src: url('AppSILB.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Apparatus SIL';
+	font-weight: bold;
+	font-style: italic;
+    src: url('AppSILBI.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Icomoon';
+    src: url('icomoon.ttf') format('truetype');
+}

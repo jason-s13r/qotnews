@@ -6,6 +6,7 @@
 </script>
 
 <style>
+  @import url(/fonts/Fonts.css);
   .article :global(h1),
   .article :global(h2),
   .article :global(h3),
@@ -35,6 +36,8 @@
   .article-body {
     max-width: 45rem;
     margin: 0 auto;
+    font: 1.2rem/1.5 "Apparatus SIL", sans-serif;
+    text-rendering: optimizeLegibility;
   }
   .article-body :global(figure) {
     margin: 0;
