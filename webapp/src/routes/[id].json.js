@@ -6,7 +6,7 @@ const API_URL = process.env.API_URL || 'http://localhost:33842';
 
 export async function get(req, res) {
 	const response = await fetch(`${API_URL}/api/${req.params.id}`);
-	res.writeHead(response.status, { 'Content-Type': 'application/json' });
+	res.writeHead(response.status, { 'Content-Type': response.headers.get('Content-Type') });
 	if (!response.ok) {
 		return res.end(await response.text());
 	}

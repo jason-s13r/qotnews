@@ -10,7 +10,7 @@ export async function get(req, res) {
 		limit: req.query.limit || 20,
 	};
 	const response = await fetch(`${API_URL}/api?skip=${skip}&limit=${limit}`);
-	res.writeHead(response.status, { 'Content-Type': 'application/json' });
+	res.writeHead(response.status, { 'Content-Type': response.headers.get('Content-Type') });
 	if (!response.ok) {
 		return res.end(await response.text());
 	}

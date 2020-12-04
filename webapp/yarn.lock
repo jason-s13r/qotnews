@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@polka/redirect@^1.0.0-next.0":
+  version "1.0.0-next.0"
+  resolved "https://registry.yarnpkg.com/@polka/redirect/-/redirect-1.0.0-next.0.tgz#df56f2fc3f1db9c5397c7eafc0e85442eeead427"
+  integrity sha512-ym6ooqMr09+cV+y52p5kszJ0jYcX+nJfm8POrQb7QYowvpPPuneZ71EclHrQSB7a50lcytgR/xtL6AUFdvyEkg==
+
 "@polka/url@^1.0.0-next.11", "@polka/url@^1.0.0-next.9":
   version "1.0.0-next.11"
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.11.tgz#aeb16f50649a91af79dbe36574b66d0f9e4d9f71"

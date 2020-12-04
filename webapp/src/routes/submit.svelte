@@ -127,7 +127,11 @@
     width="200"
     height="200" />
 
-  <form on:submit|preventDefault={handleSubmit} autocomplete="off">
+  <form
+    action="submit.json"
+    method="POST"
+    on:submit|preventDefault={handleSubmit}
+    autocomplete="off">
     <input
       type="text"
       name="url"
@@ -136,7 +140,7 @@
       value=""
       bind:this={input}
       required />
-    <button type="submit">Go</button>
+    <button value="true" name="redirect" type="submit">Go</button>
   </form>
 
   <p class="error">Something went wrong.</p>
