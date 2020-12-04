@@ -132,7 +132,11 @@ def update_story(story, is_manual=False, urlref=None):
         logging.info('Story too old, removing')
         return False
 
-    if story.get('url', '') and not story.get('text', ''):
+    has_url = story.get('url') or False
+    has_text = story.get('text') or False
+    is_simple = story.get('scaper', '') == 'simple'
+    
+    if has_url and (not has_text or is_simple):
         if not get_content_type(story['url']).startswith('text/'):
             logging.info('URL invalid file type / content type:')
             logging.info(story['url'])
@@ -149,6 +153,7 @@ def update_story(story, is_manual=False, urlref=None):
         story['scraper'] = scraper
         story['text'] = details.get('content', '')
         if not story['text']: return False
+        story['last_update'] = time.time()
         story['excerpt'] = details.get('excerpt', '')
         story['scraper_link'] = details.get('scraper_link', '')
         meta = details.get('meta')
