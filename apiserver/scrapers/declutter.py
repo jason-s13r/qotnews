@@ -7,7 +7,7 @@ import requests
 from settings import HEADLESS_READER_PORT, SIMPLE_READER_PORT
 
 class Simple:
-    def __init__(self, host, name, internal=True, timeout=20):
+    def __init__(self, host, name, internal=True, timeout=90):
         self.host = host
         self.name = name
         self.internal = internal

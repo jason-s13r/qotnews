@@ -54,6 +54,7 @@
     text-align: justify;
   }
   .article-body :global(figure),
+  .article-body :global(video),
   .article-body :global(img) {
     max-width: 100%;
     height: auto;
