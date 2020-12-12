@@ -8,7 +8,7 @@ import time
 from bs4 import BeautifulSoup
 
 import settings
-from feeds import hackernews, reddit, tildes, manual
+from feeds import hackernews, reddit, tildes, manual, lobsters
 
 OUTLINE_API = 'https://api.outline.com/v3/parse_article'
 READ_API = 'http://127.0.0.1:33843'
@@ -20,6 +20,9 @@ def list():
     feed = []
     if settings.NUM_HACKERNEWS:
         feed += [(x, 'hackernews') for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
+
+    if settings.NUM_LOBSTERS:
+        feed += [(x, 'lobsters') for x in lobsters.feed()[:settings.NUM_LOBSTERS]]
 
     if settings.NUM_REDDIT:
         feed += [(x, 'reddit') for x in reddit.feed()[:settings.NUM_REDDIT]]
@@ -83,6 +86,8 @@ def update_story(story, is_manual=False):
 
     if story['source'] == 'hackernews':
         res = hackernews.story(story['ref'])
+    elif story['source'] == 'lobsters':
+        res = lobsters.story(story['ref'])
     elif story['source'] == 'reddit':
         res = reddit.story(story['ref'])
     elif story['source'] == 'tildes':
