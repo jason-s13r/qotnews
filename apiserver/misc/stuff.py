@@ -6,7 +6,7 @@ if __name__ == '__main__':
     sys.path.insert(0,'.')
 
 from misc.time import unix
-from misc.api import xml
+from misc.api import xml, json
 from utils import clean
 
 def _soup_get_text(soup):
@@ -44,7 +44,26 @@ def _parse_comment(soup):
 
     return c
 
-def get_comments(url):
+def _parse_json_comment(raw):
+    c = {
+        'author': '',
+        'authorLink': '',
+        'score': 0,
+        'date': 0,
+        'text': '',
+        'comments': [],
+    }
+
+    sender = raw.get('sender', { 'name': '', 'profileURL': '' })
+    c['author'] = sender.get('name', '')
+    c['authorLink'] = sender.get('profileURL', '')
+    c['score'] = raw.get('TotalVotes', 0)
+    c['date'] = raw.get('timestamp', 0)
+    c['text'] = raw.get('commentText', '')
+    c['comments'] = [_parse_json_comment(c) for c in raw.get('comments', [])]
+    return c
+
+def get_rss_comments(url):
     regex = r"https:\/\/www\.stuff\.co\.nz\/(.*\/\d+)/[^\/]+"
     p = re.compile(regex).match(url)
     path = p.groups()[0]
@@ -57,9 +76,36 @@ def get_comments(url):
     comments = [_parse_comment(c) for c in comments]
     return comments
 
+def get_json_comments(url, markup=None):
+    regex = r"https:\/\/www\.stuff\.co\.nz\/(.*\/\d+)/[^\/]+"
+    p = re.compile(regex).match(url)
+    path = p.groups()[0]
+    if not markup:
+        markup = xml(lambda x: url)
+    soup = BeautifulSoup(markup, features='html.parser')
+    scripts = soup.find_all('script', src=True)
+    scripts = list(filter(None, [s if s['src'].startswith("https://cdns.gigya.com/JS/gigya.js?apiKey=") else None for s in scripts]))
+    if not scripts: return []
+    script = scripts[0]
+    if not script: return []
+    meh, params = script['src'].split('?', maxsplit=1)
+    params = params.split('&')
+    params = [p.split('=') for p in params]
+    params = list(filter(None, [value if name.lower() == 'apikey' else None for name, value in params]))
+    if not params: return []
+    apiKey = params[0]
+    if not apiKey: return []
+    url = f"https://comments.us1.gigya.com/comments.getComments?threaded=true&format=json&categoryID=Stuff&streamID=stuff/{path}&APIKey={apiKey}"
+    data = json(lambda x: url)
+    comments = data.get('comments', [])
+    comments = [_parse_json_comment(c) for c in comments]
+    return comments
+
+
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    comments = get_comments('https://www.stuff.co.nz/life-style/homed/houses/123418468/dear-jacinda-we-need-to-talk-about-housing')
+    #comments = get_json_comments('https://www.stuff.co.nz/life-style/homed/houses/123418468/dear-jacinda-we-need-to-talk-about-housing')
+    comments = get_json_comments('https://www.stuff.co.nz/business/money/300174711/roll-back-minimum-wage-increases-nz-initiative-urges')
     print(len(comments))
     print(comments[:5])

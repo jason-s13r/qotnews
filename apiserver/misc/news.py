@@ -85,9 +85,9 @@ class Base:
                 pass
 
         if urlref.startswith('https://www.stuff.co.nz'):
-            s['comments'] = stuff.get_comments(urlref)
+            s['comments'] = stuff.get_json_comments(urlref, markup)
             s['comments'] = list(filter(bool, s['comments']))
-            s['num_comments'] = len(s['comments'])
+            s['num_comments'] = comment_count(s['comments'])
 
         if not s['date']:
             return False
