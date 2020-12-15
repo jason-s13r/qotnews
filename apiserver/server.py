@@ -180,7 +180,7 @@ def _update_current_story(item):
             database.put_story(story)
             search.put_story(story)
         except database.IntegrityError:
-            logging.info('Unable to add story with ref ' + ref)
+            logging.info('Unable to add story with ref ' + item['ref'])
     else:
         database.del_ref(item['ref'])
         logging.info('Removed ref {}'.format(item['ref']))
