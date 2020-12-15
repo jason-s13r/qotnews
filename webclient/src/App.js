@@ -66,7 +66,7 @@ class App extends React.Component {
 							<Link to='/'>QotNews - Feed</Link>
 							<span className='theme'>Theme: <a href='#' onClick={() => this.light()}>Light</a> - <a href='#' onClick={() => this.dark()}>Dark</a></span>
 							<br />
-							<span className='slogan'>Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode.</span>
+							<span className='slogan'>Hacker News, Reddit, Lobsters, and Tildes articles rendered in reader mode.</span>
 						</p>
 						<Route path='/(|search)' component={Search} />
 						<Route path='/(|search)' component={Submit} />

@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.types import JSON
 
-engine = create_engine('sqlite:///data/qotnews.sqlite')
+engine = create_engine('sqlite:///data/qotnews.sqlite', connect_args={'timeout': 120})
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()

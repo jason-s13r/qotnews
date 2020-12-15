@@ -9,13 +9,13 @@ from bs4 import BeautifulSoup
 import itertools
 
 import settings
-from feeds import hackernews, reddit, tildes, substack, manual
+from feeds import hackernews, reddit, tildes, substack, manual, lobsters
 from feeds.sitemap import Sitemap
 from feeds.category import Category
 from scrapers import outline
 from scrapers.declutter import declutter, headless, simple
 
-INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com']
+INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com', 'sec.gov']
 
 substacks = {}
 for key, value in settings.SUBSTACK.items():
@@ -32,6 +32,9 @@ def get_list():
 
     if settings.NUM_HACKERNEWS:
         feeds['hackernews'] = [(x, 'hackernews', x) for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
+
+    if settings.NUM_LOBSTERS:
+        feed += [(x, 'lobsters', x) for x in lobsters.feed()[:settings.NUM_LOBSTERS]]
 
     if settings.NUM_REDDIT:
         feeds['reddit'] = [(x, 'reddit', x) for x in reddit.feed()[:settings.NUM_REDDIT]]
@@ -107,6 +110,8 @@ def update_story(story, is_manual=False, urlref=None):
 
     if story['source'] == 'hackernews':
         res = hackernews.story(story['ref'])
+    elif story['source'] == 'lobsters':
+        res = lobsters.story(story['ref'])
     elif story['source'] == 'reddit':
         res = reddit.story(story['ref'])
     elif story['source'] == 'tildes':

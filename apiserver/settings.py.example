@@ -13,6 +13,7 @@ HEADLESS_READER_PORT = 33843
 # Number of top items from each site to pull
 # set to 0 to disable that site
 NUM_HACKERNEWS = 15
+NUM_LOBSTERS = 10
 NUM_REDDIT = 10
 NUM_TILDES = 5
 NUM_SUBSTACK = 10
@@ -74,8 +75,6 @@ SUBREDDITS = [
     'HistoryofIdeas',
     'LaymanJournals',
     'PhilosophyofScience',
-    'PoliticsPDFs',
-    'Scholar',
     'StateOfTheUnion',
     'TheAgora',
     'TrueFilm',
@@ -89,4 +88,7 @@ SUBREDDITS = [
     'neurophilosophy',
     'resilientcommunities',
     'worldevents',
+    'StallmanWasRight',
+    'DarkFuturology',
+    'EverythingScience',
 ]

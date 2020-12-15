@@ -72,6 +72,9 @@ def submit():
         elif 'tildes.net' in parse.hostname and '~' in url:
             source = 'tildes'
             ref = parse.path.split('/')[2]
+        elif 'lobste.rs' in parse.hostname and '/s/' in url:
+            source = 'lobsters'
+            ref = parse.path.split('/')[2]
         elif 'reddit.com' in parse.hostname and 'comments' in url:
             source = 'reddit'
             ref = parse.path.split('/')[4]
@@ -120,7 +123,7 @@ def index():
     return render_template('index.html',
             title='Feed',
             url=settings.HOSTNAME,
-            description='Reddit, Hacker News, and Tildes combined, then pre-rendered in reader mode')
+            description='Hacker News, Reddit, Lobsters, and Tildes articles rendered in reader mode')
 
 @flask_app.route('/<sid>', strict_slashes=False)
 @flask_app.route('/<sid>/c', strict_slashes=False)
