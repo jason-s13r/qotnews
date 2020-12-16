@@ -58,9 +58,9 @@ def _parse_json_comment(raw):
     c['author'] = sender.get('name', '')
     c['authorLink'] = sender.get('profileURL', '')
     c['score'] = raw.get('TotalVotes', 0)
-    c['date'] = raw.get('timestamp', 0)
+    c['date'] = int(raw.get('timestamp', 0) / 1000)
     c['text'] = raw.get('commentText', '')
-    c['comments'] = [_parse_json_comment(c) for c in raw.get('comments', [])]
+    c['comments'] = [_parse_json_comment(c) for c in raw.get('replies', [])]
     return c
 
 def get_rss_comments(url):

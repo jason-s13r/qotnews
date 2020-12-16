@@ -53,6 +53,7 @@ class Base:
             return False
 
         s = {}
+        s['author'] = ''
         s['author_link'] = ''
         s['score'] = 0
         s['comments'] = []
@@ -78,7 +79,7 @@ class Base:
                 s['comments'] = declutter.get_comments(urlref)
                 s['comments'] = [clean_comments(c) for c in s['comments']]
                 s['comments'] = list(filter(bool, s['comments']))
-                s['num_comments'] = comment_count(s['comments'])
+                s['num_comments'] = comment_count(s) - 1
             except KeyboardInterrupt:
                 raise
             except:
@@ -87,7 +88,7 @@ class Base:
         if urlref.startswith('https://www.stuff.co.nz'):
             s['comments'] = stuff.get_json_comments(urlref, markup)
             s['comments'] = list(filter(bool, s['comments']))
-            s['num_comments'] = comment_count(s['comments'])
+            s['num_comments'] = comment_count(s) - 1
 
         if not s['date']:
             return False

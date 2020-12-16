@@ -14,19 +14,19 @@ import search
 database.init()
 search.init()
 
-def _update_current_story(story, item):
+def _update_current_story(story):
     logging.info('Updating story: {}'.format(str(story['ref'])))
 
     if story.get('url', ''):
         story['text'] = ''
 
-    valid = feed.update_story(story, urlref=item['urlref'])
+    valid = feed.update_story(story, urlref=story['url'], is_manual=True)
     if valid:
         database.put_story(story)
         search.put_story(story)
     else:
-        database.del_ref(item['ref'])
-        logging.info('Removed ref {}'.format(item['ref']))
+        database.del_ref(story['ref'])
+        logging.info('Removed ref {}'.format(story['ref']))
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
@@ -35,14 +35,9 @@ if __name__ == '__main__':
         print('Usage: python delete-story.py [story id]')
         exit(1)
 
-    item = database.get_ref_by_sid(sid)
-
-    if item:
-        story = database.get_story(item['sid']).data
-        if story:
-            print('Updating story:')
-            _update_current_story(story, item)
-        else:
-            print('Story not found. Exiting.')
+    story = database.get_story(sid).data
+    if story:
+        print('Updating story:')
+        _update_current_story(story)
     else:
         print('Story not found. Exiting.')
