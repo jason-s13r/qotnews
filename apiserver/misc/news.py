@@ -6,7 +6,7 @@ logging.basicConfig(
 import re
 import requests
 from bs4 import BeautifulSoup
-from scrapers.declutter import declutter, headless
+from scrapers.declutter import headless
 import extruct
 
 import settings
@@ -76,7 +76,7 @@ class Base:
 
         if 'disqus' in markup:
             try:
-                s['comments'] = declutter.get_comments(urlref)
+                s['comments'] = headless.get_comments(urlref)
                 s['comments'] = [clean_comments(c) for c in s['comments']]
                 s['comments'] = list(filter(bool, s['comments']))
                 s['num_comments'] = comment_count(s) - 1

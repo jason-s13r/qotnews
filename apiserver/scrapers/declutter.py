@@ -59,6 +59,6 @@ class Headless(Simple):
         if not comments: return None
         return comments
 
-declutter = Headless('https://declutter.1j.nz', 'Declutter scraper', internal=False)
-headless = Headless(f"http://127.0.0.1:{HEADLESS_READER_PORT or 33843}", 'Headless scraper')
-simple = Simple(f"http://127.0.0.1:{SIMPLE_READER_PORT or 33843}", 'Simple scraper')
+declutter = Headless('https://declutter.1j.nz', 'Declutter', internal=False)
+headless = Headless(f"http://127.0.0.1:{HEADLESS_READER_PORT or 33843}", 'Headless')
+simple = Simple(f"http://127.0.0.1:{SIMPLE_READER_PORT or 33843}", 'Simple')
