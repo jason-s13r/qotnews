@@ -18,6 +18,8 @@ import misc.stuff as stuff
 
 def clean_comment(comment):
     comment['text'] = clean(comment['text'])
+    if isinstance(comment['date'], str):
+        comment['date'] = unix(comment['date'])
     comment['comments'] = [clean_comment(c) for c in comment['comments']]
     return comment
 
@@ -67,8 +69,14 @@ class Base:
         if icons:
             s['icon'] = icons[0]
 
-        data = extruct.extract(markup)
-        s = parse_extruct(s, data)
+        try:
+            data = extruct.extract(markup)
+            s = parse_extruct(s, data)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            logging.error(e)
+
         if s['title']:
             s['title'] = clean(s['title'])
         if s['date']:
@@ -85,9 +93,10 @@ class Base:
         if urlref.startswith('https://www.stuff.co.nz'):
             s['comments'] = stuff.get_json_comments(urlref, markup)
 
-        s['comments'] = [clean_comment(c) for c in s['comments']]
-        s['comments'] = list(filter(bool, s['comments']))
-        s['num_comments'] = comment_count(s) - 1
+        if s['comments']:
+            s['comments'] = [clean_comment(c) for c in s['comments']]
+            s['comments'] = list(filter(bool, s['comments']))
+            s['num_comments'] = comment_count(s) - 1
 
         if not s['date']:
             return False
