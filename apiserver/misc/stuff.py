@@ -79,6 +79,7 @@ def get_rss_comments(url):
 def get_json_comments(url, markup=None):
     regex = r"https:\/\/www\.stuff\.co\.nz\/(.*\/\d+)/[^\/]+"
     p = re.compile(regex).match(url)
+    if not p: return []
     path = p.groups()[0]
     if not markup:
         markup = xml(lambda x: url)
