@@ -10,6 +10,7 @@ if __name__ == '__main__':
 import requests
 import time
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 from misc.news import Base
 
@@ -28,7 +29,12 @@ class Manual(Base):
         return ref
 
     def story(self, ref):
-        return super().story(ref, ref)
+        s = super().story(ref, ref, is_manual=True)
+
+        if not s['date']:
+            s['date'] = datetime.now().timestamp()
+
+        return s
 
 manual = Manual()
 

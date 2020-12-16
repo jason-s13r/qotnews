@@ -10,8 +10,8 @@ GOOGLEBOT_IP = '66.249.66.1'
 TIMEOUT = 30
 
 def request(route, ref=None, headers=dict(), use_googlebot=True, attempt=0):
-    original = {}
-    original.update(headers)
+    original = dict(headers)
+    headers = dict(headers)
     try:
         if use_googlebot:
             headers['User-Agent'] = GOOGLEBOT_USER_AGENT

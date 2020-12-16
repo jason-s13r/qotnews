@@ -47,7 +47,7 @@ class Base:
     def feed(self, excludes=None):
         return []
 
-    def story(self, ref, urlref):
+    def story(self, ref, urlref, is_manual=False):
         if urlref is None:
             return False
         markup = xml(lambda x: urlref)
@@ -98,6 +98,6 @@ class Base:
             s['comments'] = list(filter(bool, s['comments']))
             s['num_comments'] = comment_count(s) - 1
 
-        if not s['date']:
+        if not is_manual and not s['date']:
             return False
         return s
