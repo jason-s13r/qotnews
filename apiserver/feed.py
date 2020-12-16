@@ -31,7 +31,7 @@ for key, value in settings.SITEMAP.items():
 def get_list():
     feeds = {}
 
-    feeds['manual'] = [(x, 'manual', x) for x in manual.feed()
+    feeds['manual'] = [(x, 'manual', x) for x in manual.feed()]
 
     if settings.NUM_HACKERNEWS:
         feeds['hackernews'] = [(x, 'hackernews', x) for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
