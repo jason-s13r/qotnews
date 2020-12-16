@@ -26,7 +26,7 @@ def comment_count(i):
     return sum([comment_count(c) for c in i['comments']]) + alive
 
 class Base:
-    def __init__(config):
+    def __init__(self, config=dict()):
         self.config = config
         self.url = config.get('url')
         self.tz = config.get('tz')

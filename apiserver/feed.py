@@ -9,7 +9,8 @@ from bs4 import BeautifulSoup
 import itertools
 
 import settings
-from feeds import hackernews, reddit, tildes, substack, manual, lobsters
+from feeds import hackernews, reddit, tildes, substack, lobsters
+from feeds.manual import manual
 from feeds.sitemap import Sitemap
 from feeds.category import Category
 from scrapers import outline
@@ -29,6 +30,8 @@ for key, value in settings.SITEMAP.items():
 
 def get_list():
     feeds = {}
+
+    feeds['manual'] = [(x, 'manual', x) for x in manual.feed()
 
     if settings.NUM_HACKERNEWS:
         feeds['hackernews'] = [(x, 'hackernews', x) for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
@@ -167,6 +170,10 @@ def update_story(story, is_manual=False, urlref=None):
             story['image'] = meta.get('image', '')
             if og: 
                 story['image'] = og.get('og:image', meta.get('image', ''))
+            links = meta.get('links', [])
+            if links:
+                story['meta_links'] = links
+                manual.add_links(links)
 
     return True
 

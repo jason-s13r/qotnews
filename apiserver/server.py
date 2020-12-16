@@ -111,7 +111,11 @@ def story(sid):
         if story.meta['url']:
             related = database.get_stories_by_url(story.meta['url'])
             related = [r.meta for r in related]
-        res = Response(json.dumps({"story": story.data, "related": related}))
+        links = story.meta.get('meta_links', [])
+        if links:
+            links = [database.get_story_by_url(link) for link in links]
+            links = [l.meta for l in links]
+        res = Response(json.dumps({"story": story.data, "related": related, "links": links}))
         res.headers['content-type'] = 'application/json'
         return res
     else:
