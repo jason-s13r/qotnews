@@ -21,7 +21,7 @@
   let others = related.filter(
     (r) => r.id !== story.id && Number(r.num_comments)
   );
-  let hasComments = related.some((r) => Number(r.num_comments));
+  let hasComments = related.concat([story]).some((r) => Number(r.num_comments));
 </script>
 
 <style>
