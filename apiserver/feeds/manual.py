@@ -34,4 +34,5 @@ manual = Manual()
 
 # scratchpad so I can quickly develop the parser
 if __name__ == '__main__':
-    print(manual.story('https://www.backblaze.com/blog/what-smart-stats-indicate-hard-drive-failures/'))
+    story = manual.story('https://www.backblaze.com/blog/what-smart-stats-indicate-hard-drive-failures/')
+    print(story)

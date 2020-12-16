@@ -18,7 +18,7 @@ import misc.stuff as stuff
 
 def clean_comment(comment):
     comment['text'] = clean(comment['text'])
-    comment['comments'] = [clean_comments(c) for c in comment['comments']]
+    comment['comments'] = [clean_comment(c) for c in comment['comments']]
     return comment
 
 def comment_count(i):
@@ -77,18 +77,17 @@ class Base:
         if 'disqus' in markup:
             try:
                 s['comments'] = headless.get_comments(urlref)
-                s['comments'] = [clean_comments(c) for c in s['comments']]
-                s['comments'] = list(filter(bool, s['comments']))
-                s['num_comments'] = comment_count(s) - 1
             except KeyboardInterrupt:
                 raise
-            except:
-                pass
+            except Exception as e:
+                logging.error(e)
 
         if urlref.startswith('https://www.stuff.co.nz'):
             s['comments'] = stuff.get_json_comments(urlref, markup)
-            s['comments'] = list(filter(bool, s['comments']))
-            s['num_comments'] = comment_count(s) - 1
+
+        s['comments'] = [clean_comment(c) for c in s['comments']]
+        s['comments'] = list(filter(bool, s['comments']))
+        s['num_comments'] = comment_count(s) - 1
 
         if not s['date']:
             return False
