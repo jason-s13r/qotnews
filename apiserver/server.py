@@ -79,12 +79,16 @@ def submit():
             source = 'reddit'
             ref = parse.path.split('/')[4]
         elif settings.HOSTNAME in parse.hostname:
-            raise Exception('Invalid article')
+            raise Exception('Invalid URL')
         else:
             source = 'manual'
             ref = url
 
         existing = database.get_story_by_ref(ref)
+        if existing:
+            return {'nid': existing.sid}
+        
+        existing = database.get_story_by_url(url)
         if existing:
             return {'nid': existing.sid}
         else:
@@ -95,6 +99,7 @@ def submit():
                 search.put_story(story)
                 return {'nid': nid}
             else:
+                logging.info(str(story))
                 raise Exception('Invalid article')
 
     except BaseException as e:
@@ -114,7 +119,7 @@ def story(sid):
         links = story.meta.get('meta_links', [])
         if links:
             links = [database.get_story_by_url(link) for link in links]
-            links = [l.meta for l in links]
+            links = list(filter(None,  [l.meta if l else None for l in links]))
         res = Response(json.dumps({"story": story.data, "related": related, "links": links}))
         res.headers['content-type'] = 'application/json'
         return res
