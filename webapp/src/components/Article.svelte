@@ -39,9 +39,8 @@
     font: 1.2rem/1.5 "Apparatus SIL", sans-serif;
     text-rendering: optimizeLegibility;
   }
-  .article-body :global(figure) {
-    margin: 0;
-  }
+  .article-body :global(figure p),
+  .article-body :global(figure),
   .article-body :global(figcaption p),
   .article-body :global(figcaption) {
     padding: 0;
