@@ -191,6 +191,9 @@ def _update_current_story(item):
         try:
             database.put_story(story)
             search.put_story(story)
+            if story['source'] == 'manual':
+                database.del_ref(item['ref'])
+                logging.info('Removed manual ref {}'.format(item['ref']))
         except database.IntegrityError:
             logging.info('Unable to add story with ref ' + item['ref'])
     else:
