@@ -37,7 +37,7 @@ def get_list():
         feeds['hackernews'] = [(x, 'hackernews', x) for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
 
     if settings.NUM_LOBSTERS:
-        feed += [(x, 'lobsters', x) for x in lobsters.feed()[:settings.NUM_LOBSTERS]]
+        feeds['lobsters'] += [(x, 'lobsters', x) for x in lobsters.feed()[:settings.NUM_LOBSTERS]]
 
     if settings.NUM_REDDIT:
         feeds['reddit'] = [(x, 'reddit', x) for x in reddit.feed()[:settings.NUM_REDDIT]]
