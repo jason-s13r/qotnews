@@ -15,6 +15,7 @@ from feeds.sitemap import Sitemap
 from feeds.category import Category
 from scrapers import outline
 from scrapers.declutter import declutter, headless, simple
+from utils import clean
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com', 'sec.gov']
 
@@ -158,6 +159,8 @@ def update_story(story, is_manual=False, urlref=None):
         logging.info('Getting article ' + story['url'])
         details, scraper = get_article(story['url'])
         if not details: return False
+        if not s['title']:
+                s['title'] = clean(details.get('title', ''))
         story['scraper'] = scraper
         story['text'] = details.get('content', '')
         if not story['text']: return False
