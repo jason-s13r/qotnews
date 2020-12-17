@@ -58,7 +58,24 @@
     max-width: 100%;
     height: auto;
   }
+
+  .article-body :global(a:not(.internal-link)) {
+    padding-right: 1rem;
+    background: url(/external-link.svg) no-repeat;
+    background-position: center right;
+    background-size: 0.75em;
+  }
+  .article-body :global(.external-source-link) {
+    font-variant: small-caps;
+    margin-left: 0.25rem;
+    font-size: 0.7em;
+    text-decoration: none;
+  }
 </style>
+
+<svelte:head>
+  <link rel="preload" href="/external-link.svg" as="image" />
+</svelte:head>
 
 <article class="article">
   <header class="article-header">
