@@ -30,10 +30,9 @@ class Manual(Base):
 
     def story(self, ref):
         s = super().story(ref, ref, is_manual=True)
-
+        if not s: return False
         if not s['date']:
             s['date'] = datetime.now().timestamp()
-
         return s
 
 manual = Manual()
