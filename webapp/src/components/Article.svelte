@@ -66,7 +66,7 @@
     background-size: 0.75em;
   }
   :global(.dark-mode) .article-body :global(a:not(.internal-link)) {
-    background: url(/external-link-white.svg) no-repeat;
+    background-image: url(/external-link-white.svg);
   }
   .article-body :global(.external-source-link) {
     font-variant: small-caps;
