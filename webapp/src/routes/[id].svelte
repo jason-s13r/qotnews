@@ -4,7 +4,7 @@
     const data = await res.json();
 
     if (res.status === 200) {
-      return { story: data.story, related: data.related };
+      return { story: data.story, related: data.related, links: data.links };
     } else {
       this.error(res.status, data.message);
     }
