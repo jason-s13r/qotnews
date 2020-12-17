@@ -31,7 +31,6 @@ class Manual(Base):
     def story(self, ref):
         s = super().story(ref, ref, is_manual=True)
         if not s: return False
-        if not s['title']: return False
         if not s['author']:
             s['author'] = '[manual submission]'
         if not s['date']:
