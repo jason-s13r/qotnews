@@ -176,7 +176,7 @@ def update_story(story, is_manual=False, urlref=None):
             links = meta.get('links', [])
             if links:
                 story['meta_links'] = links
-                manual.add_links(links)
+                #manual.add_links(links)
 
     return True
 
