@@ -22,23 +22,35 @@
     border-top: solid 1px #ddd;
     padding: 0.5rem 0 0;
   }
+  :global(.dark-mode) .comment:not(:first-of-type) {
+    border-top-color: #222;
+  }
   .comment-info {
     color: #222;
+  }
+  :global(.dark-mode) .comment-info {
+    color: #ddd;
   }
   .comment-author {
     font-weight: 600;
     padding: 0 0.4em 0.2em;
     border-radius: 0.5em;
+  }
+  .comment-author {
     background: #f1f1f1;
     color: #000;
   }
+  :global(.dark-mode) .comment-author,
   .comment-author.is-op {
     background: #333;
     color: #fff;
   }
+  :global(.dark-mode) .comment-author.is-op {
+    background: #f1f1f1;
+    color: #000;
+  }
   .comment-text {
     padding: 0 0.5rem;
-    color: #000;
   }
   .comment-text.is-collapsed {
     height: 3rem;
@@ -49,6 +61,9 @@
     margin-left: 0.5rem;
     padding-left: 0.5rem;
     border-left: solid 1px #000;
+  }
+  :global(.dark-mode) .comment-children {
+    border-left-color: #fff;
   }
   .toggle-children {
     background: none;

@@ -64,11 +64,6 @@
     justify-content: space-between;
   }
 
-  /* @media (max-device-width: 480px) {
-    .navigation-container {
-      justify-content: space-evenly;
-    }
-  } */
   .navigation-container > * {
     vertical-align: middle;
   }
@@ -87,6 +82,7 @@
     padding: 1em 0.5em;
     display: block;
   }
+
   .navigation-input {
     line-height: 2;
     vertical-align: middle;
@@ -96,12 +92,22 @@
     padding: 0.25em 0.5em;
     margin: 0.25em 0.5em;
     border-radius: 5px;
-    border: solid 1px #aaa;
+    border: solid 1px;
+    border-color: #aaa;
+    background-color: #fff;
+  }
+  :global(.dark-mode) .navigation-input {
+    color: #fff;
+    background-color: #000;
+    border-color: #555;
   }
   input:focus {
     box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.25);
   }
 
+  :global(.dark-mode) input:focus {
+    box-shadow: 0 0 0.25rem rgba(255, 255, 255, 0.25);
+  }
   .is-searching {
     padding-right: 0.5rem;
     background-image: url(/svg-loaders/black/grid.svg);
@@ -109,10 +115,14 @@
     background-position: right 0.5em center;
     background-repeat: no-repeat;
   }
+  :global(body.dark-mode) .is-searching {
+    background-image: url(/svg-loaders/grid.svg);
+  }
 </style>
 
 <svelte:head>
   <link rel="preload" href="/svg-loaders/black/grid.svg" as="image" />
+  <link rel="preload" href="/svg-loaders/grid.svg" as="image" />
 </svelte:head>
 
 <nav class="navigation">

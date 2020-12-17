@@ -71,6 +71,12 @@
     font-size: 0.7em;
     text-decoration: none;
   }
+
+  :global(.dark-mode) .article-body :global(video),
+  :global(.dark-mode) .article-body :global(img) {
+    background-color: white;
+    filter: brightness(0.8) contrast(1.2);
+  }
 </style>
 
 <svelte:head>

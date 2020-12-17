@@ -44,13 +44,24 @@
     margin: 3.5rem auto;
     border-radius: 5px;
     overflow: hidden;
-
     display: flex;
     flex-direction: row;
   }
 
   form:focus-within {
     box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.25);
+  }
+  form:has(input:focus) {
+    box-shadow: inset 0 0 0.2rem rgba(0, 0, 0, 0.2);
+  }
+  :global(.dark-mode) form {
+    border-color: #555;
+  }
+  :global(.dark-mode) form:focus-within {
+    box-shadow: 0 0 0.25rem rgba(255, 255, 255, 0.25);
+  }
+  :global(.dark-mode) form:has(input:focus) {
+    box-shadow: inset 0 0 0.2rem rgba(255, 255, 255, 0.2);
   }
 
   input {
@@ -65,9 +76,9 @@
     background: #fff;
     vertical-align: middle;
   }
-
-  form:has(input:focus) {
-    box-shadow: inset 0 0 0.2rem rgba(0, 0, 0, 0.2);
+  :global(.dark-mode) input {
+    color: #fff;
+    background-color: #000;
   }
 
   button {
@@ -82,6 +93,11 @@
     border-radius: 0;
     background: #f1f1f1;
     vertical-align: middle;
+  }
+  :global(.dark-mode) button {
+    color: #fff;
+    border-left-color: #555;
+    background: #0e0e0e;
   }
 
   .loading,

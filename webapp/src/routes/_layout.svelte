@@ -1,5 +1,6 @@
 <script>
   import Nav from "../components/Nav.svelte";
+  import DarkMode from "../components/DarkMode.svelte";
   export let segment;
 </script>
 
@@ -7,7 +8,6 @@
   main {
     position: relative;
     max-width: 64rem;
-    background-color: white;
     padding: 0.5rem;
     margin: 0 auto;
     box-sizing: border-box;
@@ -19,3 +19,5 @@
 <main>
   <slot {segment} />
 </main>
+
+<DarkMode />
