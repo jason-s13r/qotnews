@@ -4,35 +4,31 @@
 	let theme = "light";
 
 	onMount(() => {
-		const prefersDarkScheme = window.matchMedia(
-			"(prefers-color-scheme: dark)"
-		);
-		let currentTheme = localStorage.getItem("theme");
-		if (!currentTheme && prefersDarkScheme.matches) {
-			currentTheme = "dark";
-		}
-		if (currentTheme == "dark") {
+		theme = getTheme();
+		if (theme === "dark") {
 			document.body.classList.toggle("dark-mode");
-		} else if (currentTheme == "light") {
-			document.body.classList.toggle("light-mode");
-		}
-		theme = document.body.classList.contains("dark-mode")
-			? "dark"
-			: "light";
-	});
-	function toggleDarkMode() {
-		const prefersDarkScheme = window.matchMedia(
-			"(prefers-color-scheme: dark)"
-		);
-		if (prefersDarkScheme.matches) {
-			document.body.classList.toggle("light-mode");
 		} else {
-			document.body.classList.toggle("dark-mode");
+			document.body.classList.remove("dark-mode");
 		}
+	});
+
+	function toggleDarkMode() {
+		document.body.classList.toggle("dark-mode");
 		theme = document.body.classList.contains("dark-mode")
 			? "dark"
 			: "light";
 		localStorage.setItem("theme", theme);
+	}
+
+	function getTheme() {
+		const prefersDarkScheme = window.matchMedia(
+			"(prefers-color-scheme: dark)"
+		);
+		const currentTheme = localStorage.getItem("theme");
+		if (!currentTheme && prefersDarkScheme.matches) {
+			return "dark";
+		}
+		return currentTheme || "light";
 	}
 </script>
 
