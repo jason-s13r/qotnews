@@ -100,6 +100,10 @@
     background: #0e0e0e;
   }
 
+  :global(.dark-mode) .loading {
+    filter: invert(1);
+  }
+
   .loading,
   .is-loading form,
   .is-loading .error {

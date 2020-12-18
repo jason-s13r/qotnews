@@ -16,7 +16,12 @@
     font-size: 1.2rem;
   }
   .story-icon {
-    margin-left: -1.2rem;
+    width: 1rem;
+    height: 1rem;
+    margin-left: -1.2em;
+  }
+  :global(.dark-mode) .story-icon {
+    filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 0.5px #fff);
   }
   .story-source::before {
     content: "(";
@@ -36,11 +41,7 @@
 {#each stories as story}
   <article class="story-item">
     <header class="story-header">
-      <img
-        src={getLogoUrl(story)}
-        alt="logo"
-        class="story-icon"
-        style="height: 1rem; width: 1rem;" />
+      <img src={getLogoUrl(story)} alt="logo" class="story-icon" />
       <a class="story-title" rel="prefetch" href="/{story.id}">
         {@html story.title}
       </a>

@@ -35,11 +35,10 @@
 <style>
 	.fixed-right {
 		position: fixed;
-		right: 1rem;
-		bottom: 1rem;
+		right: 0.5rem;
+		bottom: 0.5rem;
 	}
 	button {
-		margin: 0.75em 0;
 		background-color: #f76027;
 		color: white;
 		border: none;
