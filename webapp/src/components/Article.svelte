@@ -36,7 +36,7 @@
   .article-body {
     max-width: 45rem;
     margin: 0 auto;
-    font: 1.2rem/1.5 "Apparatus SIL", sans-serif;
+    font: 1.4rem/1.5 "Apparatus SIL", sans-serif;
     text-rendering: optimizeLegibility;
   }
   .article-body :global(figure p),
