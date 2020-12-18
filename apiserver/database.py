@@ -10,6 +10,28 @@ Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
 
+# # loosely matching a readable (output of declutter/outline/readability.js)
+# class Content(Base):
+#     __tablename__ = 'content'
+#     cid = Column(String, primary_key=True, unique=True)
+#     url = Column(String, unique=True, index=True)
+#     data = Column(JSON)
+
+# # sources, also where comments are stored.
+# class Source(Base):
+#     __tablename__ = 'sources'
+#     sid = Column(String(16), primary_key=True)
+#     url = Column(String, ForeignKey('redables.url'))
+#     data = Column(JSON)
+
+# # items that should be in the main list of stories.
+# class Item(Base):
+#     __tablename__ = "items"
+#     uid = Column(Integer, primary_key=True)
+#     sid = Column(String, ForeignKey('sources.sid'), unique=True)
+
+### old ones below:
+
 class Story(Base):
     __tablename__ = 'stories'
 
