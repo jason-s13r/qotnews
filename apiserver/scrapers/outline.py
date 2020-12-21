@@ -21,8 +21,8 @@ def get_details(url):
     return as_readable(outline)
 
 def as_readable(details):
-    readable = {
-        'title': details['title'],
+    readable = dict(details)
+    readable.update({
         'byline': details['author'],
         'content': details['html'],
         'excerpt': _excerpt(details),
@@ -30,9 +30,7 @@ def as_readable(details):
         'url': details['article_url'],
         'publisher': details['site_name'],
         'scraper_link': 'https://outline.com/' + details['short_code'],
-        'meta': {}
-    }
-    readable['meta'].update(details['meta'])
+    })
     return readable
 
 def _get_outline(url):
