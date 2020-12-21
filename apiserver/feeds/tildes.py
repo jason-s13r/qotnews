@@ -107,7 +107,17 @@ def story(ref):
 
     td = a.find('div', class_='topic-full-text')
     if td:
-        s['text'] = clean(td.encode_contents().decode() or '')
+        s['content'] = {
+            'url': s['url'],
+            'scraper': 'self',
+            'details': {
+                'url': s['url'],
+                'author': s['author'],
+                'date': s['date'],
+                'title': s['title'],
+                'content': clean(td.encode_contents().decode() or ''),
+            }
+        }
 
     return s
 

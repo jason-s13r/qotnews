@@ -82,8 +82,17 @@ def story(ref):
     s['num_comments'] = comment_count(s) - 1
 
     if 'text' in r and r['text']:
-        s['text'] = clean(r['text'] or '')
-
+        s['content'] = {
+            'url': s['url'],
+            'scraper': 'self',
+            'details': {
+                'url': s['url'],
+                'author': s['author'],
+                'date': s['date'],
+                'title': s['title'],
+                'content': clean(r['text'] or ''),
+            }
+        }
     return s
 
 # scratchpad so I can quickly develop the parser

@@ -16,6 +16,7 @@ from feeds.category import Category
 from scrapers import outline
 from scrapers.declutter import declutter, headless, simple
 from utils import clean
+import database
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com', 'sec.gov']
 
@@ -35,13 +36,13 @@ def get_list():
     feeds['manual'] = [(x, 'manual', x) for x in manual.feed()]
 
     if settings.NUM_HACKERNEWS:
-        feeds['hackernews'] = [(x, 'hackernews', x) for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
+        feeds['hackernews'] = [(x, 'hackernews', None) for x in hackernews.feed()[:settings.NUM_HACKERNEWS]]
 
     if settings.NUM_LOBSTERS:
-        feeds['lobsters'] = [(x, 'lobsters', x) for x in lobsters.feed()[:settings.NUM_LOBSTERS]]
+        feeds['lobsters'] = [(x, 'lobsters', None) for x in lobsters.feed()[:settings.NUM_LOBSTERS]]
 
     if settings.NUM_REDDIT:
-        feeds['reddit'] = [(x, 'reddit', x) for x in reddit.feed()[:settings.NUM_REDDIT]]
+        feeds['reddit'] = [(x, 'reddit', None) for x in reddit.feed()[:settings.NUM_REDDIT]]
 
     if settings.NUM_TILDES:
         feeds['tildes'] = [(x, 'tildes', x) for x in tildes.feed()[:settings.NUM_TILDES]]
@@ -109,88 +110,51 @@ def get_content_type(url):
     except:
         return ''
 
-def update_story(story, is_manual=False, urlref=None):
-    res = {}
+def update_source(item, is_manual=False):
+    source = {}
 
-    if story['source'] == 'hackernews':
-        res = hackernews.story(story['ref'])
-    elif story['source'] == 'lobsters':
-        res = lobsters.story(story['ref'])
-    elif story['source'] == 'reddit':
-        res = reddit.story(story['ref'])
-    elif story['source'] == 'tildes':
-        res = tildes.story(story['ref'])
-    elif story['source'] == 'substack':
-        res = substack.top.story(story['ref'])
-    elif story['source'] in categories.keys():
-        res = categories[story['source']].story(story['ref'], urlref)
-    elif story['source'] in sitemaps.keys():
-        res = sitemaps[story['source']].story(story['ref'], urlref)
-    elif story['source'] in substacks.keys():
-        res = substacks[story['source']].story(story['ref'])
-    elif story['source'] == 'manual':
-        res = manual.story(story['ref'])
+    if item.source == 'hackernews':
+        return hackernews.story(item.ref)
+    elif item.source == 'lobsters':
+        return lobsters.story(item.ref)
+    elif item.source == 'reddit':
+        return reddit.story(item.ref)
+    elif item.source == 'tildes':
+        return tildes.story(item.ref)
+    elif item.source == 'substack':
+        return substack.top.story(item.ref)
+    elif item.source in categories.keys():
+        return categories[item.source].story(item.ref, item.url)
+    elif item.source in sitemaps.keys():
+        return sitemaps[item.source].story(item.ref, item.url)
+    elif item.source in substacks.keys():
+        return substacks[item.source].story(item.ref)
+    elif item.source == 'manual':
+        return manual.story(item.ref)
 
-    if res:
-        story.update(res) # join dicts
-    else:
-        logging.info('Story not ready yet')
-        return False
+    return None, None
 
-    if story['date'] and not is_manual and story['date'] + settings.MAX_STORY_AGE < time.time():
-        logging.info('Story too old, removing')
-        return False
+def scrape_url(url):
+    if not get_content_type(url).startswith('text/'):
+        logging.info('URL invalid file type / content type:')
+        logging.info(url)
+        details = { content: f'<a href="{url}">{url}</a>' }
+        return details, 'none'
 
-    has_url = story.get('url') or False
-    has_text = story.get('text') or False
-    #is_simple = story.get('scaper', '') == 'simple'
-    
-    if has_url and not has_text:
-        if not get_content_type(story['url']).startswith('text/'):
-            logging.info('URL invalid file type / content type:')
-            logging.info(story['url'])
-            return False
+    if any([domain in url for domain in INVALID_DOMAINS]):
+        logging.info('URL invalid domain:')
+        logging.info(url)
+        details = { content: f'<a href="{url}">{url}</a>' }
+        return details, 'none'
 
-        if any([domain in story['url'] for domain in INVALID_DOMAINS]):
-            logging.info('URL invalid domain:')
-            logging.info(story['url'])
-            return False
-
-        logging.info('Getting article ' + story['url'])
-        details, scraper = get_article(story['url'])
-        if not details: return False
-        if not story['title']:
-                story['title'] = clean(details.get('title', ''))
-        story['scraper'] = scraper
-        story['text'] = details.get('content', '')
-        if not story['text']: return False
-        story['last_update'] = time.time()
-        story['excerpt'] = details.get('excerpt', '')
-        story['scraper_link'] = details.get('scraper_link', '')
-        meta = details.get('meta')
-        if meta:
-            og = meta.get('og')
-            story['image'] = meta.get('image', '')
-            if og: 
-                story['image'] = og.get('og:image', meta.get('image', ''))
-            links = meta.get('links', [])
-            if links:
-                story['meta_links'] = links
-                #manual.add_links(links)
-
-    return True
+    logging.info('Getting article ' + url)
+    details, scraper = get_article(url)
+    if not details:
+        return False, False
+    details['title'] = clean(details.get('title', ''))
+    return details, scraper
 
 if __name__ == '__main__':
-    #test_news_cache = {}
-    #nid = 'jean'
-    #ref = 20802050
-    #source = 'hackernews'
-    #test_news_cache[nid] = dict(id=nid, ref=ref, source=source)
-    #news_story = test_news_cache[nid]
-    #update_story(news_story)
-
-    #print(get_article('https://www.bloomberg.com/news/articles/2019-09-23/xi-s-communists-under-pressure-as-high-prices-hit-china-workers'))
-
     a = get_article('https://blog.joinmastodon.org/2019/10/mastodon-3.0/')
     print(a)
 

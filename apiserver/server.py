@@ -48,6 +48,32 @@ def api():
     res.headers['content-type'] = 'application/json'
     return res
 
+@flask_app.route('/api/source')
+@flask_app.route('/api/source/<sid>')
+def api_source(sid=None):
+    sources = database.get_source(sid)
+    text = json.dumps(sources, cls=database.new_alchemy_encoder(), check_circular=False)
+    res = Response(text)
+    res.headers['content-type'] = 'application/json'
+    return res
+
+@flask_app.route('/api/content')
+@flask_app.route('/api/content/<cid>')
+def api_contents(cid=None):
+    contents = database.get_content(cid)
+    text = json.dumps(contents, cls=database.new_alchemy_encoder(), check_circular=False)
+    res = Response(text)
+    res.headers['content-type'] = 'application/json'
+    return res
+
+@flask_app.route('/api/queued')
+def api_queued():
+    queue = database.get_queue()
+    text = json.dumps(queue, cls=database.new_alchemy_encoder(), check_circular=False)
+    res = Response(text)
+    res.headers['content-type'] = 'application/json'
+    return res
+
 @flask_app.route('/api/search', strict_slashes=False)
 def apisearch():
     q = request.args.get('q', '')
@@ -59,53 +85,54 @@ def apisearch():
         results = []
     return dict(results=results)
 
-@flask_app.route('/api/submit', methods=['POST'], strict_slashes=False)
-def submit():
-    try:
-        url = request.form['url']
-        nid = new_id()
+# @flask_app.route('/api/submit', methods=['POST'], strict_slashes=False)
+# def submit():
+#     try:
+#         url = request.form['url']
+#         nid = new_id()
 
-        parse = urlparse(url)
-        if 'news.ycombinator.com' in parse.hostname:
-            source = 'hackernews'
-            ref = parse_qs(parse.query)['id'][0]
-        elif 'tildes.net' in parse.hostname and '~' in url:
-            source = 'tildes'
-            ref = parse.path.split('/')[2]
-        elif 'lobste.rs' in parse.hostname and '/s/' in url:
-            source = 'lobsters'
-            ref = parse.path.split('/')[2]
-        elif 'reddit.com' in parse.hostname and 'comments' in url:
-            source = 'reddit'
-            ref = parse.path.split('/')[4]
-        elif settings.HOSTNAME in parse.hostname:
-            raise Exception('Invalid URL')
-        else:
-            source = 'manual'
-            ref = url
+#         parse = urlparse(url)
+#         if 'news.ycombinator.com' in parse.hostname:
+#             source = 'hackernews'
+#             ref = parse_qs(parse.query)['id'][0]
+#         elif 'tildes.net' in parse.hostname and '~' in url:
+#             source = 'tildes'
+#             ref = parse.path.split('/')[2]
+#         elif 'lobste.rs' in parse.hostname and '/s/' in url:
+#             source = 'lobsters'
+#             ref = parse.path.split('/')[2]
+#         elif 'reddit.com' in parse.hostname and 'comments' in url:
+#             source = 'reddit'
+#             ref = parse.path.split('/')[4]
+#         elif settings.HOSTNAME in parse.hostname:
+#             raise Exception('Invalid URL')
+#         else:
+#             source = 'manual'
+#             ref = url
 
-        existing = database.get_story_by_ref(ref)
-        if existing:
-            return {'nid': existing.sid}
+#         existing = database.get_story_by_ref(ref)
+#         if existing:
+#             return {'nid': existing.sid}
         
-        existing = database.get_story_by_url(url)
-        if existing:
-            return {'nid': existing.sid}
-        else:
-            story = dict(id=nid, ref=ref, source=source)
-            valid = feed.update_story(story, is_manual=True)
-            if valid:
-                database.put_story(story)
-                search.put_story(story)
-                return {'nid': nid}
-            else:
-                logging.info(str(story))
-                raise Exception('Invalid article')
+#         existing = database.get_story_by_url(url)
+#         if existing:
+#             return {'nid': existing.sid}
+#         else:
+#             story = dict(id=nid, ref=ref, source=source)
+#             valid = feed.update_story(story, is_manual=True)
+#             if valid:
+#                 database.put_story(story)
+#                 database.put_source(story)
+#                 search.put_story(story)
+#                 return {'nid': nid}
+#             else:
+#                 logging.info(str(story))
+#                 raise Exception('Invalid article')
 
-    except BaseException as e:
-        logging.error('Problem with article submission: {} - {}'.format(e.__class__.__name__, str(e)))
-        print(traceback.format_exc())
-        abort(400)
+#     except BaseException as e:
+#         logging.error('Problem with article submission: {} - {}'.format(e.__class__.__name__, str(e)))
+#         print(traceback.format_exc())
+#         abort(400)
 
 
 @flask_app.route('/api/<sid>')
@@ -163,97 +190,122 @@ def static_story(sid):
 
 http_server = WSGIServer(('', settings.API_PORT or 33842), flask_app)
 
-def _add_new_refs():
+def _add_stories():
     added = []
-    for ref, source, urlref in feed.get_list():
-        if database.get_story_by_ref(ref):
+    for ref, source, url in feed.get_list():
+        queued = database.get_queue(ref, source)
+        if queued:
             continue
         try:
-            nid = new_id()
-            database.put_ref(ref, nid, source, urlref)
-            logging.info('Added ref ' + ref)
-            added.append(ref)
+            database.put_queue(ref, source, url)
+            logging.info('Queued ref ' + ref)
+            added.append((ref, source))
+        except KeyboardInterrupt:
+            raise
         except database.IntegrityError:
-            #logging.info('Unable to add ref ' + ref)
+            # logging.info('Unable to add ref ' + ref)
             continue
     return added
 
 def _update_current_story(item):
-    try:
-        story = database.get_story(item['sid']).data
-    except AttributeError:
-        story = dict(id=item['sid'], ref=item['ref'], source=item['source'])
-
-    logging.info('Updating story: {}'.format(str(story['ref'])))
-
-    valid = feed.update_story(story, urlref=item['urlref'])
-    if valid:
+    source = feed.update_source(item)
+    if source:
+        content = source.pop('content', None)
         try:
-            database.put_story(story)
-            search.put_story(story)
-            if story['source'] == 'manual':
-                database.del_ref(item['ref'])
-                logging.info('Removed manual ref {}'.format(item['ref']))
+            database.put_source(dict(data=source, source=item.source, url=source.get('url')))
+            database.del_queue(item.ref, item.source)
+        except KeyboardInterrupt:
+            raise
         except database.IntegrityError:
-            logging.info('Unable to add story with ref ' + item['ref'])
+            logging.info(f'Unable to add story with ref {item.ref}')
+
+        if not content:
+            content = dict(url=source.get('url'))
+            
+        try:
+            database.put_content(content)
+        except KeyboardInterrupt:
+            raise
+        except database.IntegrityError:
+            logging.info(f'Added content for ref {item.ref}')
     else:
-        database.del_ref(item['ref'])
-        logging.info('Removed ref {}'.format(item['ref']))
+        logging.info(f'ref {item.ref} not processed')
 
-
-def feed_thread():
-    new_refs = []
-    update_refs = []
-    last_check = datetime.now() - timedelta(minutes=20)
+def queue_thread():
+    logging.info('Starting Queue thread...')
     try:
         while True:
-            # onboard new stories
-            time_since_check = datetime.now() - last_check
-            if not len(new_refs) and time_since_check > timedelta(minutes=15):
-                added = _add_new_refs()
-                ref_list = database.get_reflist()
-                new_refs = list(filter(None, [i if i['ref'] in added else None for i in ref_list]))
-                update_queue = list(filter(None, [i if i['ref'] not in added else None for i in ref_list]))
-                current_queue_refs = [i['ref'] for i in update_refs]
-                update_queue = list(filter(None, [i if i['ref'] not in current_queue_refs else None for i in update_queue]))
-                update_refs += update_queue
-                logging.info('Added {} new refs'.format(len(added)))
-                logging.info('Have {} refs in update queue'.format(len(current_queue_refs)))
-                logging.info('Fetched {} refs for update queue'.format(len(update_queue)))
-                last_check = datetime.now()
-                gevent.sleep(1)
-                
-            # update new stories
-            if len(new_refs):
-                item = new_refs.pop(0)
-                logging.info('Processing new story ref {}'.format(item['ref']))
-                _update_current_story(item)
-                gevent.sleep(1)
-
-            # update current stories
-            if len(update_refs):
-                item = update_refs.pop(0)
-                logging.info('Processing existing story ref {}'.format(item['ref']))
-                _update_current_story(item)
-                gevent.sleep(1)
-
-            gevent.sleep(1)
-
+            added = _add_stories()
+            logging.info('Added {} new refs'.format(len(added)))
+            gevent.sleep(60*10)
     except KeyboardInterrupt:
-        logging.info('Ending feed thread...')
+        logging.info('Ending _queue_new_refs...')
     except ValueError as e:
         logging.error('feed_thread error: {} {}'.format(e.__class__.__name__, e))
 
     http_server.stop()
     gevent.kill(feed_thread_ref)
+    gevent.kill(queue_thread_ref)
+    gevent.kill(scrape_thread_ref)
 
+def feed_thread():
+    logging.info('Starting Feed thread...')
+    try:
+        while True:
+            queue = database.get_queue()
+            for item in queue:
+                logging.info(f'Processing story ref {item.ref}')
+                _update_current_story(item)
+                gevent.sleep(1)
 
-print('Starting Feed thread...')
+            gevent.sleep(10)
+
+    except KeyboardInterrupt:
+        logging.info('Ending feed thread...')
+    except ValueError as e:
+        logging.error('feed_thread error: {} {}'.format(e.__class__.__name__, e))
+        feed_thread()
+
+    http_server.stop()
+    gevent.kill(feed_thread_ref)
+    gevent.kill(queue_thread_ref)
+    gevent.kill(scrape_thread_ref)
+
+def scrape_thread():
+    logging.info('Starting Scrape thread...')
+    try:
+        while True:
+            contents = database.get_content_for_scraping()
+            for content in contents:
+                logging.info(f'Scraping {content.url}')
+                details, scraper = feed.scrape_url(content.url)
+                if details:
+                    content.details = details
+                content.scraper= scraper
+                database.put_content(database.as_dict(content))
+                gevent.sleep(1)
+            gevent.sleep(10)
+
+    except KeyboardInterrupt:
+        logging.info('Ending Scrape thread...')
+    except ValueError as e:
+        logging.error('scrape_thread error: {} {}'.format(e.__class__.__name__, e))
+        scrape_thread()
+
+    http_server.stop()
+    gevent.kill(feed_thread_ref)
+    gevent.kill(queue_thread_ref)
+    gevent.kill(scrape_thread_ref)
+
+queue_thread_ref = gevent.spawn(queue_thread)
 feed_thread_ref = gevent.spawn(feed_thread)
+scrape_thread_ref = gevent.spawn(scrape_thread)
 
 print('Starting HTTP thread...')
 try:
     http_server.serve_forever()
 except KeyboardInterrupt:
     gevent.kill(feed_thread_ref)
+    gevent.kill(queue_thread_ref)
+    gevent.kill(scrape_thread_ref)
     logging.info('Exiting...')

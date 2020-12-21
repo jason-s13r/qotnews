@@ -77,7 +77,18 @@ def story(ref):
             return False
 
         if r.selftext:
-            s['text'] = render_md(clean(r.selftext))
+            s['content'] = {
+                'url': s['url'],
+                'scraper': 'self',
+                'details': {
+                    'url': s['url'],
+                    'author': s['author'],
+                    'date': s['date'],
+                    'title': s['title'],
+                    'content': render_md(clean(r.selftext)),
+                    'markdown': clean(r.selftext),
+                }
+            }
 
         return s
 

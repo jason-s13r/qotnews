@@ -11,6 +11,7 @@ import requests
 from datetime import datetime
 
 from utils import clean
+from misc.time import unix
 
 API_HOTTEST = lambda x: 'https://lobste.rs/hottest.json'
 API_ITEM = lambda x : 'https://lobste.rs/s/{}.json'.format(x)
@@ -42,9 +43,6 @@ def api(route, ref=None):
 
 def feed():
     return [x['short_id'] for x in api(API_HOTTEST) or []]
-
-def unix(date_str):
-    return int(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z').timestamp())
 
 def make_comment(i):
     c = {}
@@ -101,7 +99,17 @@ def story(ref):
     s['num_comments'] = r['comment_count']
 
     if 'description' in r and r['description']:
-        s['text'] = clean(r['description'] or '')
+        s['content'] = {
+            'url': s['url'],
+            'scraper': 'self',
+            'details': {
+                'url': s['url'],
+                'author': s['author'],
+                'date': s['date'],
+                'title': s['title'],
+                'content': clean(r['description'] or ''),
+            }
+        }
 
     return s
 
