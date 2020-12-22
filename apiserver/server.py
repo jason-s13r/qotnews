@@ -165,9 +165,11 @@ def story(sid):
     skip = request.args.get('skip', 0)
     limit = request.args.get('limit', 20)
     source = database.get_source(sid)
-    content = database.get_content(source.content.cid)
     story = source_to_story(source, with_text=True)
-    _, related = content_to_story(content)
+    related = []
+    if source.content:
+        content = database.get_content(source.content.cid)
+        _, related = content_to_story(content)
 
     contents = [database.get_content_by_url(url) for url in story.get('meta_links', [])]
     contents = list(filter(None, contents))
