@@ -136,7 +136,7 @@ def submit():
             return {'nid': existing.sid}
         existing = database.get_content_by_url(url)
         if existing:
-            return {'nid': existing.source[0].sid}
+            return {'nid': existing.sources[0].sid}
         else:
             item = database.Queue(ref=ref, source=source)
             data = feed.update_source(item, is_manual=True)
@@ -321,9 +321,9 @@ def scrape_thread():
                 for story in related:
                     search.put_story(story)
                 gevent.sleep(1)
-                links = details.get('meta', {}).get('links', [])
-                for link in links:
-                    database.put_content(dict(url=link))
+                # links = details.get('meta', {}).get('links', [])
+                # for link in links:
+                #     database.put_content(dict(url=link))
             gevent.sleep(10)
 
     except KeyboardInterrupt:
