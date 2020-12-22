@@ -7,7 +7,7 @@ from sqlalchemy.types import JSON, DateTime, String, Integer
 from utils import gen_rand_id
 import json
 
-engine = create_engine('sqlite:///data/qotnews.sqlite', connect_args={'timeout': 120})
+engine = create_engine('sqlite:///data/qotnews_proto.sqlite', connect_args={'timeout': 120})
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
@@ -200,6 +200,7 @@ def get_content_for_scraping():
     return session.query(Content).\
         filter(Content.details == None).\
         filter(Content.url != None).\
+        order_by(Content.last_updated.asc()).\
         all()
 
 def get_feed(maxage=0, skip=0, limit=20):
