@@ -136,7 +136,7 @@ def put_source(source):
     try:
         session = Session()
         if not source.get('sid', None):
-            existing = get_source_by_url(source.get('url', ''))
+            existing = get_source_by_url(source.get('source'), source.get('url', ''))
             if existing:
                 source['sid'] = existing.sid
         s = Source(**source)
@@ -154,9 +154,10 @@ def get_source(sid=None):
     if not sid: return q.all()
     return q.get(sid)
 
-def get_source_by_url(url):
+def get_source_by_url(source, url):
     session = Session()
     return session.query(Source).\
+        filter(Source.source == source).\
         filter(Source.url == url).\
         first()
 
@@ -166,6 +167,7 @@ def get_source_for_scraping():
         join(Content, Content.url == Source.url, isouter=True).\
         filter(Content.cid == None).\
         filter(Source.sid != None).\
+        order_by(Source.data['date'].desc()).\
         all()
 
 def put_content(content):
@@ -198,122 +200,21 @@ def get_content_by_url(url):
         filter(Content.url == url).\
         first()
 
-def get_feed(cid=None):
+def get_content_for_scraping():
     session = Session()
-    q = session.query(Source).\
-        join(Content, Content.url == Source.url).\
-        order_by(Source.data['date'].desc())
+    return session.query(Content).\
+        filter(Content.details == None).\
+        filter(Content.url != None).\
+        all()
 
 def get_feed(maxage=0, skip=0, limit=20):
     time = datetime.now().timestamp() - maxage
     session = Session()
-    q = session.query(Content).\
-            join(Source).\
+    q = session.query(Source).\
+            join(Content).\
+            filter(Source.source != 'manual').\
             filter(maxage == 0 or Source.data['date'].as_integer() > time).\
-            order_by(Source.date['date'].desc()).\
+            order_by(Source.data['date'].desc()).\
             offset(skip).\
             limit(limit)
-    return q
-###
-
-def get_story(sid):
-    session = Session()
-    return session.query(Story).get(sid)
-
-def put_story(story):
-    story = story.copy()
-    data = {}
-    data.update(story)
-
-    meta = {}
-    meta.update(story)
-    meta.pop('text', None)
-    meta.pop('comments', None)
-
-    try:
-        session = Session()
-        s = Story(
-            sid=story['id'],
-            ref=story['ref'],
-            data=data,
-            meta=meta,
-            title=story.get('title', None),
-        )
-        session.merge(s)
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close() 
-
-def get_story_by_ref(ref):
-    session = Session()
-    return session.query(Story).filter(Story.ref==ref).first()
-
-def get_story_by_url(url):
-    session = Session()
-    return session.query(Story).\
-            filter(Story.title != None).\
-            filter(Story.meta['url'].as_string() == url).\
-            order_by(Story.meta['date'].desc()).\
-            first()
-
-def get_stories_by_url(url):
-    session = Session()
-    return session.query(Story).\
-            filter(Story.title != None).\
-            filter(Story.meta['url'].as_string() == url).\
-            order_by(Story.meta['date'].desc())
-
-def get_ref_by_sid(sid):
-    session = Session()
-    x = session.query(Reflist).\
-        filter(Reflist.sid == sid).\
-        first()
-    return dict(ref=x.ref, sid=x.sid, source=x.source, urlref=x.urlref)
-
-def get_reflist():
-    session = Session()
-    q = session.query(Reflist).order_by(Reflist.rid.desc())
-    return [dict(ref=x.ref, sid=x.sid, source=x.source, urlref=x.urlref) for x in q.all()]
-
-def get_stories(maxage=0, skip=0, limit=20):
-    time = datetime.now().timestamp() - maxage
-    session = Session()
-    q = session.query(Reflist, Story.meta).\
-            join(Story).\
-            filter(Story.title != None).\
-            filter(maxage == 0 or Story.meta['date'].as_integer() > time).\
-            order_by(Story.meta['date'].desc()).\
-            offset(skip).\
-            limit(limit)
-    return [x[1] for x in q]
-
-def put_ref(ref, sid, source, urlref):
-    try:
-        session = Session()
-        r = Reflist(ref=ref, sid=sid, source=source, urlref=urlref)
-        session.add(r)
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
-
-def del_ref(ref):
-    try:
-        session = Session()
-        session.query(Reflist).filter(Reflist.ref==ref).delete()
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
-
-if __name__ == '__main__':
-    init()
-
-    print(get_story_by_ref('hgi3sy'))
+    return q.all()

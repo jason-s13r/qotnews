@@ -39,20 +39,34 @@ build_folder = '../webclient/build'
 flask_app = Flask(__name__, template_folder=build_folder, static_folder=build_folder, static_url_path='')
 cors = CORS(flask_app)
 
-def to_story(source, with_text=False):
+def source_to_story(source, with_text=False):
     story = {}
     story.update(source.data)
     story['source'] = source.source
-    story['sid'] = source.content.cid
+    story['id'] = source.sid
     if with_text:
-        story['text'] = source.content.details['html']
-        story['meta_links'] = source.content.details['meta_links']
+        story['text'] = source.content.details['content']
+        story['meta_links'] = source.content.details.get('meta', {}).get('links', [])
+    else:
+        story['comments'] = []
+    return story
+
+def content_to_story(content, with_text=True):
+    for source in content.sources:
+        source.content = content
+
+    related = [source_to_story(source) for source in content.sources]
+    source = content.sources[0]
+    story = source_to_story(source, with_text=True)
+    return story, related
 
 @flask_app.route('/api')
-def api():
+@flask_app.route('/api/feed')
+def api_feed():
     skip = request.args.get('skip', 0)
     limit = request.args.get('limit', 20)
-    stories = database.get_stories(skip=skip, limit=limit)
+    sources = database.get_feed(skip=skip, limit=limit)
+    stories = [source_to_story(source) for source in sources]
     res = Response(json.dumps({"stories": stories}))
     res.headers['content-type'] = 'application/json'
     return res
@@ -94,73 +108,74 @@ def apisearch():
         results = []
     return dict(results=results)
 
-# @flask_app.route('/api/submit', methods=['POST'], strict_slashes=False)
-# def submit():
-#     try:
-#         url = request.form['url']
-#         nid = new_id()
-
-#         parse = urlparse(url)
-#         if 'news.ycombinator.com' in parse.hostname:
-#             source = 'hackernews'
-#             ref = parse_qs(parse.query)['id'][0]
-#         elif 'tildes.net' in parse.hostname and '~' in url:
-#             source = 'tildes'
-#             ref = parse.path.split('/')[2]
-#         elif 'lobste.rs' in parse.hostname and '/s/' in url:
-#             source = 'lobsters'
-#             ref = parse.path.split('/')[2]
-#         elif 'reddit.com' in parse.hostname and 'comments' in url:
-#             source = 'reddit'
-#             ref = parse.path.split('/')[4]
-#         elif settings.HOSTNAME in parse.hostname:
-#             raise Exception('Invalid URL')
-#         else:
-#             source = 'manual'
-#             ref = url
-
-#         existing = database.get_story_by_ref(ref)
-#         if existing:
-#             return {'nid': existing.sid}
+@flask_app.route('/api/submit', methods=['POST'], strict_slashes=False)
+def submit():
+    try:
+        url = request.form['url']
+        parse = urlparse(url)
+        if 'news.ycombinator.com' in parse.hostname:
+            source = 'hackernews'
+            ref = parse_qs(parse.query)['id'][0]
+        elif 'tildes.net' in parse.hostname and '~' in url:
+            source = 'tildes'
+            ref = parse.path.split('/')[2]
+        elif 'lobste.rs' in parse.hostname and '/s/' in url:
+            source = 'lobsters'
+            ref = parse.path.split('/')[2]
+        elif 'reddit.com' in parse.hostname and 'comments' in url:
+            source = 'reddit'
+            ref = parse.path.split('/')[4]
+        elif settings.HOSTNAME in parse.hostname:
+            raise Exception('Invalid URL')
+        else:
+            source = 'manual'
+            ref = url
         
-#         existing = database.get_story_by_url(url)
-#         if existing:
-#             return {'nid': existing.sid}
-#         else:
-#             story = dict(id=nid, ref=ref, source=source)
-#             valid = feed.update_story(story, is_manual=True)
-#             if valid:
-#                 database.put_story(story)
-#                 database.put_source(story)
-#                 search.put_story(story)
-#                 return {'nid': nid}
-#             else:
-#                 logging.info(str(story))
-#                 raise Exception('Invalid article')
+        existing = database.get_source_by_url(source, url)
+        if existing:
+            return {'nid': existing.sid}
+        existing = database.get_content_by_url(url)
+        if existing:
+            return {'nid': existing.source[0].sid}
+        else:
+            item = database.Queue(ref=ref, source=source)
+            data = feed.update_source(item, is_manual=True)
+            if not data:
+                raise Exception('Invalid article')
 
-#     except BaseException as e:
-#         logging.error('Problem with article submission: {} - {}'.format(e.__class__.__name__, str(e)))
-#         print(traceback.format_exc())
-#         abort(400)
+            details, scraper = feed.scrape_url(url)
+            if not details:
+                raise Exception('Invalid article')
+
+            database.put_content(dict(details=details, scraper=scraper, url=data.get('url')))
+            database.put_source(dict(data=data, source=source, url=data.get('url')))
+            output = database.get_source_by_url(source, data.get('url'))
+            if output:
+                search.put_story(source_to_story(output))
+                return {'nid': output.sid}
+
+    except BaseException as e:
+        logging.error('Problem with article submission: {} - {}'.format(e.__class__.__name__, str(e)))
+        print(traceback.format_exc())
+        abort(400)
 
 
 @flask_app.route('/api/<sid>')
 def story(sid):
-    story = database.get_story(sid)
-    if story:
-        related = []
-        if story.meta['url']:
-            related = database.get_stories_by_url(story.meta['url'])
-            related = [r.meta for r in related]
-        links = story.meta.get('meta_links', [])
-        if links:
-            links = [database.get_story_by_url(link) for link in links]
-            links = list(filter(None,  [l.meta if l else None for l in links]))
-        res = Response(json.dumps({"story": story.data, "related": related, "links": links}))
-        res.headers['content-type'] = 'application/json'
-        return res
-    else:
-        return abort(404)
+    skip = request.args.get('skip', 0)
+    limit = request.args.get('limit', 20)
+    source = database.get_source(sid)
+    content = database.get_content(source.content.cid)
+    story = source_to_story(source, with_text=True)
+    _, related = content_to_story(content)
+
+    contents = [database.get_content_by_url(url) for url in story.get('meta_links', [])]
+    contents = list(filter(None, contents))
+    links = [content_to_story(content, with_text=False) for content in contents]
+    links = [s for s, r in links]
+    res = Response(json.dumps({"story": story, "related": related, "links": links }))
+    res.headers['content-type'] = 'application/json'
+    return res
 
 @flask_app.route('/')
 @flask_app.route('/search')
@@ -208,6 +223,7 @@ def _add_stories():
         try:
             database.put_queue(ref, source, url)
             logging.info('Queued ref ' + ref)
+            gevent.sleep(1)
             added.append((ref, source))
         except KeyboardInterrupt:
             raise
@@ -216,13 +232,13 @@ def _add_stories():
             continue
     return added
 
-def _update_current_story(item):
+def _add_current_story(item, ):
     source = feed.update_source(item)
     if source:
         content = source.pop('content', None)
         try:
             database.put_source(dict(data=source, source=item.source, url=source.get('url')))
-            s = database.get_source_by_url(source.get('url'))
+            s = database.get_source_by_url(item.source, source.get('url'))
             if s: database.del_queue(item.ref, item.source)
         except KeyboardInterrupt:
             raise
@@ -236,6 +252,12 @@ def _update_current_story(item):
                 raise
             except database.IntegrityError:
                 logging.info(f'Added content for ref {item.ref}')
+
+        s = database.get_source(s.sid)
+        c = database.get_content(s.content.cid)
+        _, related = content_to_story(c, with_text=True)
+        for story in related:
+            search.put_story(related)
     else:
         logging.info(f'ref {item.ref} not processed')
 
@@ -263,7 +285,7 @@ def feed_thread():
             queue = database.get_queue()
             for item in queue:
                 logging.info(f'Processing story ref {item.ref}')
-                _update_current_story(item)
+                _add_current_story(item)
                 gevent.sleep(1)
 
             gevent.sleep(10)
@@ -284,15 +306,24 @@ def scrape_thread():
     try:
         while True:
             sources = database.get_source_for_scraping()
-            for source in sources:
-                logging.info(f'Scraping {source.url}')
-                details, scraper = feed.scrape_url(source.url)
+            contents = database.get_content_for_scraping()
+            urls = [source.url for source in sources]
+            urls += [content.url for content in contents]
+            for url in urls:
+                logging.info(f'Scraping {url}')
+                details, scraper = feed.scrape_url(url)
                 if not details:
-                    logging.info(f'No details to scrape, skipping {source.url}...')
+                    logging.info(f'No details to scrape, skipping {url}...')
                     continue
-                content = dict(details=details, source=source, url=source.url)
-                database.put_content(content)
+                database.put_content(dict(details=details, scraper=scraper, url=url))
+                content = database.get_content_by_url(url)
+                _, related = content_to_story(content, with_text=True)
+                for story in related:
+                    search.put_story(story)
                 gevent.sleep(1)
+                links = details.get('meta', {}).get('links', [])
+                for link in links:
+                    database.put_content(dict(url=link))
             gevent.sleep(10)
 
     except KeyboardInterrupt:

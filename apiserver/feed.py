@@ -135,16 +135,19 @@ def update_source(item, is_manual=False):
     return None, None
 
 def scrape_url(url):
-    if not get_content_type(url).startswith('text/'):
+    content_type = get_content_type(url)
+    if not content_type.startswith('text/'):
         logging.info('URL invalid file type / content type:')
-        logging.info(url)
-        details = { content: f'<a href="{url}">{url}</a>' }
-        return details, 'none'
+        details = { 'content': f'<a href="{url}">{url}</a>' }
+        if content_type.startswith('image/'):
+            details = { 'content': f'<img src="{url}" loading="lazy" />' }
+        details['html'] = details['content']
+        return details, False
 
     if any([domain in url for domain in INVALID_DOMAINS]):
         logging.info('URL invalid domain:')
         logging.info(url)
-        details = { content: f'<a href="{url}">{url}</a>' }
+        details = { 'content': f'<a href="{url}">{url}</a>' }
         return details, 'none'
 
     logging.info('Getting article ' + url)
