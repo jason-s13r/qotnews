@@ -232,7 +232,7 @@ def _add_stories():
             continue
     return added
 
-def _add_current_story(item, ):
+def _add_current_story(item):
     source = feed.update_source(item)
     if source:
         content = source.pop('content', None)
@@ -254,10 +254,13 @@ def _add_current_story(item, ):
                 logging.info(f'Added content for ref {item.ref}')
 
         s = database.get_source(s.sid)
-        c = database.get_content(s.content.cid)
-        _, related = content_to_story(c, with_text=True)
-        for story in related:
-            search.put_story(related)
+        search.put_story(source_to_story(s))
+        if s.content:
+            c = database.get_content(s.content.cid)
+            _, related = content_to_story(c, with_text=True)
+            for story in related:
+                search.put_story(related)
+
     else:
         logging.info(f'ref {item.ref} not processed')
 
@@ -267,7 +270,7 @@ def queue_thread():
         while True:
             added = _add_stories()
             logging.info('Added {} new refs'.format(len(added)))
-            gevent.sleep(60*10)
+            gevent.sleep(600)
     except KeyboardInterrupt:
         logging.info('Ending _queue_new_refs...')
     except ValueError as e:
@@ -288,7 +291,7 @@ def feed_thread():
                 _add_current_story(item)
                 gevent.sleep(1)
 
-            gevent.sleep(10)
+            gevent.sleep(20)
 
     except KeyboardInterrupt:
         logging.info('Ending feed thread...')
@@ -324,7 +327,7 @@ def scrape_thread():
                 # links = details.get('meta', {}).get('links', [])
                 # for link in links:
                 #     database.put_content(dict(url=link))
-            gevent.sleep(10)
+            gevent.sleep(20)
 
     except KeyboardInterrupt:
         logging.info('Ending Scrape thread...')
