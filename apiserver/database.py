@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Column, String, ForeignKey, Integer
+from sqlalchemy import create_engine, Column, String, ForeignKey, Integer, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
@@ -9,28 +9,6 @@ engine = create_engine('sqlite:///data/qotnews.sqlite', connect_args={'timeout':
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
-
-# # loosely matching a readable (output of declutter/outline/readability.js)
-# class Content(Base):
-#     __tablename__ = 'content'
-#     cid = Column(String, primary_key=True, unique=True)
-#     url = Column(String, unique=True, index=True)
-#     data = Column(JSON)
-
-# # sources, also where comments are stored.
-# class Source(Base):
-#     __tablename__ = 'sources'
-#     sid = Column(String(16), primary_key=True)
-#     url = Column(String, ForeignKey('redables.url'))
-#     data = Column(JSON)
-
-# # items that should be in the main list of stories.
-# class Item(Base):
-#     __tablename__ = "items"
-#     uid = Column(Integer, primary_key=True)
-#     sid = Column(String, ForeignKey('sources.sid'), unique=True)
-
-### old ones below:
 
 class Story(Base):
     __tablename__ = 'stories'
@@ -153,4 +131,6 @@ def del_ref(ref):
 if __name__ == '__main__':
     init()
 
-    print(get_story_by_ref('hgi3sy'))
+    print('add index')
+    index = Index("story_url_index", Story.meta['url'].as_string())
+    index.create(engine)
