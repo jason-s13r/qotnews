@@ -44,6 +44,7 @@ def source_to_story(source, with_text=False):
     story.update(source.data)
     story['source'] = source.source
     story['id'] = source.sid
+    story['ref'] = source.ref
     if with_text:
         story['text'] = source.content.details['content']
         story['meta_links'] = source.content.details.get('meta', {}).get('links', [])
@@ -112,26 +113,9 @@ def apisearch():
 def submit():
     try:
         url = request.form['url']
-        parse = urlparse(url)
-        if 'news.ycombinator.com' in parse.hostname:
-            source = 'hackernews'
-            ref = parse_qs(parse.query)['id'][0]
-        elif 'tildes.net' in parse.hostname and '~' in url:
-            source = 'tildes'
-            ref = parse.path.split('/')[2]
-        elif 'lobste.rs' in parse.hostname and '/s/' in url:
-            source = 'lobsters'
-            ref = parse.path.split('/')[2]
-        elif 'reddit.com' in parse.hostname and 'comments' in url:
-            source = 'reddit'
-            ref = parse.path.split('/')[4]
-        elif settings.HOSTNAME in parse.hostname:
-            raise Exception('Invalid URL')
-        else:
-            source = 'manual'
-            ref = url
+        ref, source = feed.get_ref_from_url(url)
         
-        existing = database.get_source_by_url(source, url)
+        existing = database.get_source_by_ref(ref, source)
         if existing:
             return {'nid': existing.sid}
         existing = database.get_content_by_url(url)
@@ -148,8 +132,8 @@ def submit():
                 raise Exception('Invalid article')
 
             database.put_content(dict(details=details, scraper=scraper, url=data.get('url')))
-            database.put_source(dict(data=data, source=source, url=data.get('url')))
-            output = database.get_source_by_url(source, data.get('url'))
+            database.put_source(dict(data=data, source=source, ref=ref, url=data.get('url')))
+            output = database.get_source_by_ref(ref, source)
             if output:
                 search.put_story(source_to_story(output))
                 return {'nid': output.sid}
@@ -239,9 +223,7 @@ def _add_current_story(item):
     if source:
         content = source.pop('content', None)
         try:
-            database.put_source(dict(data=source, source=item.source, url=source.get('url')))
-            s = database.get_source_by_url(item.source, source.get('url'))
-            if s: database.del_queue(item.ref, item.source)
+            database.put_source(dict(data=source, source=item.source, ref=item.ref, url=source.get('url')))
         except KeyboardInterrupt:
             raise
         except database.IntegrityError:
@@ -255,13 +237,16 @@ def _add_current_story(item):
             except database.IntegrityError:
                 logging.info(f'Added content for ref {item.ref}')
 
-        s = database.get_source(s.sid)
+        s = database.get_source_by_ref(item.ref, item.source)
+        content = s.content
         search.put_story(source_to_story(s))
-        if s.content:
-            c = database.get_content(s.content.cid)
+        if content:
+            c = database.get_content(content.cid)
             _, related = content_to_story(c, with_text=True)
             for story in related:
-                search.put_story(related)
+                search.put_story(story)
+        if s:
+            database.del_queue(item.ref, item.source)
 
     else:
         logging.info(f'ref {item.ref} not processed')

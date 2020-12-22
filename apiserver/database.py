@@ -29,6 +29,8 @@ def new_alchemy_encoder():
                     fields[field] = obj.__getattribute__(field)
                 # a json-encodable dict
                 return fields
+            if isinstance(obj, datetime):
+                return obj.isoformat()
 
             return json.JSONEncoder.default(self, obj)
 
@@ -65,7 +67,9 @@ class Source(Base):
     __tablename__ = 'source'
     sid = Column(String, primary_key=True, unique=True, default=new_source_id)
     url = Column(String, ForeignKey('content.url'))
+    ref = Column(String)
     source = Column(String)
+    sourceref = Column(String, unique=True)
     data = Column(JSON)
     last_updated = Column(DateTime)
 
@@ -77,26 +81,7 @@ class Queue(Base):
     source = Column(String, primary_key=True)
     url = Column(String)
     sid = Column(String, ForeignKey('source.sid'), unique=True)
-
-####
-
-class Story(Base):
-    __tablename__ = 'stories'
-
-    sid = Column(String(16), primary_key=True)
-    ref = Column(String(16), unique=True)
-    meta = Column(JSON)
-    data = Column(JSON)
-    title = Column(String)
-
-class Reflist(Base):
-    __tablename__ = 'reflist'
-
-    rid = Column(Integer, primary_key=True)
-    ref = Column(String(16), unique=True)
-    urlref = Column(String)
-    sid = Column(String, ForeignKey('stories.sid'), unique=True)
-    source = Column(String(16))
+    last_updated = Column(DateTime)
 
 def init():
     Base.metadata.create_all(engine)
@@ -104,7 +89,7 @@ def init():
 def put_queue(ref, source, url=None):
     try:
         session = Session()
-        s = Queue(ref=ref, source=source, url=url)
+        s = Queue(ref=ref, source=source, url=url, last_updated=datetime.now())
         session.merge(s)
         session.commit()
     except:
@@ -126,17 +111,21 @@ def del_queue(ref, source):
 
 def get_queue(ref=None, source=None):
     session = Session()
-    q = session.query(Queue)
+    q = session.query(Queue).order_by(Queue.last_updated.asc())
     if not ref or not source: return q.all()
     return q.get((ref, source))
 
 def put_source(source):
     source = dict(source)
+    src = source.get('source')
+    ref = source.get('ref')
     source.pop('content', None)
+    source['sourceref'] = f"{src}:{ref}"
+    source['last_updated'] = datetime.now()
     try:
         session = Session()
         if not source.get('sid', None):
-            existing = get_source_by_url(source.get('source'), source.get('url', ''))
+            existing = get_source_by_ref(src, ref)
             if existing:
                 source['sid'] = existing.sid
         s = Source(**source)
@@ -154,12 +143,17 @@ def get_source(sid=None):
     if not sid: return q.all()
     return q.get(sid)
 
-def get_source_by_url(source, url):
+def get_source_by_ref(ref, source=None):
     session = Session()
-    return session.query(Source).\
-        filter(Source.source == source).\
-        filter(Source.url == url).\
-        first()
+    q = session.query(Source).filter(Source.ref == ref)
+    if source is None: return q.all()
+    return q.filter(Source.source == source).first()
+
+def get_source_by_url(url, source=None):
+    session = Session()
+    q = session.query(Source).filter(Source.url == url)
+    if source is None: return q.all()
+    return q.filter(Source.source == source).first()
 
 def get_source_for_scraping():
     session = Session()
@@ -173,6 +167,7 @@ def get_source_for_scraping():
 def put_content(content):
     content = dict(content)
     content.pop('source', None)
+    content['last_updated'] = datetime.now()
     try:
         session = Session()
         if not content.get('cid', None):

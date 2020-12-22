@@ -7,6 +7,7 @@ import requests
 import time
 from bs4 import BeautifulSoup
 import itertools
+from urllib.parse import urlparse, parse_qs
 
 import settings
 from feeds import hackernews, reddit, tildes, substack, lobsters
@@ -29,6 +30,29 @@ for key, value in settings.CATEGORY.items():
 sitemaps = {}
 for key, value in settings.SITEMAP.items():
     sitemaps[key] = Sitemap(value)
+
+def get_ref_from_url(url):
+    parse = urlparse(url)
+    if 'news.ycombinator.com' in parse.hostname:
+        source = 'hackernews'
+        ref = parse_qs(parse.query)['id'][0]
+    elif 'tildes.net' in parse.hostname and '~' in url:
+        source = 'tildes'
+        ref = parse.path.split('/')[2]
+    elif 'lobste.rs' in parse.hostname and '/s/' in url:
+        source = 'lobsters'
+        ref = parse.path.split('/')[2]
+    elif 'reddit.com' in parse.hostname and 'comments' in url:
+        source = 'reddit'
+        ref = parse.path.split('/')[4]
+    elif settings.HOSTNAME in parse.hostname:
+        raise Exception('Invalid URL')
+    else:
+        source = 'manual'
+        ref = url
+
+    return ref, source
+
 
 def get_list():
     feeds = {}
