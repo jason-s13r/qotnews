@@ -173,6 +173,7 @@ def _add_new_refs():
             database.put_ref(ref, nid, source, urlref)
             logging.info('Added ref ' + ref)
             added.append(ref)
+            gevent.sleep(1)
         except database.IntegrityError:
             #logging.info('Unable to add ref ' + ref)
             continue
@@ -221,23 +222,23 @@ def feed_thread():
                 logging.info('Have {} refs in update queue'.format(len(current_queue_refs)))
                 logging.info('Fetched {} refs for update queue'.format(len(update_queue)))
                 last_check = datetime.now()
-                gevent.sleep(1)
-                
+                gevent.sleep(5)
+
             # update new stories
             if len(new_refs):
                 item = new_refs.pop(0)
                 logging.info('Processing new story ref {}'.format(item['ref']))
                 _update_current_story(item)
-                gevent.sleep(1)
+                gevent.sleep(5)
 
             # update current stories
             if len(update_refs):
                 item = update_refs.pop(0)
                 logging.info('Processing existing story ref {}'.format(item['ref']))
                 _update_current_story(item)
-                gevent.sleep(1)
+                gevent.sleep(5)
 
-            gevent.sleep(1)
+            gevent.sleep(10)
 
     except KeyboardInterrupt:
         logging.info('Ending feed thread...')
