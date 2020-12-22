@@ -72,7 +72,7 @@ class Source(Base):
     content = relationship("Content", back_populates="sources")
 
 class Queue(Base):
-    __tablename__ = 'item'
+    __tablename__ = 'queue'
     ref = Column(String, primary_key=True)
     source = Column(String, primary_key=True)
     url = Column(String)
@@ -132,8 +132,13 @@ def get_queue(ref=None, source=None):
 
 def put_source(source):
     source = dict(source)
+    source.pop('content', None)
     try:
         session = Session()
+        if not source.get('sid', None):
+            existing = get_source_by_url(source.get('url', ''))
+            if existing:
+                source['sid'] = existing.sid
         s = Source(**source)
         session.merge(s)
         session.commit()
@@ -149,8 +154,23 @@ def get_source(sid=None):
     if not sid: return q.all()
     return q.get(sid)
 
+def get_source_by_url(url):
+    session = Session()
+    return session.query(Source).\
+        filter(Source.url == url).\
+        first()
+
+def get_source_for_scraping():
+    session = Session()
+    return session.query(Source).\
+        join(Content, Content.url == Source.url, isouter=True).\
+        filter(Content.cid == None).\
+        filter(Source.sid != None).\
+        all()
+
 def put_content(content):
     content = dict(content)
+    content.pop('source', None)
     try:
         session = Session()
         if not content.get('cid', None):
@@ -178,11 +198,22 @@ def get_content_by_url(url):
         filter(Content.url == url).\
         first()
 
-def get_content_for_scraping():
+def get_feed(cid=None):
     session = Session()
-    return session.query(Content).\
-        filter(Content.details == None).\
-        all()
+    q = session.query(Source).\
+        join(Content, Content.url == Source.url).\
+        order_by(Source.data['date'].desc())
+
+def get_feed(maxage=0, skip=0, limit=20):
+    time = datetime.now().timestamp() - maxage
+    session = Session()
+    q = session.query(Content).\
+            join(Source).\
+            filter(maxage == 0 or Source.data['date'].as_integer() > time).\
+            order_by(Source.date['date'].desc()).\
+            offset(skip).\
+            limit(limit)
+    return q
 ###
 
 def get_story(sid):

@@ -39,6 +39,15 @@ build_folder = '../webclient/build'
 flask_app = Flask(__name__, template_folder=build_folder, static_folder=build_folder, static_url_path='')
 cors = CORS(flask_app)
 
+def to_story(source, with_text=False):
+    story = {}
+    story.update(source.data)
+    story['source'] = source.source
+    story['sid'] = source.content.cid
+    if with_text:
+        story['text'] = source.content.details['html']
+        story['meta_links'] = source.content.details['meta_links']
+
 @flask_app.route('/api')
 def api():
     skip = request.args.get('skip', 0)
@@ -213,21 +222,20 @@ def _update_current_story(item):
         content = source.pop('content', None)
         try:
             database.put_source(dict(data=source, source=item.source, url=source.get('url')))
-            database.del_queue(item.ref, item.source)
+            s = database.get_source_by_url(source.get('url'))
+            if s: database.del_queue(item.ref, item.source)
         except KeyboardInterrupt:
             raise
         except database.IntegrityError:
             logging.info(f'Unable to add story with ref {item.ref}')
 
-        if not content:
-            content = dict(url=source.get('url'))
-            
-        try:
-            database.put_content(content)
-        except KeyboardInterrupt:
-            raise
-        except database.IntegrityError:
-            logging.info(f'Added content for ref {item.ref}')
+        if content:
+            try:
+                database.put_content(content)
+            except KeyboardInterrupt:
+                raise
+            except database.IntegrityError:
+                logging.info(f'Added content for ref {item.ref}')
     else:
         logging.info(f'ref {item.ref} not processed')
 
@@ -275,14 +283,15 @@ def scrape_thread():
     logging.info('Starting Scrape thread...')
     try:
         while True:
-            contents = database.get_content_for_scraping()
-            for content in contents:
-                logging.info(f'Scraping {content.url}')
-                details, scraper = feed.scrape_url(content.url)
-                if details:
-                    content.details = details
-                content.scraper= scraper
-                database.put_content(database.as_dict(content))
+            sources = database.get_source_for_scraping()
+            for source in sources:
+                logging.info(f'Scraping {source.url}')
+                details, scraper = feed.scrape_url(source.url)
+                if not details:
+                    logging.info(f'No details to scrape, skipping {source.url}...')
+                    continue
+                content = dict(details=details, source=source, url=source.url)
+                database.put_content(content)
                 gevent.sleep(1)
             gevent.sleep(10)
 
