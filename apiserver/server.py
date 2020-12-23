@@ -49,7 +49,7 @@ def source_to_story(source, with_text=False):
     if with_text:
         story['text'] = source.content.details.get('content', '')
         story['meta_links'] = source.content.details.get('meta', {}).get('links', [])
-        story['scraper'] = source.content.details.get('scraper', '')
+        story['scraper'] = source.content.scaper
         story['scraper_link'] = source.content.details.get('scraper_link', '')
     else:
         story['comments'] = []
@@ -67,7 +67,7 @@ def content_to_story(content, with_text=True):
     if with_text:
         story['text'] = content.details.get('content', '')
         story['meta_links'] =content.details.get('meta', {}).get('links', [])
-        story['scraper'] = content.details.get('scraper', '')
+        story['scraper'] = content.scaper
         story['scraper_link'] =content.details.get('scraper_link', '')
     if content.sources:
         for source in content.sources:
@@ -133,6 +133,9 @@ def submit():
         existing = database.get_source_by_ref(ref, source)
         if existing:
             return {'nid': existing.sid}
+        existing = database.get_source_by_ref(ref)
+        if existing:
+            return {'nid': existing[0].sid}
         existing = database.get_content_by_url(url)
         if existing:
             return {'nid': existing.sources[0].sid}
