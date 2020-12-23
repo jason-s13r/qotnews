@@ -116,7 +116,7 @@ def update_queue(queue):
         session = Session()
         queue.last_updated = datetime.now()
         queue.retries += 1
-        queue.next_try = datetime.now() + timedelta(minutes=5)
+        queue.next_try = datetime.now() + timedelta(minutes=15)
         session.merge(queue)
         session.commit()
     except:

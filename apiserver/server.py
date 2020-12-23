@@ -261,14 +261,15 @@ def queue_thread():
     try:
         while True:
             added = []
-            for ref, source, url in feed.get_list():
+            feed_list = feed.get_list()
+            for ref, source, url in feed_list:
                 queued = database.get_queue(ref, source)
                 if queued:
                     continue
                 try:
                     database.put_queue(ref, source, url)
                     logging.info('Queued ref ' + ref)
-                    gevent.sleep(1)
+                    gevent.sleep(0.25)
                     added.append((ref, source))
                 except KeyboardInterrupt:
                     raise
@@ -295,9 +296,9 @@ def feed_thread():
             for item in queue:
                 logging.info(f'Processing story ref {item.ref}')
                 _add_current_story(item)
-                gevent.sleep(1)
+                gevent.sleep(10)
 
-            gevent.sleep(20)
+            gevent.sleep(60)
 
     except KeyboardInterrupt:
         logging.info('Ending feed thread...')
@@ -329,11 +330,11 @@ def scrape_thread():
                 _, related = content_to_story(content, with_text=True)
                 for story in related:
                     search.put_story(story)
-                gevent.sleep(1)
+                gevent.sleep(10)
                 # links = details.get('meta', {}).get('links', [])
                 # for link in links:
                 #     database.put_content(dict(url=link))
-            gevent.sleep(20)
+            gevent.sleep(60)
 
     except KeyboardInterrupt:
         logging.info('Ending Scrape thread...')
