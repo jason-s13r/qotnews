@@ -45,20 +45,35 @@ def source_to_story(source, with_text=False):
     story['source'] = source.source
     story['id'] = source.sid
     story['ref'] = source.ref
+    story['excerpt'] = source.content.details.get('excerpt', '')
     if with_text:
-        story['text'] = source.content.details['content']
+        story['text'] = source.content.details.get('content', '')
         story['meta_links'] = source.content.details.get('meta', {}).get('links', [])
+        story['scraper'] = source.content.details.get('scraper', '')
+        story['scraper_link'] = source.content.details.get('scraper_link', '')
     else:
         story['comments'] = []
     return story
 
 def content_to_story(content, with_text=True):
-    for source in content.sources:
-        source.content = content
-
-    related = [source_to_story(source) for source in content.sources]
-    source = content.sources[0]
-    story = source_to_story(source, with_text=True)
+    related = []
+    story = {
+        'source': 'manual',
+        'title': content.details.get('title', ''),
+        'author': content.details.get('author', ''),
+        'url': content.url,
+        'excerpt': content.details.get('excerpt', ''),
+    }
+    if with_text:
+        story['text'] = content.details.get('content', '')
+        story['meta_links'] =content.details.get('meta', {}).get('links', [])
+        story['scraper'] = content.details.get('scraper', '')
+        story['scraper_link'] =content.details.get('scraper_link', '')
+    if content.sources:
+        for source in content.sources:
+            source.content = content
+        related = [source_to_story(source) for source in content.sources]
+        story.update(source_to_story(content.sources[0], with_text=True))
     return story, related
 
 @flask_app.route('/api')
@@ -155,10 +170,12 @@ def story(sid):
         content = database.get_content(source.content.cid)
         _, related = content_to_story(content)
 
-    contents = [database.get_content_by_url(url) for url in story.get('meta_links', [])]
-    contents = list(filter(None, contents))
-    links = [content_to_story(content, with_text=False) for content in contents]
-    links = [s for s, r in links]
+    links = []
+    for url in story.get('meta_links', []):
+        content = database.get_content_by_url(url)
+        if content:
+            s, r = content_to_story(content, with_text=False)
+            links += [s]
     res = Response(json.dumps({"story": story, "related": related, "links": links }))
     res.headers['content-type'] = 'application/json'
     return res
