@@ -132,7 +132,7 @@ def get_queue(ref=None, source=None):
             query(Queue).\
             filter(Queue.retries < 5).\
             filter(Queue.next_try < datetime.now()).\
-            order_by(Queue.last_updated.asc()).\
+            order_by(Queue.retries.asc(), Queue.last_updated.desc()).\
             all()
     return session.query(Queue).get((ref, source))
 
