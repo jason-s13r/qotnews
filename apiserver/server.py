@@ -46,6 +46,7 @@ def source_to_story(source, with_text=False):
     story['id'] = source.sid
     story['ref'] = source.ref
     story['excerpt'] = source.content.details.get('excerpt', '')
+    story['image'] = source.content.details.get('meta', {}).get('image', ''),
     if with_text:
         story['text'] = source.content.details.get('content', '')
         story['meta_links'] = source.content.details.get('meta', {}).get('links', [])
@@ -63,6 +64,7 @@ def content_to_story(content, with_text=True):
         'author': content.details.get('author', ''),
         'url': content.url,
         'excerpt': content.details.get('excerpt', ''),
+        'image': content.details.get('meta', {}).get('image', ''),
     }
     if with_text:
         story['text'] = content.details.get('content', '')
