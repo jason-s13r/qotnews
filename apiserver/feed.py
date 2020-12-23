@@ -166,13 +166,13 @@ def scrape_url(url):
         if content_type.startswith('image/'):
             details = { 'content': f'<img src="{url}" loading="lazy" />' }
         details['html'] = details['content']
-        return details, False
+        return details, ''
 
     if any([domain in url for domain in INVALID_DOMAINS]):
         logging.info('URL invalid domain:')
         logging.info(url)
         details = { 'content': f'<a href="{url}">{url}</a>' }
-        return details, 'none'
+        return details, ''
 
     logging.info('Getting article ' + url)
     details, scraper = get_article(url)
