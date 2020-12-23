@@ -1,28 +1,38 @@
 @font-face {
-    font-family: 'Apparatus SIL';
-    src: url('AppSILR.ttf') format('truetype');
+  font-family: "Apparatus SIL";
+  src: url("AppSIL/AppSILR.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: 'Apparatus SIL';
-	font-style: italic;
-    src: url('AppSILI.ttf') format('truetype');
+  font-family: "Apparatus SIL";
+  font-style: italic;
+  src: url("AppSIL/AppSILI.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: 'Apparatus SIL';
-	font-weight: bold;
-    src: url('AppSILB.ttf') format('truetype');
+  font-family: "Apparatus SIL";
+  font-weight: bold;
+  src: url("AppSIL/AppSILB.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: 'Apparatus SIL';
-	font-weight: bold;
-	font-style: italic;
-    src: url('AppSILBI.ttf') format('truetype');
+  font-family: "Apparatus SIL";
+  font-weight: bold;
+  font-style: italic;
+  src: url("AppSIL/AppSILBI.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: 'Icomoon';
-    src: url('icomoon.ttf') format('truetype');
+  font-family: "Icomoon";
+  src: url("icomoon/icomoon.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "ComicMono";
+  src: url("ComicMono/ComicMono.ttf") format("truetype");
+}
+@font-face {
+  font-family: "ComicMono";
+  font-weight: bold;
+  src: url("ComicMono/ComicMono-Bold.ttf") format("truetype");
 }
