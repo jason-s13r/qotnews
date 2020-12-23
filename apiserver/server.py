@@ -167,6 +167,7 @@ def submit():
 @flask_app.route('/api/<sid>')
 def story(sid):
     source = database.get_source(sid)
+    if not source: return abort(404)
     story = source_to_story(source, with_text=True)
     related = []
     if source.content:
