@@ -45,13 +45,17 @@ def source_to_story(source, with_text=False):
     story['source'] = source.source
     story['id'] = source.sid
     story['ref'] = source.ref
-    story['excerpt'] = source.content.details.get('excerpt', '')
-    story['image'] = source.content.details.get('meta', {}).get('image', ''),
-    if with_text:
-        story['text'] = source.content.details.get('content', '')
-        story['meta_links'] = source.content.details.get('meta', {}).get('links', [])
+    details = {}
+    if source.content:
+        details = source.content.details
         story['scraper'] = source.content.scraper
-        story['scraper_link'] = source.content.details.get('scraper_link', '')
+        
+    story['excerpt'] = details.get('excerpt', '')
+    story['image'] = details.get('meta', {}).get('image', ''),
+    if with_text:
+        story['text'] = details.get('content', '')
+        story['meta_links'] = details.get('meta', {}).get('links', [])
+        story['scraper_link'] = details.get('scraper_link', '')
     else:
         story['comments'] = []
     return story
