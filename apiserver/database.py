@@ -82,6 +82,8 @@ class Queue(Base):
     url = Column(String)
     sid = Column(String, ForeignKey('source.sid'), unique=True)
     last_updated = Column(DateTime)
+    retries = Column(Integer, default=0)
+    next_try = Column(DateTime)
 
 def init():
     Base.metadata.create_all(engine)
@@ -89,7 +91,7 @@ def init():
 def put_queue(ref, source, url=None):
     try:
         session = Session()
-        s = Queue(ref=ref, source=source, url=url, last_updated=datetime.now())
+        s = Queue(ref=ref, source=source, url=url, last_updated=datetime.now(), next_try=datetime.now())
         session.merge(s)
         session.commit()
     except:
@@ -109,11 +111,30 @@ def del_queue(ref, source):
     finally:
         session.close()
 
+def update_queue(queue):
+    try:
+        session = Session()
+        queue.last_updated = datetime.now()
+        queue.retries += 1
+        queue.next_try = datetime.now() + timedelta(minutes=5)
+        session.merge(queue)
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
 def get_queue(ref=None, source=None):
     session = Session()
-    q = session.query(Queue).order_by(Queue.last_updated.asc())
-    if not ref or not source: return q.all()
-    return q.get((ref, source))
+    if not ref or not source:
+        return session.\
+            query(Queue).\
+            filter(Queue.retries < 5).\
+            filter(Queue.next_try < datetime.now()).\
+            order_by(Queue.last_updated.asc()).\
+            all()
+    return session.query(Queue).get((ref, source))
 
 def put_source(source):
     source = dict(source)

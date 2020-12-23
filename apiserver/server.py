@@ -225,26 +225,9 @@ def static_story(sid):
 
 http_server = WSGIServer(('', settings.API_PORT or 33842), flask_app)
 
-def _add_stories():
-    added = []
-    for ref, source, url in feed.get_list():
-        queued = database.get_queue(ref, source)
-        if queued:
-            continue
-        try:
-            database.put_queue(ref, source, url)
-            logging.info('Queued ref ' + ref)
-            gevent.sleep(1)
-            added.append((ref, source))
-        except KeyboardInterrupt:
-            raise
-        except database.IntegrityError:
-            # logging.info('Unable to add ref ' + ref)
-            continue
-    return added
-
 def _add_current_story(item):
     source = feed.update_source(item)
+    database.update_queue(item)
     if source:
         content = source.pop('content', None)
         try:
@@ -270,9 +253,6 @@ def _add_current_story(item):
             _, related = content_to_story(c, with_text=True)
             for story in related:
                 search.put_story(story)
-        if s:
-            database.del_queue(item.ref, item.source)
-
     else:
         logging.info(f'ref {item.ref} not processed')
 
@@ -280,7 +260,21 @@ def queue_thread():
     logging.info('Starting Queue thread...')
     try:
         while True:
-            added = _add_stories()
+            added = []
+            for ref, source, url in feed.get_list():
+                queued = database.get_queue(ref, source)
+                if queued:
+                    continue
+                try:
+                    database.put_queue(ref, source, url)
+                    logging.info('Queued ref ' + ref)
+                    gevent.sleep(1)
+                    added.append((ref, source))
+                except KeyboardInterrupt:
+                    raise
+                except database.IntegrityError:
+                    # logging.info('Unable to add ref ' + ref)
+                    continue
             logging.info('Added {} new refs'.format(len(added)))
             gevent.sleep(600)
     except KeyboardInterrupt:
