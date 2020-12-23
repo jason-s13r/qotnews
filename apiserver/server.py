@@ -49,7 +49,7 @@ def source_to_story(source, with_text=False):
     if with_text:
         story['text'] = source.content.details.get('content', '')
         story['meta_links'] = source.content.details.get('meta', {}).get('links', [])
-        story['scraper'] = source.content.scaper
+        story['scraper'] = source.content.scraper
         story['scraper_link'] = source.content.details.get('scraper_link', '')
     else:
         story['comments'] = []
@@ -66,9 +66,9 @@ def content_to_story(content, with_text=True):
     }
     if with_text:
         story['text'] = content.details.get('content', '')
-        story['meta_links'] =content.details.get('meta', {}).get('links', [])
-        story['scraper'] = content.scaper
-        story['scraper_link'] =content.details.get('scraper_link', '')
+        story['meta_links'] = content.details.get('meta', {}).get('links', [])
+        story['scraper'] = content.scraper
+        story['scraper_link'] = content.details.get('scraper_link', '')
     if content.sources:
         for source in content.sources:
             source.content = content
@@ -164,8 +164,6 @@ def submit():
 
 @flask_app.route('/api/<sid>')
 def story(sid):
-    skip = request.args.get('skip', 0)
-    limit = request.args.get('limit', 20)
     source = database.get_source(sid)
     story = source_to_story(source, with_text=True)
     related = []
