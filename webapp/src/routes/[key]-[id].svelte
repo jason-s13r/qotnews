@@ -1,6 +1,6 @@
 <script context="module">
   export async function preload({ params }) {
-    const res = await this.fetch(`${params.id}.json`);
+    const res = await this.fetch(`${params.key}-${params.id}.json`);
     const data = await res.json();
 
     if (res.status === 200) {
@@ -17,6 +17,8 @@
   import Article from "../components/Article.svelte";
   export let story;
   export let related;
+
+  related = related || [];
 
   let others = related.filter(
     (r) => r.id !== story.id && Number(r.num_comments)
