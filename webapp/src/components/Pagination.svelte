@@ -3,6 +3,7 @@
   export let href;
   export let search;
   export let count;
+  export let inRoute;
 
   const { page } = stores();
 
@@ -13,7 +14,7 @@
 
   page.subscribe((p) => {
     count = Number(count);
-    skip = Number(p.query.skip) || 0;
+    skip = Number({ ...p.params, ...p.query }.skip) || 0;
     limit = Number(p.query.limit) || 20;
 
     let previous = new URLSearchParams(search || "");
@@ -25,10 +26,45 @@
     next.append("skip", skip + limit);
     next.append("limit", limit);
 
-    prevLink = href + "?" + previous.toString();
-    nextLink = href + "?" + next.toString();
+    prevLink = nextLink = href;
+
+    if (inRoute) {
+      prevLink = squareRoute(href, "skip", previous);
+      prevLink = squareRoute(prevLink, "limit", previous);
+
+      nextLink = squareRoute(href, "skip", next);
+      nextLink = squareRoute(nextLink, "limit", next);
+    }
+
+    if (previous.toString()) {
+      prevLink += "?" + previous.toString();
+    }
+    if (next.toString()) {
+      nextLink += "?" + next.toString();
+    }
   });
+
+  function squareRoute(url, key, params) {
+    const output = url.split(`[${key}]`).join(params.get(key));
+    if (output !== url) {
+      params.delete(key);
+    }
+    return output;
+  }
 </script>
+
+<div class="pagination">
+  {#if skip > 0}
+    <a class="pagination-link is-prev" href={prevLink} rel="prefetch"
+      >&larr; Previous</a
+    >
+  {/if}
+  {#if count >= limit}
+    <a class="pagination-link is-next" href={nextLink} rel="prefetch"
+      >Next &rarr;</a
+    >
+  {/if}
+</div>
 
 <style>
   .pagination {
@@ -49,14 +85,3 @@
     margin-left: auto;
   }
 </style>
-
-<div class="pagination">
-  {#if skip > 0}
-    <a class="pagination-link is-prev" href={prevLink} rel="prefetch">&larr;
-      Previous</a>
-  {/if}
-  {#if count >= limit}
-    <a class="pagination-link is-next" href={nextLink} rel="prefetch">Next
-      &rarr;</a>
-  {/if}
-</div>

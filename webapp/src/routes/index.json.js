@@ -33,18 +33,3 @@ export async function get(req, res) {
 	res.writeHead(200, { 'Content-Type': 'application/json' });
 	res.end(JSON.stringify({ stories }));
 }
-
-// export async function get(req, res) {
-// 	const { skip, limit } = {
-// 		skip: req.query.skip || 0,
-// 		limit: req.query.limit || 20,
-// 	};
-// 	const response = await fetch(`${API_URL}/api?skip=${skip}&limit=${limit}`);
-// 	res.writeHead(response.status, { 'Content-Type': response.headers.get('Content-Type') });
-// 	if (!response.ok) {
-// 		return res.end(await response.text());
-// 	}
-// 	const data = await response.json();
-// 	data.stories = purifyArray(data.stories);
-// 	res.end(JSON.stringify(data));
-// }

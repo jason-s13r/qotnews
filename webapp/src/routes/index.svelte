@@ -29,5 +29,5 @@
 </svelte:head>
 
 <StoryList {stories}>
-  <Pagination href="/" count={stories.length} />
+  <Pagination href="/[skip]" inRoute={true} count={stories.length} />
 </StoryList>

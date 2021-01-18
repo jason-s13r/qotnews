@@ -1,7 +1,7 @@
 import fetch from 'isomorphic-fetch';
 
 import { purifyArray } from './_purify';
-import { keyStories, keyStory } from './_key';
+import { keyStories } from './_key';
 import sources from '../sources.json';
 
 export async function get(req, res) {
@@ -33,18 +33,3 @@ export async function get(req, res) {
 	res.writeHead(200, { 'Content-Type': 'application/json' });
 	res.end(JSON.stringify({ results }));
 }
-
-// export async function get(req, res) {
-// 	const { skip, limit } = {
-// 		skip: req.query.skip || 0,
-// 		limit: req.query.limit || 20,
-// 	};
-// 	const response = await fetch(`${API_URL}/api/search?q=${req.query.q}&skip=${skip}&limit=${limit}`);
-// 	res.writeHead(response.status, { 'Content-Type': response.headers.get('Content-Type') });
-// 	if (!response.ok) {
-// 		return res.end(await response.text());
-// 	}
-// 	const data = await response.json();
-// 	data.results = purifyArray(data.results);
-// 	res.end(JSON.stringify(data));
-// }
