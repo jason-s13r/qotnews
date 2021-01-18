@@ -110,4 +110,4 @@ data.db
 data.db.bak
 data/archive/*
 data/backup/*
-qotnews.sqlite
+*.sqlite
