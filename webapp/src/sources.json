@@ -1,0 +1,20 @@
+{
+	"0": {
+		"url": "http://localhost:33842",
+		"primary": true,
+		"paging": true,
+		"enabled": false
+	},
+	"1j": {
+		"url": "https://qotnews.1j.nz",
+		"primary": true,
+		"paging": true,
+		"enabled": true
+	},
+	"t0": {
+		"url": "https://news.t0.vc",
+		"primary": false,
+		"paging": false,
+		"enabled": true
+	}
+}
