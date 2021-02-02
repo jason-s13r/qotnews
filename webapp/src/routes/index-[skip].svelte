@@ -1,7 +1,7 @@
 <script context="module">
   export async function preload(page) {
     const { skip, limit } = {
-      skip: page.query.skip || 0,
+      skip: page.params.skip || 0,
       limit: page.query.limit || 20,
     };
     const res = await this.fetch(`index.json?skip=${skip}&limit=${limit}`);

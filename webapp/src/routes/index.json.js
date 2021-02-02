@@ -16,9 +16,11 @@ export async function get(req, res) {
 			continue;
 		}
 		const response = await fetch(`${source.url}/api?skip=${skip}&limit=${limit}`);
+		console.log(response.status, response.statusText, `${source.url}/api?skip=${skip}&limit=${limit}`);
 		if (!response.ok) {
 			continue;
 		}
+
 
 		const data = await response.json();
 		data.stories.sort((a, b) => b.date - a.date);

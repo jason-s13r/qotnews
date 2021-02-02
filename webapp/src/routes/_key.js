@@ -1,6 +1,6 @@
 export const keyStory = (story, key) => {
 	if (story.id) {
-		story.id = `${key}-${story.id}`;
+		story.id = `${key}/${story.id}`;
 	}
 	return story;
 };

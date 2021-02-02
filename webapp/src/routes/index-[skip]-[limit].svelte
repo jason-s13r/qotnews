@@ -2,7 +2,7 @@
   export async function preload(page) {
     const { skip, limit } = {
       skip: page.params.skip || 0,
-      limit: page.query.limit || 20,
+      limit: page.params.limit || 20,
     };
     const res = await this.fetch(`index.json?skip=${skip}&limit=${limit}`);
     const data = await res.json();
@@ -29,5 +29,9 @@
 </svelte:head>
 
 <StoryList {stories}>
-  <Pagination href="/[skip]" inRoute={true} count={stories.length} />
+  <Pagination
+    href="/index-[skip]-[limit]"
+    inRoute={true}
+    count={stories.length}
+  />
 </StoryList>
