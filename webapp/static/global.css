@@ -30,6 +30,10 @@ blockquote {
   border-left: solid 0.25rem #ddd;
   border-right: solid 0.25rem transparent;
 }
+blockquote :first-child,
+blockquote :last-child {
+  margin: 0;
+}
 
 pre {
   max-width: 100%;
