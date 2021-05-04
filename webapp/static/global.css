@@ -22,6 +22,14 @@ code {
   padding: 0.2em 0.4em;
   border-radius: 2px;
 }
+blockquote {
+  padding: 0.75rem;
+  margin: 0 3rem;
+  font-style: oblique;
+  background: #fafafa;
+  border-left: solid 0.25rem #ddd;
+  border-right: solid 0.25rem transparent;
+}
 
 pre {
   max-width: 100%;
@@ -34,7 +42,12 @@ body.dark-mode {
 }
 
 body.dark-mode pre,
-body.dark-mode code {
+body.dark-mode code,
+body.dark-mode blockquote {
   color: #aaa;
-  background-color: #0f0f0f;
+  background-color: #111;
+}
+body.dark-mode blockquote {
+  border-left: solid 0.25rem #333;
+  border-right: solid 0.25rem transparent;
 }

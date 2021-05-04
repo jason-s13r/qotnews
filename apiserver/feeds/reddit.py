@@ -51,7 +51,7 @@ def comment(i):
     c['author'] = i.author.name if i.author else '[Deleted]'
     c['score'] = i.score
     c['date'] = i.created_utc
-    c['text'] = render_md(clean(i.body))
+    c['text'] = clean(render_md(i.body))
     c['comments'] = [comment(j) for j in i.replies]
     c['comments'] = list(filter(bool, c['comments']))
     return c
@@ -77,7 +77,7 @@ def story(ref):
             return False
 
         if r.selftext:
-            s['text'] = render_md(clean(r.selftext))
+            s['text'] = clean(render_md(r.selftext))
 
         return s
 
