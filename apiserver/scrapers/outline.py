@@ -8,6 +8,8 @@ OUTLINE_REFERER = 'https://outline.com/'
 OUTLINE_API = 'https://api.outline.com/v3/parse_article'
 TIMEOUT = 20
 
+name = 'Outline'
+
 def get_html(url):
     details = get_details(url)
     if not details:
