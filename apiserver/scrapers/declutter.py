@@ -26,7 +26,7 @@ class Simple:
         return details['content']
 
     def get_details(self, url):
-        logging.info(f"{self.name} Scraper [get_details]: {url}")
+        logging.info(f"{self.name} Scraper ({self.variant})[get_details]: {url}")
         details = self._json(f"{self.host}/{self.variant}/details", dict(url=url), "article")
         if not details: return None
         return self.as_readable(details)
@@ -54,13 +54,13 @@ class Headless(Simple):
         self.variant = 'headless'
 
     def get_comments(self, url):
-        logging.info(f"{self.name} Scraper [get_comments]: {url}")
+        logging.info(f"{self.name} Scraper ({self.variant})[get_comments]: {url}")
         comments = self._json(f"{self.host}/{self.variant}/comments", dict(url=url), "comments")
         if not comments: return None
         return comments
 
 declutter = Headless('https://declutter.1j.nz', 'Declutter', internal=False)
-declutterlite = Simple('https://declutter.1j.nz', 'Declutter (lite)', internal=False)
+declutterlite = Simple('https://declutter.1j.nz', 'Declutter', internal=False)
 
 headless = Headless(f"http://127.0.0.1:{HEADLESS_READER_PORT or 33843}", 'Headless')
 simple = Simple(f"http://127.0.0.1:{SIMPLE_READER_PORT or 33843}", 'Simple')
