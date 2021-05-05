@@ -4,8 +4,8 @@ export const samesite = (story, links) => {
 	if (story.text && links) {
 		const { window } = new JSDOM(`<html>${story.text}</html>`);
 		links.forEach((item) => {
-			const $links = window.document.querySelectorAll(`a[href="${item.url}"]`);
-			Array.from($links, ($source) => {
+			const $links = Array.from(window.document.querySelectorAll(`a[href="${item.url}"]:not(.external-source-link)`));
+			$links.forEach($source => {
 				const $link = $source.cloneNode(true);
 				$link.href = `/${item.id}`;
 				$link.setAttribute("class", "internal-link");
