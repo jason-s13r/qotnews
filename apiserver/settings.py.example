@@ -4,7 +4,7 @@
 HOSTNAME = 'news.t0.vc'
 MAX_STORY_AGE = 3*24*60*60
 
-SCRAPERS = ['headless', 'outline', 'declutter', 'simple']
+SCRAPERS = ['headless', 'outline', 'declutterlite', 'declutter', 'simple']
 API_PORT = 33842
 SIMPLE_READER_PORT = 33843
 HEADLESS_READER_PORT = 33843

@@ -60,5 +60,7 @@ class Headless(Simple):
         return comments
 
 declutter = Headless('https://declutter.1j.nz', 'Declutter', internal=False)
+declutterlite = Simple('https://declutter.1j.nz', 'Declutter', internal=False)
+
 headless = Headless(f"http://127.0.0.1:{HEADLESS_READER_PORT or 33843}", 'Headless')
 simple = Simple(f"http://127.0.0.1:{SIMPLE_READER_PORT or 33843}", 'Simple')

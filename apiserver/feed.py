@@ -14,7 +14,7 @@ from feeds.manual import manual
 from feeds.sitemap import Sitemap
 from feeds.category import Category
 from scrapers import outline
-from scrapers.declutter import declutter, headless, simple
+from scrapers.declutter import declutter, declutterlite, headless, simple
 from utils import clean
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com', 'sec.gov']
@@ -75,6 +75,7 @@ def get_article(url):
         'simple': simple,
         'outline': outline,
         'declutter': declutter,
+        'declutterlite': declutterlite,
     }
     available = settings.SCRAPERS or ['headless', 'simple']
     if 'simple' not in available:
