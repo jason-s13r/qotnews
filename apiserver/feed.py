@@ -87,7 +87,7 @@ def get_article(url):
         try:
             details = scrapers[scraper].get_details(url)
             if details and details.get('content'):
-                return details, scraper
+                return details, scrapers[scraper].name
         except KeyboardInterrupt:
             raise
         except:
