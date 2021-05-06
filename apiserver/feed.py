@@ -175,9 +175,12 @@ def update_story(story, is_manual=False, urlref=None):
 
     has_url = story.get('url') or False
     has_text = story.get('text') or False
+    text = story.get('text', '')
+    more = ['more to come']
+    needs_more = any([x in text.lower() for x in more])
     #is_simple = story.get('scaper', '') == 'simple'
     
-    if has_url and not has_text:
+    if has_url and (not has_text or needs_more):
         if not get_content_type(story['url']).startswith('text/'):
             logging.info('URL invalid file type / content type:')
             logging.info(story['url'])
