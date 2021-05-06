@@ -6,14 +6,17 @@ import sources from '../sources.json';
 
 const key = Object.keys(sources).find(k => sources[k].enabled && sources[k].primary);
 
-export async function post(req, res) {
+async function submit(opts, res) {
 	const body = new FormData();
-	body.append('url', req.body.url);
+	body.append('url', opts.url);
 	const response = await fetch(`${sources[key].url}/api/submit`, { method: "POST", body });
-	if (req.body.redirect) {
+	if (opts.redirect) {
 		const { nid } = await response.json();
-		return redirect(res, 302, `/${key}-${nid}`);
+		return redirect(res, 302, `/${key}/${nid}`);
 	}
 	res.writeHead(response.status, { 'Content-Type': response.headers.get('Content-Type') });
 	res.end(await response.text());
 }
+
+export const get = async (req, res) => await submit(req.query, res);
+export const post = async (req, res) => await submit(req.body, res);
