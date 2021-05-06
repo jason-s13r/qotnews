@@ -7,6 +7,7 @@ import requests
 import time
 from bs4 import BeautifulSoup
 import itertools
+from urllib.parse import parse_qs
 
 import settings
 from feeds import hackernews, reddit, tildes, substack, lobsters
@@ -16,6 +17,7 @@ from feeds.category import Category
 from scrapers import outline
 from scrapers.declutter import declutter, declutterlite, headless, simple
 from utils import clean
+
 
 INVALID_DOMAINS = ['youtube.com', 'bloomberg.com', 'wsj.com', 'sec.gov']
 
@@ -28,6 +30,35 @@ for key, value in settings.CATEGORY.items():
 sitemaps = {}
 for key, value in settings.SITEMAP.items():
     sitemaps[key] = Sitemap(value)
+
+
+def get_source_ref(link, urldata):
+    source = None
+    ref = None
+    if 'news.ycombinator.com' in urldata.hostname:
+        source = 'hackernews'
+        ref = parse_qs(urldata.query)['id'][0]
+    elif 'tildes.net' in urldata.hostname and '~' in url:
+        source = 'tildes'
+        ref = urldata.path.split('/')[2]
+    elif 'lobste.rs' in urldata.hostname and '/s/' in url:
+        source = 'lobsters'
+        ref = urldata.path.split('/')[2]
+    elif 'reddit.com' in urldata.hostname and 'comments' in url:
+        source = 'reddit'
+        ref = urldata.path.split('/')[4]
+    else:
+        for key, sites in categories.items():
+            if sites.is_match(urldata.hostname):
+                ref = sites.get_id(link)
+                return key, ref, link
+        for key, sites in sitemaps.items():
+            if sites.is_match(urldata.hostname):
+                ref = sites.get_id(link)
+                return key, ref, link
+
+    return source, ref, ref
+
 
 def get_list():
     feeds = {}

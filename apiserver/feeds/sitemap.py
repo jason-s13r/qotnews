@@ -59,6 +59,7 @@ def _get_sitemap(feed_url, excludes=None):
 
 class Sitemap(Base):
     def __init__(self, config):
+        super().__init__(config)
         self.config = config
         self.sitemap_url = config.get('url')
         self.tz = config.get('tz')

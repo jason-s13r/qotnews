@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from scrapers.declutter import headless
 import extruct
+from urllib.parse import urlparse
 
 import settings
 from utils import clean
@@ -43,6 +44,16 @@ class Base:
         if not patterns:
             return link
         return patterns[0]
+
+    def is_match(self, hostname):
+        primary = []
+        if isinstance(self.url, str):
+            primary = [self.url]
+        elif isinstance(self.url, list):
+            primary = self.url
+
+        primary = [urlparse(url).hostname for url in primary]
+        return hostname in primary
 
     def feed(self, excludes=None):
         return []

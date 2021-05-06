@@ -64,25 +64,17 @@ def submit():
     try:
         url = request.form['url']
         nid = new_id()
-
         parse = urlparse(url)
-        if 'news.ycombinator.com' in parse.hostname:
-            source = 'hackernews'
-            ref = parse_qs(parse.query)['id'][0]
-        elif 'tildes.net' in parse.hostname and '~' in url:
-            source = 'tildes'
-            ref = parse.path.split('/')[2]
-        elif 'lobste.rs' in parse.hostname and '/s/' in url:
-            source = 'lobsters'
-            ref = parse.path.split('/')[2]
-        elif 'reddit.com' in parse.hostname and 'comments' in url:
-            source = 'reddit'
-            ref = parse.path.split('/')[4]
-        elif settings.HOSTNAME in parse.hostname:
+
+        if settings.HOSTNAME in parse.hostname:
             raise Exception('Invalid URL')
-        else:
+
+        source, ref, urlref = feed.get_source_ref(url, parse)
+
+        if not source or not ref:
             source = 'manual'
             ref = url
+            urlref = url
 
         existing = database.get_story_by_ref(ref)
         if existing:
@@ -93,8 +85,10 @@ def submit():
             return {'nid': existing.sid}
         else:
             story = dict(id=nid, ref=ref, source=source)
-            valid = feed.update_story(story, is_manual=True)
+            valid = feed.update_story(story, is_manual=True, urlref=urlref)
             if valid:
+                if source is not "manual":
+                    database.put_ref(ref, nid, source, urlref)
                 database.put_story(story)
                 search.put_story(story)
                 return {'nid': nid}

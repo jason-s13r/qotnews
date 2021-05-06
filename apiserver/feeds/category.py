@@ -35,6 +35,7 @@ def _get_category(category_url, excludes=None):
 
 class Category(Base):
     def __init__(self, config):
+        super().__init__(config)
         self.config = config
         self.category_url = config.get('url')
         self.tz = config.get('tz')
