@@ -89,7 +89,8 @@ class Base:
             logging.error(e)
 
         if s['title']:
-            s['title'] = clean(s['title'])
+            logging.info(s['title'])
+            s['title'] = clean(str(s['title']))
         if s['date']:
             s['date'] = unix(s['date'], tz=self.tz)
 

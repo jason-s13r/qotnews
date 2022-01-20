@@ -236,6 +236,8 @@ def feed_thread():
 
     except KeyboardInterrupt:
         logging.info('Ending feed thread...')
+    except json.JSONDecodeError as e:
+        logging.error('qot/feed_thread error: {} {}'.format(e.__class__.__name__, e))
     except ValueError as e:
         logging.error('feed_thread error: {} {}'.format(e.__class__.__name__, e))
 
